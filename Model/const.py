@@ -22,8 +22,6 @@ eps=1e-7
 
 PROP_TYPE_EXPLOSION = 0
 
-dash_speed=0.5
-normal_speed=0.25
 
 bullet_r = 1
 bullet_a = 0.1
@@ -35,4 +33,18 @@ wb_max_num  = 50
 wb_born_period= 1 #second
 wb_radius   = 4
 #####################  white ball const  #####################
+
+
+#####################     head const     #####################
+
+
+max_dash_time = 100
+dash_speed=0.5
+normal_speed=0.25
+
+
+#####################     head const     #####################
+
+
+
 

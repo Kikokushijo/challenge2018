@@ -1,14 +1,17 @@
 import Model.const as modelconst
 import View.const as viewconst
 import random
-import Model.white_ball as white_ball
-import Model.body as body 
-import Model.bullet as bullet
+
+from white_ball import white_ball
+from body import body 
+from bullet import bullet
 
 
 ################################
 # WB_List.wb_list[]
 ################################
+
+
 
 class head(object):
 	def __init__(self, name, index)
@@ -18,7 +21,9 @@ class head(object):
 		mid = Vec( viewconst.ScreenSize[0]/2, viewconst.ScreenSize[1]/2 )
 
 		self.pos = mid + model.init_r * ()
-		self.direction = 
+		
+		self.theta = index * (pi/2)
+		self.direction = Vec( cos(self.theta), sin(self.theta) )
 		
 		self.speed = modelconst.normal_speed
 		self.is_dash = False
@@ -26,10 +31,24 @@ class head(object):
 		self.radius = modelconst.head_radius
 		self.is_alive = True
 		self.body_list = [self]
+		self.is_incircle = False
+		self.is_circling = False
+		self.circling_radius = 0
+
+	def update(self, wb_list, bullet_list):
+
 	
-	def update(self):
-		
 		self.pos += self.direction * self.speed
+		
+		if self.is_circling == True :
+			self.theta += (self.speed/self.circling_radius)*modelconst.dt
+			self.direction = Vec( cos(self.theta), sin(self.theta) )
+		
+		#is in circle
+		for i in modelconst.grav :
+			if ( self.pos - i[0] ).mag2 < i[1]**2 :
+				self.is_incircle = True
+
 		#collision with wall
 		if (self.direction.x > 0) and (self.pos.x > viewconst.ScreenSize[0]-modelconst.eps) :
 			self.direction.x *= -1
@@ -41,10 +60,10 @@ class head(object):
 			self.direction.y *= -1
 		
 		#collision with white ball
-		for ii,i in enumerate(white_ball.WB_List.wb_list):
-			if i.active==True and (self.pos - i.radius).mag2 < (self.radius + i.radius)**2 :
+		for ii,i in enumerate(wb_list):
+			if (self.pos - i.radius).mag2 < (self.radius + i.radius)**2 :
 				#delete a withe ball
-				white_ball.WB_List.del_ball(ii)
+				del wb_list[i]
 				#lengthen body list
 				self.body_list.append( body.Body(self.body_list[-1]) )
 		
@@ -65,7 +84,6 @@ class head(object):
 					self.is_alive = False
 		
 		#collision with item
-		
 
 
 		#dash timer
@@ -73,7 +91,23 @@ class head(object):
 			self.dash_timer--
 			if self.dash_timer == 0 :
 				self.is_dash = False
+	
+	def click(self) :
+		if self.is_incircle == True :
+			self.is_circling = (not self.is_circling)
 		
+		else :
+			self.is_dash == True :
+			self.dash_timer = modelconst.max_dash_time
+			self.speed = modelconst.dash_speed
+
+
+
+
+
+
+
+
 
 
 
