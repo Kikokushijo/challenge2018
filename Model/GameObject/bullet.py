@@ -1,13 +1,13 @@
 import Model.const as modelConst
-import white_ball.White_Ball as White_Ball
 import View.const as viewConst
+from white_ball import White_Ball
 class Bullet(object):
 	def __init__(self, pos,direction,index):
 		self.pos=pos
 		self.direction=direction
 		self.index = index
 		self.speed=modelConst.bullet_speed0
-	def update(self, wblist, bullet_list):
+	def update(self, wblist):
 		'''
 		return:
 			True: update success

@@ -17,7 +17,7 @@ class GameEngine(object):
         self.wb_list=[]
 
     def Initialize(self):
-        init_wb_list()
+        self.init_wb_list()
 
     def init_wb_list(self):
         #init wb list
@@ -26,8 +26,8 @@ class GameEngine(object):
 
     def create_ball(self):
         # update and see if create new ball
-        if len(wb_list) < modelConst.wb_max_num and random.randint(0,modelConst.wb_born_period*viewConst.FramePerSec)==0:
+        if len(self.wb_list) < modelConst.wb_max_num and random.randint(0,modelConst.wb_born_period*viewConst.FramePerSec)==0:
             self.wb_list.append(White_Ball())
     
     def UpdateObjects(self):
-        create_ball()
+        self.create_ball()
