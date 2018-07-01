@@ -18,6 +18,8 @@ dirBounce = [
     [0, 5, 4, 3, 2, 1, 8, 7, 6], # y bouce
 ]
 
+eps=1e-7
+
 PROP_TYPE_EXPLOSION = 0
 
 bullet_r = 1
