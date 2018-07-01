@@ -21,6 +21,8 @@ class GameEngine(object):
 
     def initialize(self):
         self.init_wb_list()
+		self.init_head_list()
+		self.init_bullet_list()
 
     def init_wb_list(self):
         #init wb list
