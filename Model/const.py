@@ -27,7 +27,7 @@ normal_speed=0.25
 
 bullet_r = 1
 bullet_a = 0.1
-bullet_v0=dash_speed
+bullet_speed0=dash_speed
 
 #####################  white ball const  #####################
 wb_init_num = 10
