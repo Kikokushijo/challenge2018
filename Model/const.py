@@ -20,4 +20,5 @@ dirBounce = [
 
 PROP_TYPE_EXPLOSION = 0
 
-
+bullet_r = 1
+bullet_v = 1
