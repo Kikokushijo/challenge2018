@@ -6,6 +6,9 @@ import random
 # Model --> wb_init_num, wb_max_num, wb_born_period, wb_radius
 #####################  const  #####################
 
+# for View 
+# WB_List.wb_list[] is a list of object White_Ball
+
 class White_Ball(object):
 	def __init__(self):
         self.active=True
@@ -14,7 +17,7 @@ class White_Ball(object):
         self.pos = [ random.randint(0,viewConst.ScreenSize[0]), random.randint(0,viewConst.ScreenSize[0]) ]
         #random init the position of balls
 
-class White_Ball_List(object):
+class WB_List(object):
 	def __init__(self):
 		self.fps=viewConst.FramePerSec
 		self.num=modelConst.wb_init_num
