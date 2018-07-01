@@ -38,3 +38,9 @@ class GameEngine(object):
     
     def update_objects(self):
         self.create_ball()
+        
+        for i, item in enumerate(self.bullet_list):
+            #update failed means the bullet should become a white ball
+            if not item.update():
+                self.wb_list.append(White_Ball(item.pos))
+                del self.bullet_list[i]

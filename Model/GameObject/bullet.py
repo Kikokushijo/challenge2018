@@ -5,13 +5,15 @@ class Bullet(object):
 		self.pos=pos
 		self.direction=direction
 		self.index = index
-		self.speed=modelConst.bullet_speed0
+		self.speed = modelConst.bullet_speed0
 	def update(self):
 		'''
 		return:
 			True: update success
 			False: update failed
 		'''
+
+		########## collide with walls ###########
 		if (self.direction.x > 0 and self.pos.x >= viewConst.ScreenSize[0] - modelConst.eps) \
 			or (self.direction.x < 0 and self.pos.x <= -modelConst.eps):
 			self.direction.x *= -1
@@ -22,6 +24,6 @@ class Bullet(object):
 		self.pos += self.direction * self.speed
 		self.speed -= modelConst.bullet_a
 		
-		return (self.speed > 0):
+		return self.speed > 0:
     
 		
