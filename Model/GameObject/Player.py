@@ -1,4 +1,4 @@
-import Model.const       as modelConst
+import Model.const as modelConst
 
 import random
 
@@ -27,3 +27,5 @@ class player(object):
 
         self.pos[0] += addDir[0]
         self.pos[1] += addDir[1]
+        self.test = 0
+        
