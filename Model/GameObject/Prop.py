@@ -5,7 +5,7 @@ class Prop(object):
     def __init__(self):
         self.type = None
         self.status = False
-        self.site = [0,0]
+        self.pos = [0,0]
 
 
 
