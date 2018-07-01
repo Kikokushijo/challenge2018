@@ -17,3 +17,10 @@ dirBounce = [
     [0, 1, 8, 7, 6, 5, 4, 3, 2], # x bouce
     [0, 5, 4, 3, 2, 1, 8, 7, 6], # y bouce
 ]
+
+#####################  white ball const  #####################
+wb_init_num = 10
+wb_max_num  = 50
+wb_born_period= 1 #second
+
+#####################  white ball const  #####################
