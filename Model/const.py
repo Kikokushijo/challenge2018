@@ -17,3 +17,6 @@ dirBounce = [
     [0, 1, 8, 7, 6, 5, 4, 3, 2], # x bouce
     [0, 5, 4, 3, 2, 1, 8, 7, 6], # y bouce
 ]
+
+bullet_r = 1
+bullet_v = 1
