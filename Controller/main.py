@@ -83,14 +83,15 @@ class Control(object):
             for player in self.model.players:
                 if player.is_AI:
                     continue
-                DirKeys = self.ControlKeys[player.index][0:4]
-                if event.key in DirKeys:
-                    NowPressedKeys = self.Get_KeyPressIn(DirKeys)
-                    DirHashValue = self.Get_DirHashValue(NowPressedKeys, DirKeys)
-                    if ctrlConst.DirHash[DirHashValue] != 0:
-                        self.evManager.Post(
-                            Event_Move( player.index, ctrlConst.DirHash[DirHashValue] )
-                        )
+
+                # DirKeys = self.ControlKeys[player.index][0:4]
+                # if event.key in DirKeys:
+                #     NowPressedKeys = self.Get_KeyPressIn(DirKeys)
+                #     DirHashValue = self.Get_DirHashValue(NowPressedKeys, DirKeys)
+                #     if ctrlConst.DirHash[DirHashValue] != 0:
+                #         self.evManager.Post(
+                #             Event_Move( player.index, ctrlConst.DirHash[DirHashValue] )
+                #         )
         
     def Get_KeyPressIn(self, keylist):
         return [key for key, value in enumerate(pg.key.get_pressed()) if value == 1 and key in keylist]
