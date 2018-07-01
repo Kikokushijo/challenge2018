@@ -14,5 +14,7 @@ class Vec():
 		return Vec(self.x/that,self.y/that)
 	def mag(self):
 		return (self.x**2+self.y**2)**(1/2)
+	def mag2(self):
+		return (self.x**2+self.y**2)
 
 
