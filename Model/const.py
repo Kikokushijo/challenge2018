@@ -18,10 +18,16 @@ dirBounce = [
     [0, 5, 4, 3, 2, 1, 8, 7, 6], # y bouce
 ]
 
+eps=1e-7
+
 PROP_TYPE_EXPLOSION = 0
 
+dash_speed=0.5
+normal_speed=0.25
+
 bullet_r = 1
-bullet_v = 1
+bullet_a = 0.1
+bullet_v0=dash_speed
 
 #####################  white ball const  #####################
 wb_init_num = 10

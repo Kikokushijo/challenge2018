@@ -1,3 +1,4 @@
+from utils import Vec
 import Model.const as modelConst
 import View.const as viewConst
 import random
@@ -14,7 +15,7 @@ class White_Ball(object):
         self.active=True
         self.color = [0,0,0]
         self.radius=modelConst.wb_radius
-        self.pos = [ random.randint(0,viewConst.ScreenSize[0]), random.randint(0,viewConst.ScreenSize[0]) ]
+        self.pos = Vec(random.randint(0,viewConst.ScreenSize[0]), random.randint(0,viewConst.ScreenSize[0]) )
         #random init the position of balls
 
 class WB_List(object):
@@ -39,6 +40,18 @@ class WB_List(object):
     	self.wb_list[x].active=False
     	self.num-=1
     	self.dead_num+=1
+    def init_ball(self,pos):
+        if self.dead_num==0: 
+                #all balls are active, so create a new ball at the end of the list
+                new_ball=White_Ball()
+                new_ball.pos=Vec(pos)
+                self.wb_list.append(new_ball)
+            else:
+                #reuse the dead ball in deadlist
+                self.wb_list[self.dead_num-1].active=True
+                self.wb_list[self.dead_num-1].pos=Vec(pos)
+                self.dead_num-=1
+            self.num+=1
     def Update(self):
     	if self.num <= self.max_num && random.randint(0,self.born_period*self.fps)==0:
     		# the num of balls < max nu m of balls
