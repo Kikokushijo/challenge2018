@@ -18,9 +18,19 @@ dirBounce = [
     [0, 5, 4, 3, 2, 1, 8, 7, 6], # y bouce
 ]
 
+<<<<<<< HEAD
 #####################  white ball const  #####################
 wb_init_num = 10
 wb_max_num  = 50
 wb_born_period= 1 #second
-
+wb_radius   = 4
 #####################  white ball const  #####################
+=======
+<<<<<<< HEAD
+bullet_r = 1
+bullet_v = 1
+=======
+
+PROP_TYPE_EXPLOSION = 0
+>>>>>>> 38b4d550055edbc86b8e016e8bdb6839b27e6b3d
+>>>>>>> 979bc25b40b30d35f1451c0c496b05503aa22688

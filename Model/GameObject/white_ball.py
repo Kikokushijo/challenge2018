@@ -3,13 +3,14 @@ import View.const as viewConst
 import random
 #####################  const  #####################
 # View  --> ScreenSize,FramePerSec
-# Model --> wb_init_num, wb_max_num, wb_born_period
+# Model --> wb_init_num, wb_max_num, wb_born_period, wb_radius
 #####################  const  #####################
 
 class White_Ball(object):
 	def __init__(self):
         self.active=True
         self.color = [0,0,0]
+        self.radius=modelConst.wb_radius
         self.pos = [ random.randint(0,viewConst.ScreenSize[0]), random.randint(0,viewConst.ScreenSize[0]) ]
         #random init the position of balls
 
@@ -35,7 +36,7 @@ class White_Ball_List(object):
     	self.wb_list[x].active=False
     	self.num-=1
     	self.dead_num+=1
-    def Update_list(self):
+    def Update(self):
     	if self.num <= self.max_num && random.randint(0,self.born_period*self.fps)==0:
     		# the num of balls < max nu m of balls
     		# && use random to check if we want to create new balls
