@@ -4,7 +4,7 @@ import View.const as viewConst
 import random
 
 class White_Ball(object):
-	def __init__(self):
+    def __init__(self):
         self.color = [0,0,0]
         self.radius=modelConst.wb_radius
         self.pos = Vec(random.randint(0,viewConst.ScreenSize[0]), random.randint(0,viewConst.ScreenSize[0]) )

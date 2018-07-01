@@ -1,5 +1,5 @@
 from copy import copy
-class Vec():
+class Vec(object):
 	def __init__(self,*args, **kwargs):
 		if len(args)==2:
 			self.x=args[0]
