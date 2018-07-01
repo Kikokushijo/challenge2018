@@ -1,4 +1,4 @@
-# PygameMVC
+# challege2018
 the framework base on [pygame](https://www.pygame.org) library
 
 ---
@@ -7,3 +7,8 @@ the framework base on [pygame](https://www.pygame.org) library
 2. view 和 control 跑在 main thread (因為需要用到 pygame)，然後 model 跑在 other thread
 
 但由於 python 受到 GIL 限制，multi thread 效用不大，所以採用第一種策略去寫
+
+
+document URL: https://drive.google.com/drive/folders/1HWvOFYAKphe_b2dfFvh-TFfwQbwe1xoU
+
+spec URL: https://hackmd.io/1eLfNWWDQRmnLxsyk4LTkQ?edit
