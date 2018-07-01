@@ -1,4 +1,4 @@
-import Model.const       as modelConst
+import Model.const as modelConst
 
 import random
 
