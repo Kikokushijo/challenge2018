@@ -78,7 +78,7 @@ class GameEngine(object):
 
         elif isinstance(event, Event_StateChange):
             # if event.state is None >> pop state.
-            if event.state == None:
+            if event.state is None:
                 # false if no more states are left
                 if not self.state.pop():
                     self.evManager.Post(Event_Quit())
