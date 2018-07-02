@@ -31,6 +31,8 @@ Vec_dir = [
     Vec( 0,1 )   ##down
 ]
 
+grav = None
+
 
 #####################  bullet const  #####################
 bullet_r = 1
@@ -54,7 +56,10 @@ max_dash_time = 100
 dash_speed=0.5
 normal_speed=0.25
 
-
+##TO BE FIXED
+init_r=None
+head_radius = None
+dt=None
 #####################     head const     #####################
 
 
