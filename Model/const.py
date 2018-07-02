@@ -1,4 +1,4 @@
-from gameobject import Vec
+from pygame.math import Vector2 as Vec
 
 PlayerNum = 4
 MaxManualPlayerNum = 1
@@ -22,15 +22,16 @@ dirBounce = [
 
 eps=1e-7
 
-PROP_TYPE_EXPLOSION = 0
 
 #####################  Vec direction #####################
 Vec_dir = [
-	Vec( -1,0 ), ##left
-	Vec( 0,-1 ), ##up
-	Vec( 1,0 ),  ##right
-	Vec( 0,1 )   ##down
+    Vec( -1,0 ), ##left
+    Vec( 0,-1 ), ##up
+    Vec( 1,0 ),  ##right
+    Vec( 0,1 )   ##down
 ]
+
+#grav = None
 
 
 #####################  bullet const  #####################
@@ -55,9 +56,23 @@ max_dash_time = 100
 dash_speed=0.5
 normal_speed=0.25
 
-
+##TO BE FIXED
+#init_r=None
+#head_radius = None
+#dt=None
 #####################     head const     #####################
 
+#####################    body const    ######################
+#body_radius=None
+#body_gap=None
+#max_delay_ticks=None
+#####################    body const    ######################
 
+#####################  item const #####################
+
+PROP_TYPE_EXPLOSION = 0
+explosion_radius = 500.0
+
+#####################  item const #####################
 
 
