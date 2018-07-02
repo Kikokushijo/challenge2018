@@ -31,7 +31,7 @@ Vec_dir = [
     Vec( 0,1 )   ##down
 ]
 
-grav = None
+#grav = None
 
 
 #####################  bullet const  #####################
@@ -57,12 +57,16 @@ dash_speed=0.5
 normal_speed=0.25
 
 ##TO BE FIXED
-init_r=None
-head_radius = None
-dt=None
+#init_r=None
+#head_radius = None
+#dt=None
 #####################     head const     #####################
 
-
+#####################    body const    ######################
+#body_radius=None
+#body_gap=None
+#max_delay_ticks=None
+#####################    body const    ######################
 
 #####################  item const #####################
 
