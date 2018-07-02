@@ -58,8 +58,6 @@ class GameEngine(object):
             if not item.update():
                 self.wb_list.append(White_Ball(item.pos))
                 del self.bullet_list[i]
-        for i, item in enumerate(self.bullet_list):
-            pass
 
 
     def notify(self, event):
@@ -71,11 +69,6 @@ class GameEngine(object):
             if cur_state == STATE_PLAY:
                 # every tick update
                 self.tick_update() 
-
-
-
-
-
         elif isinstance(event, Event_StateChange):
             # if event.state is None >> pop state.
             if event.state is None:
@@ -88,21 +81,11 @@ class GameEngine(object):
             else:
                 # push a new state on the stack
                 self.state.push(event.state)
-
         elif isinstance(event, Event_Move):
             #key board event
             self.SetPlayerDirection(event.PlayerIndex, event.Direction)
-
-
-
-
-
-
-
         elif isinstance(event, Event_Quit):
             self.running = False
-
-
         elif isinstance(event, Event_Initialize) or \
              isinstance(event, Event_Restart):
             self.initialize()
