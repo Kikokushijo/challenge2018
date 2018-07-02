@@ -14,14 +14,13 @@ class GameEngine(object):
     Tracks the game state.
     """
     def __init__(self, evManager, AINames):
+        self.Player = []
         self.wb_list = []
-        self.head_list = []
         self.bullet_list = []
         
-
     def initialize(self):
         self.init_wb_list()
-		self.init_head_list()
+		self.init_Player()
 		self.init_bullet_list()
 
     def init_wb_list(self):

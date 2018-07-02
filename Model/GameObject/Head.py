@@ -11,16 +11,15 @@ from bullet import bullet
 # WB_List.wb_list[]
 ################################
 
-
-
 class head(object):
 	def __init__(self, name, index)
 		# basic data
 		self.name = name
 		self.index = index 
-		mid = Vec( viewconst.ScreenSize[0]/2, viewconst.ScreenSize[1]/2 )
+		screen_mid = Vec( viewconst.ScreenSize[0]/2, viewconst.ScreenSize[1]/2 )
 
-		self.pos = mid + model.init_r * ()
+		#up down left right
+		self.pos = screen_mid + model.init_r * Vec_dir[self.index]
 		
 		self.theta = index * (pi/2)
 		self.direction = Vec( cos(self.theta), sin(self.theta) )
@@ -31,13 +30,12 @@ class head(object):
 		self.radius = modelconst.head_radius
 		self.is_alive = True
 		self.body_list = [self]
-		self.is_incircle = False
+		self.is_ingrav = False
 		self.is_circling = False
 		self.circling_radius = 0
 
 	def update(self, wb_list, bullet_list):
-
-	
+		
 		self.pos += self.direction * self.speed
 		
 		if self.is_circling == True :
@@ -47,7 +45,7 @@ class head(object):
 		#is in circle
 		for i in modelconst.grav :
 			if ( self.pos - i[0] ).mag2 < i[1]**2 :
-				self.is_incircle = True
+				self.is_ingrav = True
 
 		#collision with wall
 		if (self.direction.x > 0) and (self.pos.x > viewconst.ScreenSize[0]-modelconst.eps) :
@@ -93,7 +91,7 @@ class head(object):
 				self.is_dash = False
 	
 	def click(self) :
-		if self.is_incircle == True :
+		if self.is_ingrav == True :
 			self.is_circling = (not self.is_circling)
 		
 		else :

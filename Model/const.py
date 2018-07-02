@@ -1,3 +1,5 @@
+from gameobject import Vec
+
 PlayerNum = 4
 MaxManualPlayerNum = 1
 
@@ -6,7 +8,7 @@ dirConst = [
     [0,0],              # can't movw
     [0,-1],             # Up
     [0.707,-0.707],     # Right up
-    [1,0],              # Roght
+    [1,0],              # Right
     [0.707,0.707],      # Right down
     [0,1],              # Down
     [-0.707,0.707],     # Left down
@@ -21,6 +23,15 @@ dirBounce = [
 eps=1e-7
 
 PROP_TYPE_EXPLOSION = 0
+
+#####################  Vec direction #####################
+Vec_dir = [
+	Vec( -1,0 ), ##left
+	Vec( 0,-1 ), ##up
+	Vec( 1,0 ),  ##right
+	Vec( 0,1 )   ##down
+]
+
 
 #####################  bullet const  #####################
 bullet_r = 1

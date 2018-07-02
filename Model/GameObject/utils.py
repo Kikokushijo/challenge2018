@@ -1,4 +1,6 @@
 from copy import copy
+
+
 class Vec(object):
 	def __init__(self,*args, **kwargs):
 		if len(args)==2:
