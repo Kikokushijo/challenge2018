@@ -1,5 +1,5 @@
 import Model.const as modelConst
-from Model.gameObjects.utils import Vec   
+from pygame.math import Vector2 as Vec
 """
 define Application Programming Interface(API) 
 """
@@ -20,7 +20,7 @@ class Helper(object):
         min_value = float('inf')
         min_index = None
         for index, (gPos, gRadius) in enumerate(modelConst.grav):
-            dist = (gPos - pos).mag() - gRadius
+            dist = (gPos - pos).magnitude() - gRadius
             if dist < min_value:
                 min_value = dist
                 min_index = index
@@ -32,8 +32,7 @@ class Helper(object):
     def getBallNumInRange(self, center, radius):
         count = 0
         for wb in self.model.wb_list:
-            dist = (wb.pos - center).mag() 
-            if dist <= radius:
+            if (wb.pos - center).magnitude_squared() <= radius ** 2:
                 count += 1
         return count
 
@@ -46,8 +45,7 @@ class Helper(object):
     def canGetByExplosion(Epos):
         count = 0
         for wb in self.model.wb_list:
-            dist = (wb.pos - Epos).mag()
-            if dist < modelConst.explosion_radius + modelConst.wb_radius:
+            if (wb.pos - Epos).magnitude_squared() < (modelConst.explosion_radius + modelConst.wb_radiu) ** 2:
                 count += 1
         return count
 
