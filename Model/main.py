@@ -2,7 +2,9 @@ import time, random
 
 from Events.Manager import *
 from Model.StateMachine import *
-from Model.GameObject.white_ball import *
+from Model.GameObject.white_ball import White_Ball
+from Model.GameObject.bullet import Bullet
+from Model.GameObject.head import Head
 
 import Model.const       as modelConst
 import View.const        as viewConst
@@ -23,13 +25,13 @@ class GameEngine(object):
         # self.players = []
         self.TurnTo = 0
 
-        self.Player = []
+        self.player_list = []
         self.wb_list = []
         self.bullet_list = []
         
-    def Initialize(self):
+    def initialize(self):
         self.init_wb_list()
-        self.init_Player()
+        self.init_player_list()
         self.init_bullet_list()
 
     def init_wb_list(self):
@@ -37,7 +39,7 @@ class GameEngine(object):
         for i in range(modelConst.wb_init_num):
             self.wb_list.append(White_Ball())
 
-    def init_head_list(self):
+    def init_player_list(self):
         pass
 
     def init_bullet_list(self):
@@ -57,6 +59,7 @@ class GameEngine(object):
                 self.wb_list.append(White_Ball(item.pos))
                 del self.bullet_list[i]
         for i, item in enumerate(self.bullet_list):
+            pass
 
 
     def notify(self, event):
@@ -102,7 +105,7 @@ class GameEngine(object):
 
         elif isinstance(event, Event_Initialize) or \
              isinstance(event, Event_Restart):
-            self.Initialize()
+            self.initialize()
 
 
     def run(self):

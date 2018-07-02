@@ -1,4 +1,4 @@
-from gameobject import Vec
+from Model.GameObject.utils import Vec
 
 PlayerNum = 4
 MaxManualPlayerNum = 1
@@ -25,10 +25,10 @@ eps=1e-7
 
 #####################  Vec direction #####################
 Vec_dir = [
-	Vec( -1,0 ), ##left
-	Vec( 0,-1 ), ##up
-	Vec( 1,0 ),  ##right
-	Vec( 0,1 )   ##down
+    Vec( -1,0 ), ##left
+    Vec( 0,-1 ), ##up
+    Vec( 1,0 ),  ##right
+    Vec( 0,1 )   ##down
 ]
 
 
