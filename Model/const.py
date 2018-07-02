@@ -1,4 +1,4 @@
-from gameobject import Vec
+from GameObject import Vec
 
 PlayerNum = 4
 MaxManualPlayerNum = 1
