@@ -49,11 +49,11 @@ class Head(object):
                 self.is_ingrav = True
 
         #collision with wall
-        if (self.direction.x > 0) and (self.pos.x + self.radius > viewconst.ScreenSize[0]-modelconst.eps) \
-            or (self.direction.x < 0) and (self.pos.x - self.radius < 0 - modelconst.eps) :
+        if (self.direction.x > 0 and self.pos.x + self.radius > viewconst.ScreenSize[0]-modelconst.eps) \
+            or (self.direction.x < 0 and self.pos.x - self.radius < 0 - modelconst.eps) :
             self.direction.x *= -1
-        if (self.direction.y > 0) and (self.pos.y + self.radius > viewconst.ScreenSize[1]-modelconst.eps) \
-            or (self.direction.y < 0) and (self.pos.y - self.radius < 0 - modelconst.eps) :
+        if (self.direction.y > 0 and self.pos.y + self.radius > viewconst.ScreenSize[1]-modelconst.eps) \
+            or (self.direction.y < 0 and self.pos.y - self.radius < 0 - modelconst.eps) :
             self.direction.y *= -1
         
         #collision with white ball
