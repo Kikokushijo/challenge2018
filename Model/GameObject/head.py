@@ -4,7 +4,7 @@ import random
 
 from Model.GameObject.white_ball import White_Ball
 from Model.GameObject.body import Body 
-from Model.Gameobject.bullet import Bullet
+from Model.GameObject.bullet import Bullet
 
 
 ################################
@@ -12,7 +12,7 @@ from Model.Gameobject.bullet import Bullet
 ################################
 
 class Head(object):
-    def __init__(self, name, index)
+    def __init__(self, name, index):
         # basic data
         self.name = name
         self.index = index 
@@ -63,7 +63,7 @@ class Head(object):
                 #delete a withe ball
                 del wb_list[i]
                 #lengthen body list
-                self.body_list.append( body.Body(self.body_list[-1]) )
+                self.body_list.append( Body(self.body_list[-1]) )
         
         #collision with competitor's body
         
