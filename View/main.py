@@ -77,14 +77,35 @@ class GraphicalView(object):
         """
         Render the game play.
         """
-        if self.last_update != model.STATE_PLAY:
-            self.last_update = model.STATE_PLAY
-        # draw backgound
-        self.screen.fill(viewConst.Color_White)
+        self.last_update = model.STATE_PLAY
 
-        for player in self.model.players:
-            pos = ( int(player.pos[0]), int(player.pos[1]) )
-            pg.draw.circle( self.screen, player.color, pos, 20 )
+        # draw backgound
+        self.screen.fill(viewConst.bgColor)
+
+        # draw scoreboard
+        pg.draw.line(self.screen, viewConst.Color_Black, (800, 0), \
+                     (800, 800))
+
+        # draw gravitational field
+        for g in modelConst.grav:
+            pos = g[0]
+            r = g[1]
+            pg.draw.circle(self.screen, viewConst.Lightgray, pos, r)
+
+
+        # for player in self.model.Player:
+        #     pos = ( int(player.pos[0]), int(player.pos[1]) )
+        #     pg.draw.circle(self.screen, player.color, pos, 20 )
+
+        for player in self.model.player_list:
+            pass
+
+        for ball in self.model.wb_list:
+            pg.draw.circle(self.screen, player.color, ball.pos, modelConst.wb_radius)
+
+        for bullet in self.model.bullet_list:
+            color = self.model.player_list[bullet.index].color
+            pg.draw.circle(self.screen, color, bullet.pos, 10)
 
         # update surface
         pg.display.flip()
