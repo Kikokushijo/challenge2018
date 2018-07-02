@@ -15,8 +15,7 @@ class Head(object):
         screen_mid = Vec( viewconst.ScreenSize[0]/2, viewconst.ScreenSize[1]/2 )
 
         #up down left right
-        self.pos = screen_mid + modelconst.init_r * modelconst.Vec_dir[self.index]
-        
+        self.pos = screen_mid + modelconst.init_r * modelconst.Vec_dir[self.index]        
         self.theta = index * (pi/2)
         self.direction = Vec( cos(self.theta), sin(self.theta) )
         
@@ -29,12 +28,16 @@ class Head(object):
         self.is_ingrav = False
         self.is_circling = False
         self.circling_radius = 0
-        
         #if in grav
-		self.grav_center = Vec(0,0)
+        self.grav_center = Vec( 0, 0 )
+        self.direction_log = []
 
     def update(self,player_list, wb_list, bullet_list):
         
+        self.direction_log.append( self.direction )
+        if len(self.direction_log) > modelconst.direction_log_max :
+                del self.direction_log[0]
+
         self.pos += self.direction * self.speed
         
         if self.is_circling:

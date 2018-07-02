@@ -53,8 +53,11 @@ wb_radius   = 4
 
 
 max_dash_time = 100
-dash_speed=0.5
-normal_speed=0.25
+dash_speed = 0.5
+normal_speed = 0.25
+direction_log_max = 120
+
+
 
 ##TO BE FIXED
 #init_r=None
