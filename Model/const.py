@@ -22,7 +22,6 @@ dirBounce = [
 
 eps=1e-7
 
-PROP_TYPE_EXPLOSION = 0
 
 #####################  Vec direction #####################
 Vec_dir = [
@@ -58,6 +57,11 @@ normal_speed=0.25
 
 #####################     head const     #####################
 
+#####################  item const #####################
 
+PROP_TYPE_EXPLOSION = 0
+explosion_radius = 500.0
+
+#####################  item const #####################
 
 

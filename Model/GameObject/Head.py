@@ -66,6 +66,9 @@ class head(object):
 				self.body_list.append( body.Body(self.body_list[-1]) )
 		
 		#collision with competitor's body
+		
+		#TODO 
+		#NEED TO BE FIXED !!!!!!!
 		if self.is_dash == False :
 			for i in player:
 				if i.index == self.index :
