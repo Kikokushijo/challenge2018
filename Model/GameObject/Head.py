@@ -1,6 +1,7 @@
 import Model.const as modelconst
 import View.const as viewconst
 import random
+import math 
 
 from white_ball import white_ball
 from body import body 
@@ -33,6 +34,8 @@ class head(object):
 		self.is_ingrav = False
 		self.is_circling = False
 		self.circling_radius = 0
+		#in which grav
+		self.grav_center = Vec(0,0)
 
 	def update(self, wb_list, bullet_list):
 		
@@ -46,6 +49,8 @@ class head(object):
 		for i in modelconst.grav :
 			if ( self.pos - i[0] ).mag2 < i[1]**2 :
 				self.is_ingrav = True
+				self.circling_radius = (self.pos - i[0]).mag
+				self.grav_center = i[0]
 
 		#collision with wall
 		if (self.direction.x > 0) and (self.pos.x > viewconst.ScreenSize[0]-modelconst.eps) :
@@ -93,11 +98,13 @@ class head(object):
 	def click(self) :
 		if self.is_ingrav == True :
 			self.is_circling = (not self.is_circling)
+			self.theta = atan2( self.pos[0]-self.grav_center[0], self.pos[1]-self.grav_center[1] )
 		
 		else :
-			self.is_dash == True :
+			self.is_dash = True 
 			self.dash_timer = modelconst.max_dash_time
 			self.speed = modelconst.dash_speed
+			## call bullet
 
 
 
