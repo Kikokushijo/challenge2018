@@ -1,4 +1,5 @@
-from Model.GameObject.utils import Vec
+# from Model.GameObject.utils import Vec
+from pygame.math import Vector2 as Vec
 import Model.const as modelConst
 import View.const as viewConst
 import random

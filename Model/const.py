@@ -1,4 +1,4 @@
-from Model.GameObject.utils import Vec
+from pygame.math import Vector2 as Vec
 
 PlayerNum = 4
 MaxManualPlayerNum = 1

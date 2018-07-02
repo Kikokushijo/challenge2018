@@ -44,7 +44,7 @@ class Head(object):
         
         #is in circle
         for i in modelconst.grav :
-            if ( self.pos - i[0] ).mag2 < i[1]**2 :
+            if ( self.pos - i[0] ).magnitude_squared() < i[1]**2 :
                 self.is_ingrav = True
 
         #collision with wall
@@ -59,7 +59,7 @@ class Head(object):
         
         #collision with white ball
         for i, wb in enumerate(wb_list):
-            if (self.pos - wb.radius).mag2 < (self.radius + wb.radius)**2 :
+            if (self.pos - wb.radius).magnitude_squared() < (self.radius + wb.radius)**2 :
                 #delete a withe ball
                 del wb_list[i]
                 #lengthen body list
@@ -74,14 +74,14 @@ class Head(object):
                 if i.index == self.index :
                     continue
                 for j in range(1,len(i.body_list)) :
-                    if (self.pos - i.radius).mag2 < (self.radius + i.radius)**2 :
+                    if (self.pos - i.radius).magnitude_squared() < (self.radius + i.radius)**2 :
                         #self die
                         self.is_alive = False
 
         #collision with competitor's bullet
         if not self.is_dash:
             for i in bullet_list :
-                if (self.pos - i.radius).mag2 < (self.radius + i.radius)**2 :
+                if (self.pos - i.radius).magnitude_squared() < (self.radius + i.radius)**2 :
                     self.is_alive = False
         
         #collision with item
