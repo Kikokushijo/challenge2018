@@ -1,6 +1,6 @@
 # FPS
 GameCaption = "Challenge"
-ScreenSize = (800, 800)
+ScreenSize = (1280, 800)
 
 FramePerSec = 60
 
@@ -28,6 +28,7 @@ Color_Burlywood   = (222, 184, 135)
 Color_Silver      = (192, 192, 192)
 Color_Gainsboro   = (220, 220, 220)
 Color_Snow        = (255, 250, 250)
+Color_LightGray   = (211, 211, 211)
 
 # Object Color
 bgColor      =  Color_Gainsboro
