@@ -182,8 +182,5 @@ class Helper(object):
     def checktPlayerInvisible(self, player_id):
         return self.model.player_list[player_id].is_dash
 
-    def checktPlayerInvisible(self, player_id):
-        return self.model.player_list[player_id].dash_timer > 0
-
     def getPlayerShotPos(self, player_id):
         return [Vec(bullet.pos) for bullet in self.model.bullet_list if bullet.index == player_id]
