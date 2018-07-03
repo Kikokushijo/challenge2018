@@ -32,10 +32,10 @@ class Helper(object):
 
     def getNearsetPosToCenter(self):
         if not checkMeInGrav(self):
-        	return None
+            return None
         gPos, gRadius = getMyGrav(self)
         hPos = getMyHeadPos(self)
-    	hDir = getMyDir(self)
+        hDir = getMyDir(self)
         inner_product = (gPos - hPos).dot(hDir)
         return Vec(hPos + inner_product * (hDir))
 
@@ -61,63 +61,67 @@ class Helper(object):
 
     def canGetBySpin(self):
         if not checkMeInGrav(self):
-        	return None
+            return None
         gPos, gRadius = getMyGrav(self)
         inRadius = self.model.player_list[self.index].circling_radius - modelConst.dash_redius
         outRadius = self.model.player_list[self.index].circling_radius + modelConst.dash_redius
         count = 0
         for wb in self.model.wb_list:
             if (wb.pos - gPos).magnitude_squared() > inRadius ** 2 and (wb.pos - gPos).magnitude_squared() < outRadius ** 2:
-            	count += 1
+                count += 1
         return count
 
     def canGetOnRoute(self):
-    	hPos = getMyHeadPos(self)
-    	hDir = getMyDir(self)
-    	count  = 0
-    	for wb in self.model.wb_list:
-    		inner_product = (wb.pos - hPos).dot(hDir) 
-    		outer_product = abs((wb.pos - hPos).cross(hDir))
-    	    if inner_product > 0 and outer_product > 0 and outer_product < modelConst.dash_redius:
-    	    	count += 1
-    	return count
+        hPos = getMyHeadPos(self)
+        hDir = getMyDir(self)
+        count  = 0
+        for wb in self.model.wb_list:
+            inner_product = (wb.pos - hPos).dot(hDir) 
+            outer_product = abs((wb.pos - hPos).cross(hDir))
+            if inner_product > 0 and outer_product > 0 and outer_product < modelConst.dash_redius:
+                count += 1
+        return count
 
     def getNearestballOnRoute(self):
         hPos = getMyHeadPos(self)
-    	hDir = getMyDir(self)
-    	min_pos = Vec(0, 0)
+        hDir = getMyDir(self)
+        min_pos = Vec(0, 0)
         min_dist = float('inf')
         for wb in self.model.wb_list:
-        	inner_product = (wb.pos - hPos).dot(hDir) 
-    		outer_product = abs((wb.pos - hPos).cross(hDir))
-    	    if inner_product > 0 and outer_product > 0 and outer_product < modelConst.dash_redius:
-        	    dist = (wb.pos - hPos).magnitude_squared()
+            inner_product = (wb.pos - hPos).dot(hDir) 
+            outer_product = abs((wb.pos - hPos).cross(hDir))
+            if inner_product > 0 and outer_product > 0 and outer_product < modelConst.dash_redius:
+                dist = (wb.pos - hPos).magnitude_squared()
                 if dist < min_dist:
-            	    min_dist = dist
-            	    min_pos = Vec(wb.pos)
+                    min_dist = dist
+                    min_pos = Vec(wb.pos)
         return min_pos
 
     def headOnRoute(self):
-    	hPos = getMyHeadPos(self)
-    	hDir = getMyDir(self)
-    	list = []
-    	for index, player in enumerate(self.model.player_list) if index != self.index:
-    	    inner_product = (player.pos - hPos).dot(hDir) 
-    		outer_product = abs((player.pos - hPos).cross(hDir))
-    		if inner_product > 0 and outer_product > 0 and outer_product < 2 * modelConst.head_redius:
-    	    	list.append()
-    	return list
+        hPos = getMyHeadPos(self)
+        hDir = getMyDir(self)
+        list = []
+        for index, player in enumerate(self.model.player_list):
+            if index == self.index:
+                continue
+            inner_product = (player.pos - hPos).dot(hDir) 
+            outer_product = abs((player.pos - hPos).cross(hDir))
+            if inner_product > 0 and outer_product > 0 and outer_product < 2 * modelConst.head_redius:
+                list.append()
+        return list
 
     def bodyOnRoute(self):
-    	hPos = getMyHeadPos(self)
-    	hDir = getMyDir(self)
-    	list = []
-        for index, player in enumerate(self.model.player_list) if index != self.index:
+        hPos = getMyHeadPos(self)
+        hDir = getMyDir(self)
+        list = []
+        for index, player in enumerate(self.model.player_list):
+            if index == self.index:
+                continue
             for body in player.body_list:
-            	inner_product = (body.pos - hPos).dot(hDir) 
-    		    outer_product = abs((body.pos - hPos).cross(hDir))
-    		    if inner_product > 0 and outer_product > 0 and outer_product < modelConst.dash_redius:
-    	    	    list.append()
+                inner_product = (body.pos - hPos).dot(hDir) 
+                outer_product = abs((body.pos - hPos).cross(hDir))
+                if inner_product > 0 and outer_product > 0 and outer_product < modelConst.dash_redius:
+                    list.append()
         return list
 
 
@@ -136,18 +140,18 @@ class Helper(object):
 
     def getMyGrav(self):
         if not checkMeInGrav(self):
-        	return None
+            return None
         hPos = getMyHeadPos(self)
-        for gPos, gRadius in modelConst.grav
-            if (hPos - gPos).magnitude_squared() < gRadius ** 2
+        for gPos, gRadius in modelConst.grav:
+            if (hPos - gPos).magnitude_squared() < gRadius ** 2:
                 return gPos, gRadius
 
     def getDashPos(self):
-    	if not checkInvsible(self):
-    		return None
-    	hPos = getMyHeadPos(self)
-    	hDir = getMyDir(self)
-    	return Vec(hPos + dash_speed * self.model.player_list[self.index].dash_timer * hDir)
+        if not checkInvsible(self):
+            return None
+        hPos = getMyHeadPos(self)
+        hDir = getMyDir(self)
+        return Vec(hPos + dash_speed * self.model.player_list[self.index].dash_timer * hDir)
 
     def checkMeInGrav(self):
         return self.model.player_list[self.index].is_ingrav
@@ -175,8 +179,11 @@ class Helper(object):
     def checkPlayerInGrav(self, player_id):
         return self.model.player_list[player_id].is_ingrav
 
-    def checktPlayerInvisible(self, player_id)
+    def checktPlayerInvisible(self, player_id):
         return self.model.player_list[player_id].is_dash
 
-    def getPlayerShotPos(self, player_id)
+    def checktPlayerInvisible(self, player_id):
+        return self.model.player_list[player_id].dash_timer > 0
+
+    def getPlayerShotPos(self, player_id):
         return [Vec(bullet.pos) for bullet in self.model.bullet_list if bullet.index == player_id]
