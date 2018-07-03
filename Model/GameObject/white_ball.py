@@ -10,7 +10,7 @@ class White_Ball(object):
         self.radius = modelConst.wb_radius
         if not pos:
             #random init the position of balls
-            self.pos = Vec(random.randint(0, viewConst.ScreenSize[0]), random.randint(0, viewConst.ScreenSize[0]))
+            self.pos = Vec(random.randint(0, viewConst.ScreenSize[0]-480), random.randint(0, viewConst.ScreenSize[0]))
         else:
             #use the pos passed in
             self.pos = pos
