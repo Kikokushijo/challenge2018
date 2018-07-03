@@ -9,13 +9,13 @@ from Model.GameObject.body import Body
 from Model.GameObject.bullet import Bullet
 
 class Head(object):
-    def __init__(self, index, name="player", is_AI=False):
+    def __init__(self, index, name = "player", is_AI = False):
         # basic data
         self.name = name
         self.index = index
         self.is_AI = is_AI
         self.color = viewconst.playerColor[index]
-        screen_mid = Vec(( viewconst.ScreenSize[0]-480)/2, viewconst.ScreenSize[1]/2 )
+        screen_mid = Vec( viewconst.ScreenSize[1]/2, viewconst.ScreenSize[1]/2 )
 
         #up down left right
         self.pos = screen_mid + modelconst.init_r * modelconst.Vec_dir[self.index]        
@@ -31,20 +31,25 @@ class Head(object):
         self.is_ingrav = False
         self.is_circling = False
         self.circling_radius = 0
+        self.ori = 0
         #if in grav
         self.grav_center = Vec( 0, 0 )
-        self.direction_log = [self.direction]
+        self.pos_log = [Vec(self.pos)]
 
     def update(self,player_list, wb_list, bullet_list):
-        
-        if len(self.direction_log) > modelconst.direction_log_max :
-                self.direction_log.pop(0)
+        if not self.is_alive:
+            return
 
         self.pos += self.direction * self.speed
+        #update pos log
+        self.pos_log.append(Vec(self.pos))
+        if len(self.pos_log) > modelconst.pos_log_max :
+            self.pos_log.pop(0)
         
         if self.is_circling:
-            self.theta += (self.speed/self.circling_radius)*modelconst.dt
-            self.direction = Vec( cos(self.theta), sin(self.theta) )
+            self.theta += self.speed / self.circling_radius * self.ori
+            #print(self.theta, self.speed/self.circling_radius)
+            self.direction = Vec( cos(self.theta), -sin(self.theta) )
         
         #is in circle
         self.is_ingrav=False
@@ -54,7 +59,7 @@ class Head(object):
                 self.grav_center = i[0]
 
         #collision with wall
-        if (self.direction.x > 0 and self.pos.x + self.radius > (viewconst.ScreenSize[0]-480)-modelconst.eps) \
+        if (self.direction.x > 0 and self.pos.x + self.radius > viewconst.ScreenSize[1]-modelconst.eps) \
             or (self.direction.x < 0 and self.pos.x - self.radius < 0 - modelconst.eps) :
             self.direction.x *= -1
         if (self.direction.y > 0 and self.pos.y + self.radius > viewconst.ScreenSize[1]-modelconst.eps) \
@@ -76,16 +81,25 @@ class Head(object):
             for enemy in player_list:
                 if enemy.index == self.index :
                     continue
-                for j in self.body_list[1:]:
+                for j in enemy.body_list[1:]:
                     if (self.pos - j.pos).length_squared() < (self.radius + j.radius)**2 :
                         #self die
+                        killer = enemy.index
                         self.is_alive = False
                         break
             for bullet in bullet_list :
-                if (self.pos - bullet.pos).length_squared() < (self.radius + bullet.radius)**2 :
+                if (bullet.index != self.index) and \
+                   (self.pos - bullet.pos).length_squared() < (self.radius + bullet.radius)**2 :
+                    killer = bullet.index
                     self.is_alive = False
                     break
+        if not self.is_alive:
+            self.is_dash = True
+            while len(self.body_list) > 1:
+                player_list[killer].body_list.append(Body(player_list[killer].body_list[-1]))
+                self.body_list.pop(-1)
 
+            return
         #collision with competitor's head
         if not self.is_dash:
             for enemy in player_list:
@@ -95,6 +109,7 @@ class Head(object):
                     rrel = enemy.pos - self.pos
                     self.direction.reflect_ip(rrel)
                     enemy.direction.reflect_ip(rrel)
+                    self.is_circling = False
         
         #collision with item
 
@@ -104,27 +119,36 @@ class Head(object):
             self.dash_timer -= 1
             if self.dash_timer == 0:
                 self.is_dash = False
-                self.speed = modelconst.normal_speed
-        #update direction log
-        self.direction_log.append( self.direction )
+                #self.speed = modelconst.normal_speed
         #update theta
-        self.theta = atan2(self.direction.x, self.direction.y)
+        #self.theta = atan2(self.direction.x, -self.direction.y)
+        for j in range(1, len(self.body_list)):
+                self.body_list[j].update()
     
     def click(self, bullet_list) :
         if not self.is_dash:
             if self.is_ingrav:
                 self.is_circling = (not self.is_circling)
                 if self.is_circling:
-                    self.circling_radius = (self.pos - self.grav_center).length_squared()
+                    self.circling_radius = (self.pos - self.grav_center).length()
+                    ori = self.direction.cross(self.pos - self.grav_center)
+                    if ori > 0: #counterclockwise
+                        self.theta = atan2( self.pos.y - self.grav_center.y , -self.pos.x + self.grav_center.x ) - pi / 2
+                        self.direction = Vec( cos(self.theta) , - sin(self.theta) )
+                        self.ori = 1
+                    else:
+                        self.theta = atan2( self.pos.y - self.grav_center.y , -self.pos.x + self.grav_center.x ) + pi / 2
+                        self.direction = Vec( cos(self.theta) , - sin(self.theta) )
+                        self.ori = -1
                 else:
                     self.circling_radius = 0
 
             else:
                 self.is_dash = True
-                self.dash_timer = modelconst.max_dash_time
-                self.speed = modelconst.dash_speed
+                self.dash_timer = modelconst.max_dash_time * modelconst.dash_speed_multiplier
+                #self.speed = modelconst.dash_speed
                 if len(self.body_list)>1 :
-                    self.body_list.pop()
+                    self.body_list.pop(-1)
                     bullet_list.append(Bullet(self.pos,self.direction,self.index))
 
 

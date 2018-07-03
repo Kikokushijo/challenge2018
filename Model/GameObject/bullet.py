@@ -1,12 +1,13 @@
 import Model.const as modelConst
+from pygame.math import Vector2 as Vec
 import View.const as viewConst
 class Bullet(object):
     def __init__(self, pos,direction,index):
-        self.pos = pos
+        self.pos = Vec(pos)
         self.color = viewConst.playerColor[index]
-        self.direction = direction
+        self.direction = Vec(direction)
         self.index = index
-        self.radius = modelConst.bullet_r
+        self.radius = modelConst.bullet_radius
         self.speed = modelConst.bullet_speed0
     def update(self):
         '''
@@ -16,7 +17,7 @@ class Bullet(object):
         '''
 
         ########## collide with walls ###########
-        if (self.direction.x > 0 and self.pos.x+self.radius >= viewConst.ScreenSize[0] - modelConst.eps) \
+        if (self.direction.x > 0 and self.pos.x+self.radius >= viewConst.ScreenSize[1] - modelConst.eps) \
             or (self.direction.x < 0 and self.pos.x-self.radius <= -modelConst.eps):
             self.direction.x *= -1
         if (self.direction.y > 0 and self.pos.y+self.radius >= viewConst.ScreenSize[1] - modelConst.eps) \

@@ -50,7 +50,7 @@ class GameEngine(object):
         pass
     def init_bullet_list(self):
         # No bullets at start of game
-        pass
+        self.bullet_list = []
     
     def create_ball(self):
         # update and see if create new ball
@@ -68,11 +68,15 @@ class GameEngine(object):
         self.create_ball()
         #update heads
         for item in self.player_list:
-            item.update(self.player_list,self.wb_list,self.bullet_list)
+            if item.is_dash:
+                for i in range(modelConst.dash_speed_multiplier):
+                    item.update(self.player_list,self.wb_list,self.bullet_list)
+            else:
+                item.update(self.player_list,self.wb_list,self.bullet_list)
         #update bodies
-        for item in self.player_list:
-            for j in range(1, len(item.body_list)):
-                item.body_list[j].update()
+        #for item in self.player_list:
+        #    for j in range(1, len(item.body_list)):
+        #        item.body_list[j].update()
 
 
     def notify(self, event):
@@ -84,6 +88,10 @@ class GameEngine(object):
             if cur_state == STATE_PLAY:
                 # every tick update
                 self.tick_update() 
+        elif isinstance(event, Event_MoveWayChange):
+            cur_state = self.state.peek()
+            if cur_state == STATE_PLAY:
+                self.player_list[event.PlayerIndex].click(self.bullet_list)
         elif isinstance(event, Event_StateChange):
             # if event.state is None >> pop state.
             if event.state is None:
@@ -102,6 +110,7 @@ class GameEngine(object):
             """
             if keyboard is pressed, change the head_moving way
             """
+            #print(event)
             self.player_list[event.PlayerIndex].click(self.bullet_list)
         elif isinstance(event, Event_Quit):
             self.running = False
