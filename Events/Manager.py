@@ -42,6 +42,14 @@ class Event_StateChange(BaseEvent):
     def __str__(self):
         return "{0} => StateTo:{1}".format(self.name, self.state)
 
+class Event_MoveWayChange(BaseEvent):
+
+    def __init__(self, player):
+        self.name = "MoveWayChange event"
+        self.PlayerIndex = player
+    def __str__(self):
+        return "{0} => Playerindex={1}".format(self.name, self.PlayerIndex)
+
 class Event_EveryTick(BaseEvent):
     """
     Tick event.
