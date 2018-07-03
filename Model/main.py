@@ -66,7 +66,7 @@ class GameEngine(object):
         self.create_ball()
         #update heads
         for item in self.player_list:
-            item.update(player_list,wb_list,bullet_list)
+            item.update(self.player_list,self.wb_list,self.bullet_list)
         #update bodies
         for item in self.player_list:
             for j in range(1, len(item.body_list)):
