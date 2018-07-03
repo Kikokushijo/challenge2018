@@ -32,6 +32,7 @@ class GameEngine(object):
     def initialize(self):
         self.init_wb_list()
         self.init_player_list()
+        self.init_body_list()
         self.init_bullet_list()
 
     def init_wb_list(self):
@@ -40,24 +41,36 @@ class GameEngine(object):
             self.wb_list.append(White_Ball())
 
     def init_player_list(self):
+        for i in range(modelConst.PlayerNum):
+            self.player_list.append(Head("player"+str(i),i))
+    def init_body_list(self):
+        # No bodies at start of game
         pass
-
     def init_bullet_list(self):
+        # No bullets at start of game
         pass
     
     def create_ball(self):
         # update and see if create new ball
         if len(self.wb_list) < modelConst.wb_max_num and random.randint(0,modelConst.wb_born_period*viewConst.FramePerSec)==0:
             self.wb_list.append(White_Ball())
-    
+            
     def tick_update(self):
-        self.create_ball()
-        
+        #update bullets
         for i, item in enumerate(self.bullet_list):
             #update failed means the bullet should become a white ball
             if not item.update():
                 self.wb_list.append(White_Ball(item.pos))
                 del self.bullet_list[i]
+        #update white balls
+        self.create_ball()
+        #update heads
+        for item in self.player_list:
+            item.update(player_list,wb_list,bullet_list)
+        #update bodies
+        for item in self.player_list:
+            for j in range(1, len(item.body_list)):
+                item.body_list[j].update()
 
 
     def notify(self, event):
@@ -81,9 +94,13 @@ class GameEngine(object):
             else:
                 # push a new state on the stack
                 self.state.push(event.state)
-        elif isinstance(event, Event_Move):
+        elif isinstance(event, Event_MoveWayChange):
+            #modified in challenge 2018 
             #key board event
-            self.SetPlayerDirection(event.PlayerIndex, event.Direction)
+            """
+            if keyboard is pressed, change the head_moving way
+            """
+            player_list[event.PlayerIndex].click()
         elif isinstance(event, Event_Quit):
             self.running = False
         elif isinstance(event, Event_Initialize) or \
