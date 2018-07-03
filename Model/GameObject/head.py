@@ -30,13 +30,12 @@ class Head(object):
         self.circling_radius = 0
         #if in grav
         self.grav_center = Vec( 0, 0 )
-        self.direction_log = []
+        self.direction_log = [self.direction]
 
     def update(self,player_list, wb_list, bullet_list):
         
-        self.direction_log.append( self.direction )
         if len(self.direction_log) > modelconst.direction_log_max :
-                del self.direction_log[0]
+                self.direction_log.pop(0)
 
         self.pos += self.direction * self.speed
         
@@ -93,6 +92,8 @@ class Head(object):
             self.dash_timer -= 1
             if self.dash_timer == 0 :
                 self.is_dash = False
+        #update direction log
+        self.direction_log.append( self.direction )
     
     def click(self) :
         if self.is_ingrav:

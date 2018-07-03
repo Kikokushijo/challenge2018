@@ -68,7 +68,6 @@ direction_log_max = 120
 #####################    body const    ######################
 #body_radius=None
 #body_gap=None
-#max_delay_ticks=None
 #####################    body const    ######################
 
 #####################  item const #####################
