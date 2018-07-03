@@ -64,7 +64,7 @@ grav = [(Vec(200,200),50),(Vec(400,200),50),(Vec(600,200),50),\
 
 init_r=40
 head_radius = 10
-dt=1/viewconst.FramePerSecond
+dt=1/viewconst.FramePerSec
 #####################     head const     #####################
 
 #####################    body const    ######################
