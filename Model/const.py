@@ -47,9 +47,9 @@ wb_radius   = 10
 #####################     head const     #####################
 
 
-max_dash_time = 30
+max_dash_time = 50
 normal_speed = 1.0
-dash_speed = normal_speed * 2
+dash_speed = normal_speed * 2.5
 pos_log_max = 20
 init_r = 40
 head_radius = 15
@@ -70,7 +70,7 @@ dt=1/viewconst.FramePerSec
 
 #####################  bullet const  #####################
 bullet_r = head_radius
-bullet_a = 0.05
+bullet_a = 0.02
 bullet_speed0 = dash_speed * 3
 #####################  bullet const  #####################
 
