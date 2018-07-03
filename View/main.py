@@ -92,6 +92,7 @@ class GraphicalView(object):
             # update surface
             pg.display.flip()
         
+    # to be modified
     def render_stop(self):
         """
         Render the stop screen.
