@@ -34,11 +34,6 @@ Vec_dir = [
 grav = []
 
 
-#####################  bullet const  #####################
-bullet_r = 1
-bullet_a = 0.1
-bullet_speed0 = 0.5
-#####################  bullet const  #####################
 
 
 #####################  white ball const  #####################
@@ -52,7 +47,7 @@ wb_radius   = 10
 #####################     head const     #####################
 
 
-max_dash_time = 100
+max_dash_time = 30
 normal_speed = 1.0
 dash_speed = normal_speed * 2
 pos_log_max = 20
@@ -72,6 +67,12 @@ init_r=40
 head_radius = 10
 dt=1/viewconst.FramePerSec
 #####################     head const     #####################
+
+#####################  bullet const  #####################
+bullet_r = head_radius
+bullet_a = 0.05
+bullet_speed0 = dash_speed * 3
+#####################  bullet const  #####################
 
 #####################    body const    ######################
 body_radius = head_radius

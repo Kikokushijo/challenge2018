@@ -84,7 +84,8 @@ class Head(object):
                         self.is_alive = False
                         break
             for bullet in bullet_list :
-                if (self.pos - bullet.pos).length_squared() < (self.radius + bullet.radius)**2 :
+                if (bullet.index != self.index) and \
+                   (self.pos - bullet.pos).length_squared() < (self.radius + bullet.radius)**2 :
                     self.is_alive = False
                     break
         if not self.is_alive:
@@ -129,13 +130,10 @@ class Head(object):
                         self.theta = atan2( self.pos.y - self.grav_center.y , -self.pos.x + self.grav_center.x ) - pi / 2
                         self.direction = Vec( cos(self.theta) , - sin(self.theta) )
                         self.ori = 1
-                        print(ori,self.theta)
                     else:
-                        print(atan2( self.pos.y - self.grav_center.y , -self.pos.x + self.grav_center.x ) )
                         self.theta = atan2( self.pos.y - self.grav_center.y , -self.pos.x + self.grav_center.x ) + pi / 2
                         self.direction = Vec( cos(self.theta) , - sin(self.theta) )
                         self.ori = -1
-                        print(ori,self.theta)
                 else:
                     self.circling_radius = 0
 
@@ -144,7 +142,8 @@ class Head(object):
                 self.dash_timer = modelconst.max_dash_time
                 self.speed = modelconst.dash_speed
                 if len(self.body_list)>1 :
-                    self.body_list.pop()
+                    self.body_list.pop(-1)
+                    print(self.body_list)
                     bullet_list.append(Bullet(self.pos,self.direction,self.index))
 
 
