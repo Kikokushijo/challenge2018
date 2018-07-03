@@ -33,10 +33,11 @@ class Head(object):
         self.circling_radius = 0
         #if in grav
         self.grav_center = Vec( 0, 0 )
-        self.pos_log = [self.pos]
+        self.pos_log = [Vec(self.pos)]
 
     def update(self,player_list, wb_list, bullet_list):
-        
+        if not self.is_alive:
+            return
 
         self.pos += self.direction * self.speed
         
@@ -65,7 +66,6 @@ class Head(object):
                 del wb_list[i]
                 #lengthen body list
                 self.body_list.append(Body(self.body_list[-1]))
-                print(self.pos_log)
         
         
         #collision with competitor's body and bullet
@@ -83,7 +83,10 @@ class Head(object):
                 if (self.pos - bullet.pos).length_squared() < (self.radius + bullet.radius)**2 :
                     self.is_alive = False
                     break
-
+        if not self.is_alive:
+            self.is_dash = True
+            self.body_list = [self]
+            return
         #collision with competitor's head
         if not self.is_dash:
             for enemy in player_list:
@@ -104,18 +107,12 @@ class Head(object):
                 self.is_dash = False
                 self.speed = modelconst.normal_speed
         #update pos log
-        print (self.pos_log[0],self.pos)
-        if self.pos_log[0] != self.pos:
-            print("Hihi")
-
-        self.pos_log.append( Vec(self.pos) )
+        #print (self.pos_log[0],self.pos)
+        self.pos_log.append(Vec(self.pos))
         if len(self.pos_log) > modelconst.pos_log_max :
-            #print("pop")
             self.pos_log.pop(0)
         #update theta
-        self.theta = atan2(self.direction.x, self.direction.y)
-        if self.pos_log[0] != self.pos_log[-1]:
-            print("Haha")
+        self.theta = atan2(self.direction.x, self.direction.y)\
     
     def click(self, bullet_list) :
         if not self.is_dash:

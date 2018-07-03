@@ -55,7 +55,7 @@ wb_radius   = 10
 max_dash_time = 100
 normal_speed = 1.0
 dash_speed = normal_speed * 2
-pos_log_max = 120
+pos_log_max = 20
 init_r = 40
 head_radius = 15
 #the grav now is for debug
