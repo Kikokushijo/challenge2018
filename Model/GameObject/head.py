@@ -15,7 +15,7 @@ class Head(object):
         self.index = index
         self.is_AI = is_AI
         self.color = viewconst.playerColor[index]
-        screen_mid = Vec( viewconst.ScreenSize[0]/2, viewconst.ScreenSize[1]/2 )
+        screen_mid = Vec(( viewconst.ScreenSize[0]-480)/2, viewconst.ScreenSize[1]/2 )
 
         #up down left right
         self.pos = screen_mid + modelconst.init_r * modelconst.Vec_dir[self.index]        
@@ -53,7 +53,7 @@ class Head(object):
                 self.grav_center = i[0]
 
         #collision with wall
-        if (self.direction.x > 0 and self.pos.x + self.radius > viewconst.ScreenSize[0]-modelconst.eps) \
+        if (self.direction.x > 0 and self.pos.x + self.radius > (viewconst.ScreenSize[0]-480)-modelconst.eps) \
             or (self.direction.x < 0 and self.pos.x - self.radius < 0 - modelconst.eps) :
             self.direction.x *= -1
         if (self.direction.y > 0 and self.pos.y + self.radius > viewconst.ScreenSize[1]-modelconst.eps) \
