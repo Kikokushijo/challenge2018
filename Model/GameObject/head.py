@@ -9,17 +9,18 @@ from Model.GameObject.body import Body
 from Model.GameObject.bullet import Bullet
 
 class Head(object):
-    def __init__(self, index, name = "player"):
+    def __init__(self, index, name="player", is_AI=False):
         # basic data
         self.name = name
-        self.index = index 
+        self.index = index
+        self.is_AI = is_AI
         self.color = viewconst.playerColor[index]
         screen_mid = Vec( viewconst.ScreenSize[0]/2, viewconst.ScreenSize[1]/2 )
 
         #up down left right
         self.pos = screen_mid + modelconst.init_r * modelconst.Vec_dir[self.index]        
         self.theta = index * (pi/2)
-        self.direction = Vec( cos(self.theta), sin(self.theta) )
+        self.direction = Vec( cos(self.theta), -sin(self.theta) )
         
         self.speed = modelconst.normal_speed
         self.is_dash = False

@@ -3,7 +3,7 @@ import View.const as viewConst
 class Bullet(object):
     def __init__(self, pos,direction,index):
         self.pos = pos
-        self.color = viewconst.playerColor[index]
+        self.color = viewConst.playerColor[index]
         self.direction = direction
         self.index = index
         self.radius = modelConst.bullet_r

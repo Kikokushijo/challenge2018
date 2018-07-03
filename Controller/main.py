@@ -80,7 +80,7 @@ class Control(object):
             elif event.key == pg.K_SPACE:    
                 self.evManager.Post(Event_StateChange(model.STATE_STOP))
             # player controler
-            for player in self.model.players:
+            for player in self.model.player_list:
                 if player.is_AI:
                     continue
 
