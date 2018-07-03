@@ -8,7 +8,7 @@ from Model.GameObject.body import Body
 from Model.GameObject.bullet import Bullet
 
 class Head(object):
-    def __init__(self, name, index):
+    def __init__(self, name = "player", index):
         # basic data
         self.name = name
         self.index = index 
@@ -63,12 +63,10 @@ class Head(object):
                 #delete a withe ball
                 del wb_list[i]
                 #lengthen body list
-                self.body_list.append( Body(self.body_list[-1]) )
+                self.body_list.append(Body(self.body_list[-1]))
         
         
-        #collision with competitor's body
-        #TODO 
-        #NEED TO BE FIXED !!!!!!!
+        #collision with competitor's body and bullet
 
         if not self.is_dash:
             for enemy in player_list:
@@ -83,6 +81,16 @@ class Head(object):
                 if (self.pos - bullet.pos).magnitude_squared() < (self.radius + bullet.radius)**2 :
                     self.is_alive = False
                     break
+
+        #collision with competitor's head
+        if not self.is_dash:
+            for enemy in player_list:
+                if enemy.index == self.index or enemy.is_dash == True:
+                    continue
+                if (self.pos - enemy.pos).magnitude_squared() < (self.radius + enemy.radius)**2 :
+                    rrel = enemy.pos - self.pos
+                    self.direction.reflect_ip(rrel)
+                    enemy.direction.reflect_ip(rrel)
         
         #collision with item
 
@@ -90,20 +98,30 @@ class Head(object):
         #dash timer
         if self.is_dash:
             self.dash_timer -= 1
-            if self.dash_timer == 0 :
+            if self.dash_timer == 0:
                 self.is_dash = False
+                self.speed = modelconst.normal_speed
         #update direction log
         self.direction_log.append( self.direction )
+        #update theta
+        self.theta = atan2(self.direction.x, self.direction.y)
     
-    def click(self) :
-        if self.is_ingrav:
-            self.is_circling = (not self.is_circling)
-            self.theta = atan2( self.pos[1] - self.grav_center[1], self.pos[0] - self.grav_center[0] )
+    def click(self, bullet_list) :
+        if not self.is_dash:
+            if self.is_ingrav:
+                self.is_circling = (not self.is_circling)
+                if self.is_circling:
+                    circling_radius = (self.pos - self.grav_center).magnitude
+                else:
+                    circling_radius = 0
 
-        elif self.is_dash:
-            self.dash_timer = modelconst.max_dash_time
-            self.speed = modelconst.dash_speed
-
+            else:
+                self.is_dash = True
+                self.dash_timer = modelconst.max_dash_time
+                self.speed = modelconst.dash_speed
+                if len(self.body_list)>1 :
+                    self.body_list.pop()
+                    bullet_list.append(Bullet(self.pos,self.direction,self.index))
 
 
 
