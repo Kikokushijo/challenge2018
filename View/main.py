@@ -1,4 +1,5 @@
 import pygame as pg
+import pygame.gfxdraw as draw
 
 import Model.main as model
 from Events.Manager import *
@@ -125,30 +126,37 @@ class GraphicalView(object):
         self.screen.fill(viewConst.bgColor)
 
         # draw scoreboard
-        pg.draw.line(self.screen, viewConst.sbColor, \
-                (viewConst.GameSize[0], 0), viewConst.GameSize)
+        draw.vline(self.screen, viewConst.GameSize[0], 0, \
+                   viewConst.GameSize[1], viewConst.sbColor)
+        for i in range(1, 4):
+            draw.hline(self.screen, viewConst.GameSize[0], \
+                       viewConst.ScreenSize[0], \
+                       viewConst.GameSize[1] // 4 * i, viewConst.sbColor)
 
         for g in modelConst.grav:
             pos = (int(g[0][0]), int(g[0][1]))
             r = int(g[1])
-            pg.draw.circle(self.screen, viewConst.gravColor, pos, r)
+            draw.filled_circle(self.screen, pos[0], pos[1], \
+                               r, viewConst.gravColor)
+            draw.filled_circle(self.screen, pos[0], pos[1], \
+                               4, viewConst.bgColor)
 
         for player in self.model.player_list:
             for body in player.body_list:
                 pos = (int(body.pos[0]), int(body.pos[1]))
-                pg.draw.circle(self.screen, player.color, pos, \
-                               int(body.radius))
+                draw.filled_circle(self.screen, pos[0], pos[1], \
+                                   int(body.radius), player.color)
 
         for wb in self.model.wb_list:
             pos = (int(wb.pos[0]), int(wb.pos[1]))
-            pg.draw.circle(self.screen, viewConst.wbColor, pos, \
-                           int(wb.radius))
+            draw.filled_circle(self.screen, pos[0], pos[1], \
+                               int(wb.radius), viewConst.wbColor)
 
         for bullet in self.model.bullet_list:
             color = self.model.player_list[bullet.index].color
             pos = (int(bullet.pos[0]), int(bullet.pos[1]))
-            pg.draw.circle(self.screen, color, pos, \
-                           int(bullet.radius))
+            draw.filled_circle(self.screen, pos[0], pos[1], \
+                               int(bullet.radius), color)
 
         # update the scene
         # To be decided: update merely the game window or the whole screen?
