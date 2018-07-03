@@ -8,7 +8,7 @@ from Model.GameObject.body import Body
 from Model.GameObject.bullet import Bullet
 
 class Head(object):
-    def __init__(self, name = "player", index):
+    def __init__(self, index, name = "player"):
         # basic data
         self.name = name
         self.index = index 

@@ -56,8 +56,11 @@ max_dash_time = 100
 dash_speed = 0.5
 normal_speed = 0.25
 direction_log_max = 120
-
-
+init_r=20
+head_radius=10
+#the grav now is for debug
+grav=[(Vec(200,200),50),(Vec(400,200),50),(Vec(600,200),50),\
+(Vec(800,200),50),(Vec(200,400),50),(Vec(200,600),50),(Vec(200,800),50)]
 
 ##TO BE FIXED
 #init_r=None
