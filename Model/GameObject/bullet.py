@@ -7,7 +7,7 @@ class Bullet(object):
         self.color = viewConst.playerColor[index]
         self.direction = Vec(direction)
         self.index = index
-        self.radius = modelConst.bullet_r
+        self.radius = modelConst.bullet_radius
         self.speed = modelConst.bullet_speed0
     def update(self):
         '''
