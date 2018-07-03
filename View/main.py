@@ -138,6 +138,8 @@ class GraphicalView(object):
             r = int(g[1])
             draw.filled_circle(self.screen, pos[0], pos[1], \
                                r, viewConst.gravColor)
+            draw.filled_circle(self.screen, pos[0], pos[1], \
+                               4, viewConst.bgColor)
 
         for player in self.model.player_list:
             for body in player.body_list:
