@@ -82,7 +82,7 @@ class GraphicalView(object):
         # draw backgound
         self.screen.fill(viewConst.Color_White)
 
-        for player in self.model.players:
+        for player in self.model.player_list:
             pos = ( int(player.pos[0]), int(player.pos[1]) )
             pg.draw.circle( self.screen, player.color, pos, 20 )
 
