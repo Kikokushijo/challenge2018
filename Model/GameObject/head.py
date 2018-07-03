@@ -9,7 +9,7 @@ from Model.GameObject.body import Body
 from Model.GameObject.bullet import Bullet
 
 class Head(object):
-    def __init__(self, index, name="player", is_AI=False):
+    def __init__(self, index, name = "player", is_AI = False):
         # basic data
         self.name = name
         self.index = index
@@ -41,6 +41,10 @@ class Head(object):
             return
 
         self.pos += self.direction * self.speed
+        #update pos log
+        self.pos_log.append(Vec(self.pos))
+        if len(self.pos_log) > modelconst.pos_log_max :
+            self.pos_log.pop(0)
         
         if self.is_circling:
             self.theta += self.speed / self.circling_radius * self.ori
@@ -105,6 +109,7 @@ class Head(object):
                     rrel = enemy.pos - self.pos
                     self.direction.reflect_ip(rrel)
                     enemy.direction.reflect_ip(rrel)
+                    self.is_circling = False
         
         #collision with item
 
@@ -114,13 +119,11 @@ class Head(object):
             self.dash_timer -= 1
             if self.dash_timer == 0:
                 self.is_dash = False
-                self.speed = modelconst.normal_speed
-        #update pos log
-        self.pos_log.append(Vec(self.pos))
-        if len(self.pos_log) > modelconst.pos_log_max :
-            self.pos_log.pop(0)
+                #self.speed = modelconst.normal_speed
         #update theta
         #self.theta = atan2(self.direction.x, -self.direction.y)
+        for j in range(1, len(self.body_list)):
+                self.body_list[j].update()
     
     def click(self, bullet_list) :
         if not self.is_dash:
@@ -142,8 +145,8 @@ class Head(object):
 
             else:
                 self.is_dash = True
-                self.dash_timer = modelconst.max_dash_time
-                self.speed = modelconst.dash_speed
+                self.dash_timer = modelconst.max_dash_time * modelconst.dash_speed_multiplier
+                #self.speed = modelconst.dash_speed
                 if len(self.body_list)>1 :
                     self.body_list.pop(-1)
                     bullet_list.append(Bullet(self.pos,self.direction,self.index))
