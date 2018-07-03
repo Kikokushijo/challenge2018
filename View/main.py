@@ -129,22 +129,26 @@ class GraphicalView(object):
                 (viewConst.GameSize[0], 0), viewConst.GameSize)
 
         for g in modelConst.grav:
-            pos = g[0]
-            r = g[1]
+            pos = (int(g[0][0]), int(g[0][1]))
+            r = int(g[1])
             pg.draw.circle(self.screen, viewConst.gravColor, pos, r)
 
         for player in self.model.player_list:
             for body in player.body_list:
-                pg.draw.circle(self.screen, player.color, body.pos, \
-                               body.radius)
+                pos = (int(body.pos[0]), int(body.pos[1]))
+                pg.draw.circle(self.screen, player.color, pos, \
+                               int(body.radius))
 
         for wb in self.model.wb_list:
-            pg.draw.circle(self.screen, viewConst.wbColor, wb.pos, \
-                           wb.radius)
+            pos = (int(wb.pos[0]), int(wb.pos[1]))
+            pg.draw.circle(self.screen, viewConst.wbColor, pos, \
+                           int(wb.radius))
 
         for bullet in self.model.bullet_list:
             color = self.model.player_list[bullet.index].color
-            pg.draw.circle(self.screen, color, bullet.pos, bullet.radius)
+            pos = (int(bullet.pos[0]), int(bullet.pos[1]))
+            pg.draw.circle(self.screen, color, pos, \
+                           int(bullet.radius))
 
         # update the scene
         # To be decided: update merely the game window or the whole screen?

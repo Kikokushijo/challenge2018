@@ -31,7 +31,7 @@ Vec_dir = [
     Vec( 0,1 )   ##down
 ]
 
-#grav = None
+grav = []
 
 
 #####################  bullet const  #####################
