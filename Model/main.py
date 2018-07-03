@@ -49,7 +49,7 @@ class GameEngine(object):
         # update and see if create new ball
         if len(self.wb_list) < modelConst.wb_max_num and random.randint(0,modelConst.wb_born_period*viewConst.FramePerSec)==0:
             self.wb_list.append(White_Ball())
-    
+            
     def tick_update(self):
         self.create_ball()
         
@@ -81,9 +81,13 @@ class GameEngine(object):
             else:
                 # push a new state on the stack
                 self.state.push(event.state)
-        elif isinstance(event, Event_Move):
+        elif isinstance(event, Event_MoveWayChange):
+            #modified in challenge 2018 
             #key board event
-            self.SetPlayerDirection(event.PlayerIndex, event.Direction)
+            """
+            if keyboard is pressed, change the head_moving way
+            """
+            player_list[event.PlayerIndex].click()
         elif isinstance(event, Event_Quit):
             self.running = False
         elif isinstance(event, Event_Initialize) or \
