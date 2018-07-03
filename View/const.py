@@ -35,7 +35,7 @@ Color_Lightgray   = (211, 211, 211)
 
 # Predefined Color
 bgColor      =  Color_Gainsboro
-sbColor      =  Color_Black
+sbColor      =  Color_Black # scoreboard
 wbColor      =  Color_Snow
 gravColor    =  Color_Lightgray
 playerColor  = [Color_Turquoise,  Color_Lightcoral, Color_Orangered, \

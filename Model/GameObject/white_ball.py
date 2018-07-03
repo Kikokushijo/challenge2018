@@ -13,7 +13,7 @@ class White_Ball(object):
             self.pos = Vec(random.randint(0, viewConst.ScreenSize[0]-480), random.randint(0, viewConst.ScreenSize[0]))
         else:
             #use the pos passed in
-            self.pos = pos
+            self.pos = Vec(pos)
 
 
 # class WB_List(object):
