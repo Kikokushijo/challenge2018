@@ -42,7 +42,7 @@ class GameEngine(object):
 
     def init_player_list(self):
         for i in range(modelConst.PlayerNum):
-            self.player_list.append(Head("player"+str(i),i))
+            self.player_list.append(Head(i,"player"+str(i)))
     def init_body_list(self):
         # No bodies at start of game
         pass
@@ -54,7 +54,7 @@ class GameEngine(object):
         # update and see if create new ball
         if len(self.wb_list) < modelConst.wb_max_num and random.randint(0,modelConst.wb_born_period*viewConst.FramePerSec)==0:
             self.wb_list.append(White_Ball())
-    
+            
     def tick_update(self):
         #update bullets
         for i, item in enumerate(self.bullet_list):
@@ -66,7 +66,7 @@ class GameEngine(object):
         self.create_ball()
         #update heads
         for item in self.player_list:
-            item.update(player_list,wb_list,bullet_list)
+            item.update(self.player_list,self.wb_list,self.bullet_list)
         #update bodies
         for item in self.player_list:
             for j in range(1, len(item.body_list)):
@@ -98,9 +98,13 @@ class GameEngine(object):
             else:
                 # push a new state on the stack
                 self.state.push(event.state)
-        elif isinstance(event, Event_Move):
+        elif isinstance(event, Event_MoveWayChange):
+            #modified in challenge 2018 
             #key board event
-            self.SetPlayerDirection(event.PlayerIndex, event.Direction)
+            """
+            if keyboard is pressed, change the head_moving way
+            """
+            player_list[event.PlayerIndex].click()
         elif isinstance(event, Event_Quit):
             self.running = False
         elif isinstance(event, Event_Initialize) or \

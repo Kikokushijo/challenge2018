@@ -3,15 +3,18 @@ import View.const as viewconst
 import random
 from math import pi, sin, cos, atan2
 from pygame.math import Vector2 as Vec
+# from pygame.math import Vec2d as Vec
 from Model.GameObject.white_ball import White_Ball
 from Model.GameObject.body import Body 
 from Model.GameObject.bullet import Bullet
 
 class Head(object):
-    def __init__(self, name , index):
+    def __init__(self, index, name="player", is_AI=False):
         # basic data
         self.name = name
         self.index = index 
+        self.is_AI = is_AI
+        self.color = viewconst.playerColor[index]
         screen_mid = Vec( viewconst.ScreenSize[0]/2, viewconst.ScreenSize[1]/2 )
 
         #up down left right
@@ -45,7 +48,7 @@ class Head(object):
         
         #is in circle
         for i in modelconst.grav :
-            if ( self.pos - i[0] ).magnitude_squared() < i[1]**2 :
+            if ( self.pos - i[0] ).length_squared() < i[1]**2 :
                 self.is_ingrav = True
                 self.grav_center = i[0]
 
@@ -59,7 +62,7 @@ class Head(object):
         
         #collision with white ball
         for i, wb in enumerate(wb_list):
-            if (self.pos - wb.pos).magnitude_squared() < (self.radius + wb.radius)**2 :
+            if (self.pos - wb.pos).length_squared() < (self.radius + wb.radius)**2 :
                 #delete a withe ball
                 del wb_list[i]
                 #lengthen body list
@@ -73,12 +76,12 @@ class Head(object):
                 if enemy.index == self.index :
                     continue
                 for j in self.body_list[1:]:
-                    if (self.pos - j.pos).magnitude_squared() < (self.radius + j.radius)**2 :
+                    if (self.pos - j.pos).length_squared() < (self.radius + j.radius)**2 :
                         #self die
                         self.is_alive = False
                         break
             for bullet in bullet_list :
-                if (self.pos - bullet.pos).magnitude_squared() < (self.radius + bullet.radius)**2 :
+                if (self.pos - bullet.pos).length_squared() < (self.radius + bullet.radius)**2 :
                     self.is_alive = False
                     break
 
@@ -87,7 +90,7 @@ class Head(object):
             for enemy in player_list:
                 if enemy.index == self.index or enemy.is_dash == True:
                     continue
-                if (self.pos - enemy.pos).magnitude_squared() < (self.radius + enemy.radius)**2 :
+                if (self.pos - enemy.pos).length_squared() < (self.radius + enemy.radius)**2 :
                     rrel = enemy.pos - self.pos
                     self.direction.reflect_ip(rrel)
                     enemy.direction.reflect_ip(rrel)
@@ -111,7 +114,7 @@ class Head(object):
             if self.is_ingrav:
                 self.is_circling = (not self.is_circling)
                 if self.is_circling:
-                    circling_radius = (self.pos - self.grav_center).magnitude
+                    circling_radius = (self.pos - self.grav_center).length
                 else:
                     circling_radius = 0
 

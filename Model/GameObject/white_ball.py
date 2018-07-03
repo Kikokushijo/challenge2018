@@ -6,7 +6,7 @@ import random
 
 class White_Ball(object):
     def __init__(self, pos = None):
-        self.color = [0,0,0]
+        self.color = viewConst.wbColor
         self.radius = modelConst.wb_radius
         if not pos:
             #random init the position of balls
