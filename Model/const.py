@@ -1,5 +1,5 @@
 from pygame.math import Vector2 as Vec
-
+import View.const as viewconst
 PlayerNum = 4
 MaxManualPlayerNum = 1
 
@@ -34,39 +34,45 @@ Vec_dir = [
 grav = []
 
 
-#####################  bullet const  #####################
-bullet_r = 1
-bullet_a = 0.1
-bullet_speed0 = 0.5
-#####################  bullet const  #####################
 
 
 #####################  white ball const  #####################
-wb_init_num = 10
-wb_max_num  = 50
+wb_init_num = 100
+wb_max_num  = 150
 wb_born_period = 1 #second
-wb_radius   = 4
+wb_radius   = 10
 #####################  white ball const  #####################
 
 
 #####################     head const     #####################
 
 
-max_dash_time = 100
+max_dash_time = 50
 normal_speed = 1.0
-dash_speed = normal_speed * 2
-direction_log_max = 120
+dash_speed = normal_speed * 2.5
+pos_log_max = 20
 init_r = 40
 head_radius = 15
 #the grav now is for debug
-grav = [(Vec(200,200),50),(Vec(400,200),50),(Vec(600,200),50),\
-(Vec(800,200),50),(Vec(200,400),50),(Vec(200,600),50),(Vec(200,800),50)]
+grav = []
+grav_st=120
+grav_dr=(800-grav_st*2)/3
+for i in range(4):
+    for j in range(4):
+        grav.append((Vec(grav_st+grav_dr*j,grav_st+grav_dr*i),60))
+# grav = [(Vec(160,160),50),(Vec(320,160),50),(Vec(480,160),50),\
+# (Vec(640,160),50),(Vec(200,400),50),(Vec(200,600),50),(Vec(200,800),50)]
 
-##TO BE FIXED
-#init_r=None
-#head_radius = None
-#dt=None
+init_r=40
+head_radius = 10
+dt=1/viewconst.FramePerSec
 #####################     head const     #####################
+
+#####################  bullet const  #####################
+bullet_r = head_radius
+bullet_a = 0.02
+bullet_speed0 = dash_speed * 3
+#####################  bullet const  #####################
 
 #####################    body const    ######################
 body_radius = head_radius
