@@ -52,7 +52,26 @@ class GraphicalView(object):
         elif isinstance(event, Event_Initialize) or\
              isinstance(event, Event_Restart):
             self.initialize()
-    
+
+    def display_fps(self):
+        """Show the programs FPS in the window handle."""
+        caption = "{} - FPS: {:.2f}".format(
+            viewConst.GameCaption, self.clock.get_fps()
+        )
+        pg.display.set_caption(caption)
+
+    def initialize(self):
+        """
+        Set up the pygame graphical display and loads graphical resources.
+        """
+        pg.init(); pg.font.init()
+        pg.display.set_caption(viewConst.GameCaption)
+        self.screen = pg.display.set_mode(viewConst.ScreenSize)
+        self.clock = pg.time.Clock()
+        self.smallfont = pg.font.Font(None, 40)
+        self.is_initialized = True
+
+    # to be modified
     def render_menu(self):
         """
         Render the game menu.
@@ -72,22 +91,6 @@ class GraphicalView(object):
             self.screen.blit(somewords, (pos_x, pos_y))
             # update surface
             pg.display.flip()
-        
-    def render_play(self):
-        """
-        Render the game play.
-        """
-        if self.last_update != model.STATE_PLAY:
-            self.last_update = model.STATE_PLAY
-        # draw backgound
-        self.screen.fill(viewConst.Color_White)
-
-        for player in self.model.player_list:
-            pos = ( int(player.pos[0]), int(player.pos[1]) )
-            pg.draw.circle( self.screen, player.color, pos, 20 )
-
-        # update surface
-        pg.display.flip()
         
     def render_stop(self):
         """
@@ -112,20 +115,36 @@ class GraphicalView(object):
             # update surface
             pg.display.flip()
 
-    def display_fps(self):
-        """Show the programs FPS in the window handle."""
-        caption = "{} - FPS: {:.2f}".format(
-            viewConst.GameCaption, self.clock.get_fps()
-        )
-        pg.display.set_caption(caption)
-        
-    def initialize(self):
+    def render_play(self):
         """
-        Set up the pygame graphical display and loads graphical resources.
+        Render the game play.
         """
-        pg.init(); pg.font.init()
-        pg.display.set_caption(viewConst.GameCaption)
-        self.screen = pg.display.set_mode(viewConst.ScreenSize)
-        self.clock = pg.time.Clock()
-        self.smallfont = pg.font.Font(None, 40)
-        self.is_initialized = True
+        self.last_update = model.STATE_PLAY
+
+        self.screen.fill(viewConst.bgColor)
+
+        # draw scoreboard
+        pg.draw.line(self.screen, viewConst.sbColor, \
+                (viewConst.GameSize[0], 0), viewConst.GameSize)
+
+        for g in modelConst.grav:
+            pos = g[0]
+            r = g[1]
+            pg.draw.circle(self.screen, viewConst.gravColor, pos, r)
+
+        for player in self.model.player_list:
+            for body in player.body_list:
+                pg.draw.circle(self.screen, player.color, body.pos, \
+                               body.radius)
+
+        for wb in self.model.wb_list:
+            pg.draw.circle(self.screen, viewConst.wbColor, wb.pos, \
+                           wb.radius)
+
+        for bullet in self.model.bullet_list:
+            color = self.model.player_list[bullet.index].color
+            pg.draw.circle(self.screen, color, bullet.pos, bullet.radius)
+
+        # update the scene
+        # To be decided: update merely the game window or the whole screen?
+        pg.display.flip()
