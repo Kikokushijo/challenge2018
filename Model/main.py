@@ -37,10 +37,12 @@ class GameEngine(object):
 
     def init_wb_list(self):
         #init wb list
+        self.wb_list = []
         for i in range(modelConst.wb_init_num):
             self.wb_list.append(White_Ball())
 
     def init_player_list(self):
+        self.player_list = []
         for i in range(modelConst.PlayerNum):
             self.player_list.append(Head(i,"player"+str(i)))
     def init_body_list(self):
@@ -104,7 +106,7 @@ class GameEngine(object):
             """
             if keyboard is pressed, change the head_moving way
             """
-            player_list[event.PlayerIndex].click()
+            self.player_list[event.PlayerIndex].click(self.bullet_list)
         elif isinstance(event, Event_Quit):
             self.running = False
         elif isinstance(event, Event_Initialize) or \

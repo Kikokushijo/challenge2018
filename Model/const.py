@@ -25,10 +25,10 @@ eps=1e-7
 
 #####################  Vec direction #####################
 Vec_dir = [
-    Vec( -1,0 ), ##left
-    Vec( 0,-1 ), ##up
-    Vec( 1,0 ),  ##right
-    Vec( 0,1 )   ##down
+    Vec( 0,1 ), ##left
+    Vec( 1,0 ), ##up
+    Vec( 0,-1 ),  ##right
+    Vec( -1,0 )   ##down
 ]
 
 grav = []
@@ -44,7 +44,7 @@ bullet_speed0 = 0.5
 #####################  white ball const  #####################
 wb_init_num = 10
 wb_max_num  = 50
-wb_born_period= 1 #second
+wb_born_period = 1 #second
 wb_radius   = 4
 #####################  white ball const  #####################
 
@@ -53,13 +53,13 @@ wb_radius   = 4
 
 
 max_dash_time = 100
-dash_speed = 0.5
-normal_speed = 0.25
+normal_speed = 1.0
+dash_speed = normal_speed * 2
 direction_log_max = 120
-init_r=20
-head_radius=10
+init_r = 40
+head_radius = 15
 #the grav now is for debug
-grav=[(Vec(200,200),50),(Vec(400,200),50),(Vec(600,200),50),\
+grav = [(Vec(200,200),50),(Vec(400,200),50),(Vec(600,200),50),\
 (Vec(800,200),50),(Vec(200,400),50),(Vec(200,600),50),(Vec(200,800),50)]
 
 init_r=40
@@ -68,8 +68,8 @@ dt=1/viewconst.FramePerSecond
 #####################     head const     #####################
 
 #####################    body const    ######################
-body_radius=10
-body_gap=3
+body_radius = head_radius
+body_gap = 6
 #####################    body const    ######################
 
 #####################  item const #####################

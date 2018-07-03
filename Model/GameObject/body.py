@@ -10,7 +10,7 @@ class Body(object):
 		self.color = pre.color
 		#問題：牆不往內縮可能會生成在外面
 		self.radius = modelconst.body_radius
-		self.pos = pre.pos - pre.dir * (pre.radius + modelconst.body_radius + modelconst.body_gap)
+		self.pos = pre.pos - pre.direction * (pre.radius + modelconst.body_radius + modelconst.body_gap)
 		self.direction = pre.direction_log[0]
 		self.direction_log = [self.direction]
 		self.speed = pre.speed
