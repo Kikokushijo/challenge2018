@@ -80,18 +80,14 @@ class Control(object):
             elif event.key == pg.K_SPACE:    
                 self.evManager.Post(Event_StateChange(model.STATE_STOP))
             # player controler
-            for player in self.model.player_list:
-                if player.is_AI:
-                    continue
-
-                if event.key == pg.K_a:
-                    self.evManager.Post(Event_MoveWayChange(0))
-                elif event.key == pg.K_c:
-                    self.evManager.Post(Event_MoveWayChange(1))
-                elif event.key == pg.K_n:
-                    self.evManager.Post(Event_MoveWayChange(2))
-                elif event.key == pg.K_l:
-                    self.evManager.Post(Event_MoveWayChange(3))
+            if event.key == pg.K_a and (not self.model.player_list[0].is_AI) :
+                self.evManager.Post(Event_MoveWayChange(0))
+            elif event.key == pg.K_c and (not self.model.player_list[1].is_AI) :
+                self.evManager.Post(Event_MoveWayChange(1))
+            elif event.key == pg.K_n and (not self.model.player_list[2].is_AI) :
+                self.evManager.Post(Event_MoveWayChange(2))
+            elif event.key == pg.K_l and (not self.model.player_list[3].is_AI) :
+                self.evManager.Post(Event_MoveWayChange(3))
 
                 # DirKeys = self.ControlKeys[player.index][0:4]
                 # if event.key in DirKeys:

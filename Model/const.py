@@ -71,7 +71,7 @@ for i in range(4):
 ##TO BE FIXED
 #init_r=None
 #head_radius = None
-#dt=None
+dt=1/60
 #####################     head const     #####################
 
 #####################    body const    ######################
