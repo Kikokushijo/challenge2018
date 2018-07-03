@@ -80,17 +80,21 @@ class Head(object):
                 for j in enemy.body_list[1:]:
                     if (self.pos - j.pos).length_squared() < (self.radius + j.radius)**2 :
                         #self die
-                        print("dead",self.index,enemy.index)
+                        killer = enemy.index
                         self.is_alive = False
                         break
             for bullet in bullet_list :
                 if (bullet.index != self.index) and \
                    (self.pos - bullet.pos).length_squared() < (self.radius + bullet.radius)**2 :
+                    killer = bullet.index
                     self.is_alive = False
                     break
         if not self.is_alive:
             self.is_dash = True
-            self.body_list = [self]
+            while len(self.body_list) > 1:
+                player_list[killer].body_list.append(Body(player_list[killer].body_list[-1]))
+                self.body_list.pop(-1)
+
             return
         #collision with competitor's head
         if not self.is_dash:
@@ -112,7 +116,6 @@ class Head(object):
                 self.is_dash = False
                 self.speed = modelconst.normal_speed
         #update pos log
-        #print (self.pos_log[0],self.pos)
         self.pos_log.append(Vec(self.pos))
         if len(self.pos_log) > modelconst.pos_log_max :
             self.pos_log.pop(0)
@@ -143,7 +146,6 @@ class Head(object):
                 self.speed = modelconst.dash_speed
                 if len(self.body_list)>1 :
                     self.body_list.pop(-1)
-                    print(self.body_list)
                     bullet_list.append(Bullet(self.pos,self.direction,self.index))
 
 
