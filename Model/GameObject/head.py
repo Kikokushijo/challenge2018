@@ -31,6 +31,7 @@ class Head(object):
         self.is_ingrav = False
         self.is_circling = False
         self.circling_radius = 0
+        self.ori = 0
         #if in grav
         self.grav_center = Vec( 0, 0 )
         self.pos_log = [Vec(self.pos)]
@@ -42,8 +43,9 @@ class Head(object):
         self.pos += self.direction * self.speed
         
         if self.is_circling:
-            self.theta += (self.speed/self.circling_radius)*modelconst.dt
-            self.direction = Vec( cos(self.theta), sin(self.theta) )
+            self.theta += self.speed / self.circling_radius * self.ori
+            #print(self.theta, self.speed/self.circling_radius)
+            self.direction = Vec( cos(self.theta), -sin(self.theta) )
         
         #is in circle
         self.is_ingrav=False
@@ -75,9 +77,10 @@ class Head(object):
             for enemy in player_list:
                 if enemy.index == self.index :
                     continue
-                for j in self.body_list[1:]:
+                for j in enemy.body_list[1:]:
                     if (self.pos - j.pos).length_squared() < (self.radius + j.radius)**2 :
                         #self die
+                        print("dead",self.index,enemy.index)
                         self.is_alive = False
                         break
             for bullet in bullet_list :
@@ -113,14 +116,26 @@ class Head(object):
         if len(self.pos_log) > modelconst.pos_log_max :
             self.pos_log.pop(0)
         #update theta
-        self.theta = atan2(self.direction.x, self.direction.y)\
+        #self.theta = atan2(self.direction.x, -self.direction.y)
     
     def click(self, bullet_list) :
         if not self.is_dash:
             if self.is_ingrav:
                 self.is_circling = (not self.is_circling)
                 if self.is_circling:
-                    self.circling_radius = (self.pos - self.grav_center).length_squared()
+                    self.circling_radius = (self.pos - self.grav_center).length()
+                    ori = self.direction.cross(self.pos - self.grav_center)
+                    if ori > 0: #counterclockwise
+                        self.theta = atan2( self.pos.y - self.grav_center.y , -self.pos.x + self.grav_center.x ) - pi / 2
+                        self.direction = Vec( cos(self.theta) , - sin(self.theta) )
+                        self.ori = 1
+                        print(ori,self.theta)
+                    else:
+                        print(atan2( self.pos.y - self.grav_center.y , -self.pos.x + self.grav_center.x ) )
+                        self.theta = atan2( self.pos.y - self.grav_center.y , -self.pos.x + self.grav_center.x ) + pi / 2
+                        self.direction = Vec( cos(self.theta) , - sin(self.theta) )
+                        self.ori = -1
+                        print(ori,self.theta)
                 else:
                     self.circling_radius = 0
 
