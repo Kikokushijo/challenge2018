@@ -47,6 +47,7 @@ class Head(object):
             self.direction = Vec( cos(self.theta), sin(self.theta) )
         
         #is in circle
+        self.is_ingrav=False
         for i in modelconst.grav :
             if ( self.pos - i[0] ).length_squared() < i[1]**2 :
                 self.is_ingrav = True
@@ -114,9 +115,9 @@ class Head(object):
             if self.is_ingrav:
                 self.is_circling = (not self.is_circling)
                 if self.is_circling:
-                    circling_radius = (self.pos - self.grav_center).length
+                    self.circling_radius = (self.pos - self.grav_center).length_squared()
                 else:
-                    circling_radius = 0
+                    self.circling_radius = 0
 
             else:
                 self.is_dash = True
