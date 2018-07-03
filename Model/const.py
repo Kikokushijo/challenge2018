@@ -42,10 +42,10 @@ bullet_speed0 = 0.5
 
 
 #####################  white ball const  #####################
-wb_init_num = 10
-wb_max_num  = 50
+wb_init_num = 100
+wb_max_num  = 150
 wb_born_period = 1 #second
-wb_radius   = 4
+wb_radius   = 10
 #####################  white ball const  #####################
 
 
@@ -55,7 +55,7 @@ wb_radius   = 4
 max_dash_time = 100
 normal_speed = 1.0
 dash_speed = normal_speed * 2
-direction_log_max = 120
+pos_log_max = 120
 init_r = 40
 head_radius = 15
 #the grav now is for debug

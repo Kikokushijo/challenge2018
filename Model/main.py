@@ -87,7 +87,8 @@ class GameEngine(object):
         elif isinstance(event, Event_MoveWayChange):
             cur_state = self.state.peek()
             if cur_state == STATE_PLAY:
-                self.player_list[Event_MoveWayChange.PlayerIndex].click(bullet_list)
+                print(event)
+                self.player_list[event.PlayerIndex].click(self.bullet_list)
         elif isinstance(event, Event_StateChange):
             # if event.state is None >> pop state.
             if event.state is None:
