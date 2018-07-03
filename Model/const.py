@@ -1,5 +1,5 @@
 from pygame.math import Vector2 as Vec
-
+import View.const as viewconst
 PlayerNum = 4
 MaxManualPlayerNum = 1
 
@@ -59,15 +59,14 @@ direction_log_max = 120
 
 
 
-##TO BE FIXED
-#init_r=None
-#head_radius = None
-#dt=None
+init_r=40
+head_radius = 10
+dt=1/viewconst.FramePerSecond
 #####################     head const     #####################
 
 #####################    body const    ######################
-#body_radius=None
-#body_gap=None
+body_radius=10
+body_gap=3
 #####################    body const    ######################
 
 #####################  item const #####################
