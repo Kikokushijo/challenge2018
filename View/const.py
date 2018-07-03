@@ -1,7 +1,7 @@
 # Window hyperparameters
 GameCaption = "Challenge 2018"
 ScreenSize = (1280, 800)
-GameSize = (800, 800)
+GameSize = (1000, 800)
 
 # Display setting
 # To be adjusted

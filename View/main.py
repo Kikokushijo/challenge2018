@@ -128,6 +128,10 @@ class GraphicalView(object):
         # draw scoreboard
         draw.vline(self.screen, viewConst.GameSize[0], 0, \
                    viewConst.GameSize[1], viewConst.sbColor)
+        for i in range(1, 5):
+            draw.hline(self.screen, viewConst.GameSize[0], \
+                       viewConst.ScreenSize[0], \
+                       viewConst.GameSize[1] // 5 * i, viewConst.sbColor)
 
         for g in modelConst.grav:
             pos = (int(g[0][0]), int(g[0][1]))
