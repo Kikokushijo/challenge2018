@@ -69,7 +69,7 @@ dt=1/viewconst.FramePerSec
 #####################     head const     #####################
 
 #####################  bullet const  #####################
-bullet_r = head_radius
+bullet_radius = head_radius
 bullet_a = 0.05
 bullet_speed0 = dash_speed * 3
 #####################  bullet const  #####################
