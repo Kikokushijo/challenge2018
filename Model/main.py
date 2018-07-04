@@ -51,8 +51,8 @@ class GameEngine(object):
     def init_item_list(self):
         self.item_list = []
         #init_explosion
-        for i in range(modelConst.item_init_num):
-            self.item_list.append(Explosion())
+        #for i in range(modelConst.item_init_num):
+        #    self.item_list.append(Explosion())
 
     def init_player_list(self):
         self.player_list = []
@@ -84,6 +84,7 @@ class GameEngine(object):
                 del self.bullet_list[i]
         #update white balls
         self.create_ball()
+        self.create_item()
         #update heads
         alive = 0
         for item in self.player_list:
@@ -98,14 +99,6 @@ class GameEngine(object):
                 alive += 1
         if alive == 1:
             self.evManager.Post(Event_GameOver())
-        
-        #update bodies
-        #for item in self.player_list:
-        #    for j in range(1, len(item.body_list)):
-        #        item.body_list[j].update()
-        
-        #upadte items
-        self.create_item()
 
     def notify(self, event):
         """

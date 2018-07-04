@@ -124,9 +124,10 @@ class Head(object):
                         enemy.is_circling = False
         
         #collision with item
-            #for item in item_list:
-                #if ( self.pos - item.pos ).length_squared() < (self.radius + item.radius)**2 :
-                    ##trigger item
+        for i,item in enumerate(item_list):
+            if ( self.pos - item.pos ).length_squared() < (self.radius + item.radius)**2 :
+                item.trigger(self.index,player_list,wb_list)
+                del item_list[i]
         #dash timer
         if self.is_dash:
             self.dash_timer -= 1
