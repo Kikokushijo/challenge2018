@@ -1,6 +1,5 @@
 import pygame as pg
 import pygame.gfxdraw as draw
-from pygame.locals import *
 import math
 
 import Model.main as model
@@ -172,7 +171,7 @@ class GraphicalView(object):
 
         for item in self.model.item_list:
             pos = (int(item.pos[0]), int(item.pos[1]))
-            itemSurface = pg.Surface((int(2.2 * item.radius), int(2.2 * item.radius)), SRCALPHA)
+            itemSurface = pg.Surface((int(2.2 * item.radius), int(2.2 * item.radius)), pg.SRCALPHA)
             Xsize, Ysize = itemSurface.get_size()
             draw.filled_circle(itemSurface, Xsize // 2, Ysize // 2, \
                                int(item.radius), item.color)
@@ -219,10 +218,11 @@ class GraphicalView(object):
                 color = self.model.player_list[explosion.index].color
                 pos = (int(explosion.pos[0]), int(explosion.pos[1]))
                 radius = explosion.radius
-                explosionEffect = pg.Surface((int(2.1 * radius), int(2.1 * radius)), SRCALPHA)
+                explosionEffect = pg.Surface((int(2.1 * radius), int(2.1 * radius)), pg.SRCALPHA)
                 Xsize, Ysize = explosionEffect.get_size()
+                timeRatio = explosion.time / explosion.totaltime
                 draw.filled_circle(explosionEffect, Xsize // 2, Ysize // 2, \
-                                   int(1.1 * radius * (1 - explosion.time / explosion.totaltime)), Color(*color, int(192 * (explosion.time / explosion.totaltime))))
+                                   int(1.1 * radius * (1 - timeRatio)), pg.Color(*color, int(192 * timeRatio)))
                 self.blit_at_center(explosionEffect, pos)
             else:
                 self.explosionEvent.pop(i)
