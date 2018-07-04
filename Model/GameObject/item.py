@@ -2,29 +2,33 @@ import Model.const as modelConst
 import View.const as viewConst
 from pygame.math import Vector2 as Vec
 from Model.GameObject.body import Body 
+from Events.Manager import *
 
 import random
 class Item(object):
     def __init__(self,type = None):
         self.type = type
-        self.pos = Vec(random.randint(0, viewConst.ScreenSize[0]), random.randint(0, viewConst.ScreenSize[0]))
+        self.pos = Vec(random.randint(0, viewConst.ScreenSize[0] - 480), random.randint(0, viewConst.ScreenSize[0]))
 
 class Explosive(Item):
-    def __init__(self):
+    def __init__(self, evManager):
         super().__init__(modelConst.PROP_TYPE_EXPLOSIVE)
         self.radius = modelConst.item_radius
         self.color = viewConst.explosive_color
+        self.evManager = evManager
     
     def trigger(self, index, player_list, wb_list):
+        self.evManager.Post(Event_TriggerExplosive(self.pos))
         self.absorb(index, player_list, wb_list)
 
     def absorb(self, index, player_list, wb_list):
         #absorb whiteball
 
-        for i,wb in enumerate(wb_list):
+        for i in range(len(wb_list)-1,-1,-1):
+            wb = wb_list[i]
             if (wb.pos - self.pos).length_squared() < modelConst.explosive_radius**2:
                 player_list[index].body_list.append(Body(player_list[index].body_list[-1]))
-                del wb_list[i]
+                wb_list.pop(i)
         #absorb competitor's ball
         for other in player_list:
             if other.index == index:
@@ -33,7 +37,15 @@ class Explosive(Item):
                 if(cb.pos - self.pos).length_squared() < modelConst.explosive_radius**2:
                     player_list[index].body_list.append(Body(player_list[index].body_list[-1]))
                     other.body_list.pop()
-
-
+'''
+class Explosive(Item):
+    def __init__(self):
+        super().__init__(modelConst.PROP_TYPE_EXPLOSIVE)
+        self.radius = modelConst.item_radius
+        self.color = viewConst.explosive_color
+    
+    def trigger(self, index, player_list, wb_list):
+        self.absorb(index, player_list, wb_list)
+'''
 
 
