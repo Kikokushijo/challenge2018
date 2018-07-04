@@ -72,15 +72,16 @@ class GameEngine(object):
     def create_item(self):
         # update and see if create new item
         if len(self.item_list) < modelConst.item_max and random.randint(0,modelConst.item_born_period*viewConst.FramePerSec)==0:
-            self.item_list.append(Explosive())
+            self.item_list.append(Explosive(self.evManager))
     
     def tick_update(self):
         #update bullets
-        for i, item in enumerate(self.bullet_list):
+        for i in range(len(self.bullet_list)-1,-1,-1):
+            item = self.bullet_list[i]
             #update failed means the bullet should become a white ball
             if not item.update():
                 self.wb_list.append(White_Ball(item.pos))
-                del self.bullet_list[i]
+                self.bullet_list.pop(i)
         #update white balls
         if self.player_list[0].init_timer == -1:
             self.create_ball()
