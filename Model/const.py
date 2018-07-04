@@ -48,21 +48,27 @@ wb_radius   = 10
 
 
 max_dash_time = 50
-normal_speed = 1.0
+
+normal_speed = 2
 #dash_speed = normal_speed * 3
 dash_speed_multiplier = 3
 dash_speed = normal_speed * dash_speed_multiplier
-pos_log_max = 25
+pos_log_max = 25 / normal_speed + 1
 init_r = 40
 init_no_wb_r = 80
 head_radius = 11
 #the grav now is for debug
 grav = []
 grav_st=120
-grav_dr=(800-grav_st*2)/3
-for i in range(4):
-    for j in range(4):
-        grav.append((Vec(grav_st+grav_dr*j,grav_st+grav_dr*i),60))
+grav_r = 75
+grav_dr=(800-grav_st*2)/4
+for i in range(5):
+    if i % 2 == 0:
+        for j in range(3):
+            grav.append((Vec(grav_st+grav_dr*2*j,grav_st+grav_dr*i),grav_r))
+    else:
+        for j in range(2):
+            grav.append((Vec(grav_st+grav_dr+grav_dr*2*j,0.5+grav_st+grav_dr*i),grav_r))
 # grav = [(Vec(160,160),50),(Vec(320,160),50),(Vec(480,160),50),\
 # (Vec(640,160),50),(Vec(200,400),50),(Vec(200,600),50),(Vec(200,800),50)]
 
@@ -78,8 +84,8 @@ dash_radius = head_radius + body_radius
 
 #####################  bullet const  #####################
 bullet_radius = 8
-bullet_a = 0.02
-bullet_speed0 = normal_speed * dash_speed_multiplier**2
+bullet_a = 0.1
+bullet_speed0 = normal_speed * 7
 #####################  bullet const  #####################
 
 #####################  item const #####################
@@ -94,7 +100,7 @@ item_radius = 10
 
 explosive_radius = 150.0
 
-bigbullet_r = bullet_radius * 3
+bigbullet_r = bullet_radius * 4
 
 
 #####################  item const #####################
