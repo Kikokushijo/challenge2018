@@ -1,5 +1,5 @@
 import pygame as pg
-import pygame.gfxdraw as draw
+import pygame.gfxdraw as gfxdraw
 import math
 
 import Model.main as model
@@ -139,56 +139,53 @@ class GraphicalView(object):
             # update surface
             pg.display.flip()
 
-    def render_play(self):
-        """
-        Render the game play.
-        """
-        self.last_update = model.STATE_PLAY
-
-        self.screen.fill(viewConst.bgColor)
-
-        # draw scoreboard
-        draw.vline(self.screen, viewConst.GameSize[0], 0, \
+    def drawScoreboard(self):
+        gfxdraw.vline(self.screen, viewConst.GameSize[0], 0, \
                    viewConst.GameSize[1], viewConst.sbColor)
 
         for i in range(1, 4):
-            draw.hline(self.screen, viewConst.GameSize[0], \
+            gfxdraw.hline(self.screen, viewConst.GameSize[0], \
                        viewConst.ScreenSize[0], \
                        viewConst.GameSize[1] // 4 * i, viewConst.sbColor)
 
+    def drawGrav(self):
         for g in modelConst.grav:
             pos = tuple(map(int, g[0]))
             radius = int(g[1] + modelConst.head_radius * 0.5)
-            draw.filled_circle(self.screen, *pos, \
+            gfxdraw.filled_circle(self.screen, *pos, \
                                radius, viewConst.gravColor)
-            draw.filled_circle(self.screen, *pos, \
+            gfxdraw.filled_circle(self.screen, *pos, \
                                int(radius * 0.07), viewConst.bgColor)
 
+    def drawWhiteBall(self):
         for wb in self.model.wb_list:
             pos = tuple(map(int, wb.pos))
-            draw.filled_circle(self.screen, *pos, \
+            gfxdraw.filled_circle(self.screen, *pos, \
                                int(wb.radius), viewConst.wbColor)
 
+    def drawItem(self):
         for item in self.model.item_list:
             pos = tuple(map(int, item.pos))
             itemSurface = pg.Surface((int(2.2 * item.radius),) * 2, pg.SRCALPHA)
             center = tuple([x // 2 for x in itemSurface.get_size()])
-            draw.filled_circle(itemSurface, *center, \
+            gfxdraw.filled_circle(itemSurface, *center, \
                                int(item.radius), item.color)
-            draw.filled_circle(itemSurface, *center, \
+            gfxdraw.filled_circle(itemSurface, *center, \
                                int(item.radius * 0.7), (0, 0, 0, 0))
             self.blit_at_center(itemSurface, pos)
 
+    def drawBody(self):
         for player in self.model.player_list:
             for body in player.body_list[1:]:
                 pos = tuple(map(int, body.pos))
-                draw.filled_circle(self.screen, *pos, \
+                gfxdraw.filled_circle(self.screen, *pos, \
                                    int(body.radius), player.color)
 
+    def drawHead(self):
         for player in self.model.player_list:
             if player.is_alive:
                 pos = tuple(map(int, player.pos))
-                draw.filled_circle(self.screen, *pos, \
+                gfxdraw.filled_circle(self.screen, *pos, \
                                    int(player.radius), player.color)
                 # draw triangle
                 triRadius = player.radius * 0.7
@@ -199,21 +196,21 @@ class GraphicalView(object):
 
                 vertices = [player.pos + vertex for vertex in relativeVertices]
                 intVertices = [int(x) for vertex in vertices for x in vertex]
-
-                draw.filled_trigon(self.screen, *intVertices, viewConst.Color_Snow)
+                gfxdraw.filled_trigon(self.screen, *intVertices, viewConst.Color_Snow)
 
                 if player.is_circling and player.is_ingrav:
                     innerVertices = [player.pos + 0.6 * vertex for vertex in relativeVertices]
                     intInnerVertices = [int(x) for vertex in innerVertices for x in vertex]
+                    gfxdraw.filled_trigon(self.screen, *intInnerVertices, player.color)
 
-                    draw.filled_trigon(self.screen, *intInnerVertices, player.color)
-
+    def drawBullet(self):
         for bullet in self.model.bullet_list:
             color = self.model.player_list[bullet.index].color
             pos = tuple(map(int, bullet.pos))
-            draw.filled_circle(self.screen, *pos, \
+            gfxdraw.filled_circle(self.screen, *pos,
                                int(bullet.radius), color)
 
+    def drawExplosion(self):
         for explosion in self.explosionEvent:
             explosion.time -= 1
             color = self.model.player_list[explosion.index].color
@@ -223,10 +220,27 @@ class GraphicalView(object):
 
             explosionEffect = pg.Surface((int(2.1 * radius),) * 2, pg.SRCALPHA)
             center = tuple([x // 2 for x in explosionEffect.get_size()])
-            draw.filled_circle(explosionEffect, *center, \
+            gfxdraw.filled_circle(explosionEffect, *center, \
                                int(1.1 * radius * (1 - timeRatio)), pg.Color(*color, int(192 * timeRatio)))
             self.blit_at_center(explosionEffect, pos)
         self.explosionEvent[:] = [x for x in self.explosionEvent if x.time > 0]
+
+    def render_play(self):
+        """
+        Render the game play.
+        """
+        self.last_update = model.STATE_PLAY
+
+        self.screen.fill(viewConst.bgColor)
+
+        self.drawScoreboard()
+        self.drawGrav()
+        self.drawWhiteBall()
+        self.drawItem()
+        self.drawBody()
+        self.drawHead()
+        self.drawBullet()
+        self.drawExplosion()
 
         # update the scene
         # To be decided: update merely the game window or the whole screen?
