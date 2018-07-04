@@ -35,6 +35,8 @@ class Head(object):
         self.circling_radius = modelconst.init_r
         self.ori = 1
         self.init_timer = 200
+        self.have_multibullet = False
+        self.have_bigbullet = False
         #if in grav
         self.grav_center = Vec( 0, 0 )
         self.pos_log = [Vec(self.pos)]
@@ -78,12 +80,13 @@ class Head(object):
             self.direction.y *= -1
         
         #collision with white ball
-        for i, wb in enumerate(wb_list):
+        for i in range(len(wb_list)-1,-1,-1):
+            wb = wb_list[i]
             if (self.pos - wb.pos).length_squared() < (self.radius + wb.radius)**2 :
                 #lengthen body list
                 self.body_list.append(Body(self.body_list[-1]))
                 #delete a withe ball
-                del wb_list[i]
+                wb_list.pop(i)
 
         #collision with competitor's body and bullet
 
@@ -166,7 +169,16 @@ class Head(object):
                 #self.speed = modelconst.dash_speed
                 if len(self.body_list)>1 :
                     self.body_list.pop(-1)
-                    bullet_list.append(Bullet(self.pos,self.direction,self.index))
+                    if self.have_multibullet:
+                        bullet_list.append(Bullet(self.pos,self.direction,self.index))
+                        bullet_list.append(Bullet(self.pos,self.direction.rotate(30),self.index))
+                        bullet_list.append(Bullet(self.pos,self.direction.rotate(-30),self.index))
+                        self.have_multibullet = False
+                    if self.have_bigbullet:
+                        bullet_list.append(Bullet(self.pos,self.direction,self.index,modelconst.bigbullet_r))
+                        self.have_bigbullet = False
+                    else:
+                        bullet_list.append(Bullet(self.pos,self.direction,self.index))
 
 
 

@@ -2,12 +2,12 @@ import Model.const as modelConst
 from pygame.math import Vector2 as Vec
 import View.const as viewConst
 class Bullet(object):
-    def __init__(self, pos,direction,index):
+    def __init__(self, pos,direction,index,radius = modelConst.bullet_radius):
         self.pos = Vec(pos)
         self.color = viewConst.playerColor[index]
         self.direction = Vec(direction)
         self.index = index
-        self.radius = modelConst.bullet_radius
+        self.radius = radius
         self.speed = modelConst.bullet_speed0
     def update(self):
         '''
