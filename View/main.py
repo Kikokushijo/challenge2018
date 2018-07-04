@@ -179,7 +179,7 @@ class GraphicalView(object):
                 x1, y1 = int(x1 + player.pos[0]), int(y1 + player.pos[1])
                 x2, y2 = int(x2 + player.pos[0]), int(y2 + player.pos[1])
                 x3, y3 = int(x3 + player.pos[0]), int(y3 + player.pos[1])
-                if player.is_circling:
+                if player.is_circling and player.is_ingrav:
                     draw.filled_trigon(self.screen, x1, y1, x2, y2, x3, y3, viewConst.Color_Snow)
                     draw.filled_trigon(self.screen, sx1, sy1, sx2, sy2, sx3, sy3, player.color)
                 else:
