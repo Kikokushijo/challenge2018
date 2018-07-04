@@ -46,14 +46,13 @@ class GameEngine(object):
         #init wb list
         self.wb_list = []
         for i in range(modelConst.wb_init_num):
-    
+            self.wb_list.append(White_Ball(Vec(-2,-2)))
     #init item list
     def init_item_list(self):
         self.item_list = []
         #init_explosion
         for i in range(modelConst.item_init_num):
             self.item_list.append(Explosion())
-            self.wb_list.append(White_Ball(Vec(-2,-2)))
 
     def init_player_list(self):
         self.player_list = []
