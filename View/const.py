@@ -32,17 +32,21 @@ Color_Silver      = (192, 192, 192)
 Color_Gainsboro   = (220, 220, 220)
 Color_Snow        = (255, 250, 250)
 Color_Lightgray   = (211, 211, 211)
+Color_Firebrick   = (178, 34, 34)
 
 # Predefined Color
-bgColor      =  Color_Gainsboro
-sbColor      =  Color_Black # scoreboard
-wbColor      =  Color_Snow
-gravColor    =  Color_Lightgray
-explosive_color = Color_Lightcoral
+bgColor       = Color_Gainsboro
+sbColor       = Color_Black # scoreboard
+wbColor       = Color_Snow
+gravColor     = Color_Lightgray
+explosive_color = Color_Firebrick
 multibullet_color = Color_Limegreen
 bigbullet_color = Color_Lightgray
-playerColor  = [Color_Turquoise,  Color_Lightcoral, Color_Orangered, \
-                Color_Darkkhaki,  Color_Gold,       Color_Violet, \
-                Color_Darkviolet, Color_Limegreen,  Color_Olive, \
-                Color_Royalblue,  Color_Burlywood,  Color_Silver]
+playerColor   = [Color_Turquoise,  Color_Lightcoral, Color_Orangered, \
+                 Color_Darkkhaki,  Color_Gold,       Color_Violet, \
+                 Color_Darkviolet, Color_Limegreen,  Color_Olive, \
+                 Color_Royalblue,  Color_Burlywood,  Color_Silver]
 
+# Durations
+
+explosionTime = 120
