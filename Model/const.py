@@ -1,7 +1,7 @@
 from pygame.math import Vector2 as Vec
 import View.const as viewconst
 PlayerNum = 4
-MaxManualPlayerNum = 1
+MaxManualPlayerNum = 4
 
 #dir const
 dirConst = [
@@ -51,6 +51,7 @@ max_dash_time = 50
 normal_speed = 1.0
 #dash_speed = normal_speed * 3
 dash_speed_multiplier = 3
+dash_speed = normal_speed * dash_speed_multiplier
 pos_log_max = 25
 init_r = 40
 init_no_wb_r = 80
@@ -72,6 +73,7 @@ dt=1/viewconst.FramePerSec
 #####################    body const    ######################
 body_radius = 10
 body_gap = 6
+dash_radius = head_radius + body_radius
 #####################    body const    ######################
 
 #####################  bullet const  #####################

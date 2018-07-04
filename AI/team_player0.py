@@ -9,7 +9,6 @@ class TeamAI( BaseAI ):
         self.skill = []
 
     def decide( self ):
-        print ('enter')
         helper = self.helper
         hPos = helper.getMyHeadPos()
         hDir = helper.getMyDir()
@@ -17,16 +16,20 @@ class TeamAI( BaseAI ):
         if not helper.checkMeInGrav():
             body_list = helper.bodyOnRoute()
             if body_list:
-                dPos = helper.getMyShotPos()
+                dPos = helper.getDashPos()
+                if dPos is None:
+                    return AI_NothingToDo
                 for bPos in body_list:
-                    if (bPos - hPos).magnitude() + 3 * wb_radius < (dPos - hPos).magnitude():
+                    if (bPos - hPos).length() + 3 * wb_radius < (dPos - hPos).length():
                         return AI_MoveWayChange
 
             head_list = helper.bodyOnRoute()
             if head_list:
-                dPos = helper.getMyShotPos()
+                dPos = helper.getDashPos()
+                if dPos is None:
+                    return AI_NothingToDo
                 for Pos in head_list:
-                    if (Pos - hPos).magnitude() + 3 * wb_radius < (dPos - hPos).magnitude():
+                    if (Pos - hPos).length() + 3 * wb_radius < (dPos - hPos).length():
                         return AI_MoveWayChange
         else :
             gPos, gRadius = helper.getMyGrav()

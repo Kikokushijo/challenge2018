@@ -5,6 +5,8 @@ from Events.Manager import *
 
 from Interface.helper import Helper
 
+import AI.base as AI
+
 import Model.const       as modelConst
 import View.const        as viewConst
 import Controller.const  as ctrlConst
@@ -40,10 +42,12 @@ class Interface(object):
     def API_play(self):
         # for player in self.model.player_list:
         for idx, player in enumerate(self.model.player_list):
-            print(idx, player.is_AI)
+            # print(idx, player.is_AI)
             if player.is_AI:
                 AI_Dir = self.playerAI[player.index].decide()
-                self.evManager.Post(Event_Move(player.index, AI_Dir))
+                # self.evManager.Post(Event_Move(player.index, AI_Dir))
+                if AI_Dir == AI.AI_MoveWayChange:
+                    self.evManager.Post(Event_MoveWayChange(player.index))
         
     def initialize(self):
         if self.is_initAI: return

@@ -6,7 +6,7 @@ from Model.GameObject.white_ball import White_Ball
 from pygame.math import Vector2 as Vec
 from Model.GameObject.bullet import Bullet
 from Model.GameObject.head import Head
-from Model.GameObject.item import Item, Explosive, Bigbullet, Multibullet
+from Model.GameObject.item import Item, Explosive
 
 import Model.const       as modelConst
 import View.const        as viewConst
@@ -50,23 +50,42 @@ class GameEngine(object):
     #init item list
     def init_item_list(self):
         self.item_list = []
-        pass
-        '''
-        self.item_list = []
         for i in range(modelConst.item_init_num):
-            rnd = randint(1,3)
-            if rnd == 1:
-                self.item_list.append(Explosive())
-            if rnd == 2:
-                self.item_list.append(Multibullet())
-            if rnd == 3:
-                self.item_list.append(Bigbullet())
-        '''
+            self.item_list.append(Explosive())
 
     def init_player_list(self):
         self.player_list = []
-        for i in range(modelConst.PlayerNum):
-            self.player_list.append(Head(i,"player"+str(i)))
+        ManualPlayerNum = 0
+        for index in range(modelConst.PlayerNum):
+            if len(self.AINames) > index:
+                PlayerName = self.AINames[index]
+                if PlayerName == "~":
+                    if ManualPlayerNum < modelConst.MaxManualPlayerNum:
+                        ManualPlayerNum += 1
+                    else:
+                        self.AINames[index] = "_"
+            else:
+                if ManualPlayerNum < modelConst.MaxManualPlayerNum:
+                    ManualPlayerNum += 1
+                    self.AINames.append("~")
+                else:
+                    self.AINames.append("_")
+
+        # init Player object
+        for index in range(modelConst.PlayerNum):
+            if self.AINames[index] == "~":
+                Tmp_P = Head(index, "manual", False)
+            elif self.AINames[index] == "_":
+                Tmp_P = Head(index, "default", True)
+            else:
+                Tmp_P = Head(index, 'player' + self.AINames[index], True)
+            self.player_list.append(Tmp_P)
+
+
+
+        # self.player_list = []
+        # for i in range(modelConst.PlayerNum):
+        #     self.player_list.append(Head(i,"player"+str(i)))
     def init_body_list(self):
         # No bodies at start of game
         pass
@@ -82,13 +101,7 @@ class GameEngine(object):
     def create_item(self):
         # update and see if create new item
         if len(self.item_list) < modelConst.item_max and random.randint(0,modelConst.item_born_period*viewConst.FramePerSec)==0:
-            rnd = random.randint(1,3)
-            if rnd == 1:
-                self.item_list.append(Explosive(self.evManager))
-            if rnd == 2:
-                self.item_list.append(Multibullet())
-            if rnd == 3:
-                self.item_list.append(Bigbullet())
+            self.item_list.append(Explosive(self.evManager))
     
     def tick_update(self):
         #update bullets

@@ -21,7 +21,7 @@ class Helper(object):
         min_value = float('inf')
         min_index = None
         for index, (gPos, gRadius) in enumerate(modelConst.grav):
-            dist = (gPos - pos).magnitude() - gRadius
+            dist = (gPos - pos).length() - gRadius
             if dist < min_value:
                 min_value = dist
                 min_index = index
@@ -31,18 +31,18 @@ class Helper(object):
         return [(Vec(gPos), gRadius) for gPos, gRadius in modelConst.grav]
 
     def getNearsetPosToCenter(self):
-        if not checkMeInGrav(self):
+        if not self.checkMeInGrav():
             return None
-        gPos, gRadius = getMyGrav(self)
-        hPos = getMyHeadPos(self)
-        hDir = getMyDir(self)
+        gPos, gRadius = self.getMyGrav()
+        hPos = self.getMyHeadPos()
+        hDir = self.getMyDir()
         inner_product = (gPos - hPos).dot(hDir)
         return Vec(hPos + inner_product * (hDir))
 
     def getBallNumInRange(self, center, radius):
         count = 0
         for wb in self.model.wb_list:
-            if (wb.pos - center).magnitude_squared() <= radius ** 2:
+            if (wb.pos - center).length_squared() <= radius ** 2:
                 count += 1
         return count
 
@@ -55,74 +55,74 @@ class Helper(object):
     def canGetByExplosion(Epos):
         count = 0
         for wb in self.model.wb_list:
-            if (wb.pos - Epos).magnitude_squared() < (modelConst.explosion_radius + modelConst.wb_radiu) ** 2:
+            if (wb.pos - Epos).length_squared() < (modelConst.explosion_radius + modelConst.wb_radius) ** 2:
                 count += 1
         return count
 
     def canGetBySpin(self):
-        if not checkMeInGrav(self):
+        if not self.checkMeInGrav():
             return None
-        gPos, gRadius = getMyGrav(self)
-        inRadius = self.model.player_list[self.index].circling_radius - modelConst.dash_redius
-        outRadius = self.model.player_list[self.index].circling_radius + modelConst.dash_redius
+        gPos, gRadius = self.getMyGrav()
+        inRadius = self.model.player_list[self.index].circling_radius - modelConst.dash_radius
+        outRadius = self.model.player_list[self.index].circling_radius + modelConst.dash_radius
         count = 0
         for wb in self.model.wb_list:
-            if (wb.pos - gPos).magnitude_squared() > inRadius ** 2 and (wb.pos - gPos).magnitude_squared() < outRadius ** 2:
+            if (wb.pos - gPos).length_squared() > inRadius ** 2 and (wb.pos - gPos).length_squared() < outRadius ** 2:
                 count += 1
         return count
 
     def canGetOnRoute(self):
-        hPos = getMyHeadPos(self)
-        hDir = getMyDir(self)
+        hPos = self.getMyHeadPos()
+        hDir = self.getMyDir()
         count  = 0
         for wb in self.model.wb_list:
             inner_product = (wb.pos - hPos).dot(hDir) 
             outer_product = abs((wb.pos - hPos).cross(hDir))
-            if inner_product > 0 and outer_product > 0 and outer_product < modelConst.dash_redius:
+            if inner_product > 0 and outer_product > 0 and outer_product < modelConst.dash_radius:
                 count += 1
         return count
 
     def getNearestballOnRoute(self):
-        hPos = getMyHeadPos(self)
-        hDir = getMyDir(self)
+        hPos = self.getMyHeadPos()
+        hDir = self.getMyDir()
         min_pos = Vec(0, 0)
         min_dist = float('inf')
         for wb in self.model.wb_list:
             inner_product = (wb.pos - hPos).dot(hDir) 
             outer_product = abs((wb.pos - hPos).cross(hDir))
-            if inner_product > 0 and outer_product > 0 and outer_product < modelConst.dash_redius:
-                dist = (wb.pos - hPos).magnitude_squared()
+            if inner_product > 0 and outer_product > 0 and outer_product < modelConst.dash_radius:
+                dist = (wb.pos - hPos).length_squared()
                 if dist < min_dist:
                     min_dist = dist
                     min_pos = Vec(wb.pos)
         return min_pos
 
     def headOnRoute(self):
-        hPos = getMyHeadPos(self)
-        hDir = getMyDir(self)
-        list = []
+        hPos = self.getMyHeadPos()
+        hDir = self.getMyDir()
+        pos_list = []
         for index, player in enumerate(self.model.player_list):
             if index == self.index:
                 continue
             inner_product = (player.pos - hPos).dot(hDir) 
             outer_product = abs((player.pos - hPos).cross(hDir))
-            if inner_product > 0 and outer_product > 0 and outer_product < 2 * modelConst.head_redius:
-                list.append()
-        return list
+            if inner_product > 0 and outer_product > 0 and outer_product < 2 * modelConst.head_radius:
+                pos_list.append(Vec(player.pos))
+        return pos_list
 
     def bodyOnRoute(self):
-        hPos = getMyHeadPos(self)
-        hDir = getMyDir(self)
-        list = []
+        hPos = self.getMyHeadPos()
+        hDir = self.getMyDir()
+        pos_list = []
         for index, player in enumerate(self.model.player_list):
             if index == self.index:
                 continue
             for body in player.body_list:
                 inner_product = (body.pos - hPos).dot(hDir) 
                 outer_product = abs((body.pos - hPos).cross(hDir))
-                if inner_product > 0 and outer_product > 0 and outer_product < modelConst.dash_redius:
-                    list.append()
-        return list
+                if inner_product > 0 and outer_product > 0 and outer_product < modelConst.dash_radius:
+                    pos_list.append(Vec(body.pos))
+        return pos_list
 
 
     #me info
@@ -139,19 +139,19 @@ class Helper(object):
         return Vec(self.model.player_list[self.index].direction)
 
     def getMyGrav(self):
-        if not checkMeInGrav(self):
+        if not self.checkMeInGrav():
             return None
-        hPos = getMyHeadPos(self)
+        hPos = self.getMyHeadPos()
         for gPos, gRadius in modelConst.grav:
-            if (hPos - gPos).magnitude_squared() < gRadius ** 2:
+            if (hPos - gPos).length_squared() < gRadius ** 2:
                 return gPos, gRadius
 
     def getDashPos(self):
-        if not checkInvsible(self):
+        if not self.checkInvsible():
             return None
-        hPos = getMyHeadPos(self)
-        hDir = getMyDir(self)
-        return Vec(hPos + dash_speed * self.model.player_list[self.index].dash_timer * hDir)
+        hPos = self.getMyHeadPos()
+        hDir = self.getMyDir()
+        return Vec(hPos + modelConst.dash_speed * self.model.player_list[self.index].dash_timer * hDir)
 
     def checkMeInGrav(self):
         return self.model.player_list[self.index].is_ingrav
