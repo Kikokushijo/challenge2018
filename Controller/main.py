@@ -80,17 +80,23 @@ class Control(object):
             elif event.key == pg.K_SPACE:    
                 self.evManager.Post(Event_StateChange(model.STATE_STOP))
             # player controler
-            for player in self.model.players:
-                if player.is_AI:
-                    continue
-                DirKeys = self.ControlKeys[player.index][0:4]
-                if event.key in DirKeys:
-                    NowPressedKeys = self.Get_KeyPressIn(DirKeys)
-                    DirHashValue = self.Get_DirHashValue(NowPressedKeys, DirKeys)
-                    if ctrlConst.DirHash[DirHashValue] != 0:
-                        self.evManager.Post(
-                            Event_Move( player.index, ctrlConst.DirHash[DirHashValue] )
-                        )
+            if event.key == pg.K_a and (not self.model.player_list[0].is_AI) :
+                self.evManager.Post(Event_MoveWayChange(0))
+            elif event.key == pg.K_c and (not self.model.player_list[1].is_AI) :
+                self.evManager.Post(Event_MoveWayChange(1))
+            elif event.key == pg.K_n and (not self.model.player_list[2].is_AI) :
+                self.evManager.Post(Event_MoveWayChange(2))
+            elif event.key == pg.K_l and (not self.model.player_list[3].is_AI) :
+                self.evManager.Post(Event_MoveWayChange(3))
+
+                # DirKeys = self.ControlKeys[player.index][0:4]
+                # if event.key in DirKeys:
+                #     NowPressedKeys = self.Get_KeyPressIn(DirKeys)
+                #     DirHashValue = self.Get_DirHashValue(NowPressedKeys, DirKeys)
+                #     if ctrlConst.DirHash[DirHashValue] != 0:
+                #         self.evManager.Post(
+                #             Event_Move( player.index, ctrlConst.DirHash[DirHashValue] )
+                #         )
         
     def Get_KeyPressIn(self, keylist):
         return [key for key, value in enumerate(pg.key.get_pressed()) if value == 1 and key in keylist]

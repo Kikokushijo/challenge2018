@@ -32,32 +32,51 @@ class GameEngine(object):
     def initialize(self):
         self.init_wb_list()
         self.init_player_list()
+        self.init_body_list()
         self.init_bullet_list()
 
     def init_wb_list(self):
         #init wb list
+        self.wb_list = []
         for i in range(modelConst.wb_init_num):
             self.wb_list.append(White_Ball())
 
     def init_player_list(self):
+        self.player_list = []
+        for i in range(modelConst.PlayerNum):
+            self.player_list.append(Head(i,"player"+str(i)))
+    def init_body_list(self):
+        # No bodies at start of game
         pass
-
     def init_bullet_list(self):
-        pass
+        # No bullets at start of game
+        self.bullet_list = []
     
     def create_ball(self):
         # update and see if create new ball
         if len(self.wb_list) < modelConst.wb_max_num and random.randint(0,modelConst.wb_born_period*viewConst.FramePerSec)==0:
             self.wb_list.append(White_Ball())
-    
+            
     def tick_update(self):
-        self.create_ball()
-        
+        #update bullets
         for i, item in enumerate(self.bullet_list):
             #update failed means the bullet should become a white ball
             if not item.update():
                 self.wb_list.append(White_Ball(item.pos))
                 del self.bullet_list[i]
+        #update white balls
+        self.create_ball()
+        #update heads
+        for item in self.player_list:
+            if item.is_dash:
+                for i in range(modelConst.dash_speed_multiplier):
+                    item.update(self.player_list,self.wb_list,self.bullet_list)
+            else:
+                item.update(self.player_list,self.wb_list,self.bullet_list)
+        #update bodies
+        #for item in self.player_list:
+        #    for j in range(1, len(item.body_list)):
+        #        item.body_list[j].update()
 
 
     def notify(self, event):
@@ -69,6 +88,10 @@ class GameEngine(object):
             if cur_state == STATE_PLAY:
                 # every tick update
                 self.tick_update() 
+        elif isinstance(event, Event_MoveWayChange):
+            cur_state = self.state.peek()
+            if cur_state == STATE_PLAY:
+                self.player_list[event.PlayerIndex].click(self.bullet_list)
         elif isinstance(event, Event_StateChange):
             # if event.state is None >> pop state.
             if event.state is None:
@@ -81,9 +104,14 @@ class GameEngine(object):
             else:
                 # push a new state on the stack
                 self.state.push(event.state)
-        elif isinstance(event, Event_Move):
+        elif isinstance(event, Event_MoveWayChange):
+            #modified in challenge 2018 
             #key board event
-            self.SetPlayerDirection(event.PlayerIndex, event.Direction)
+            """
+            if keyboard is pressed, change the head_moving way
+            """
+            #print(event)
+            self.player_list[event.PlayerIndex].click(self.bullet_list)
         elif isinstance(event, Event_Quit):
             self.running = False
         elif isinstance(event, Event_Initialize) or \
