@@ -51,7 +51,8 @@ class Event_MoveWayChange(BaseEvent):
         return "{0} => Playerindex={1}".format(self.name, self.PlayerIndex)
 class Event_TriggerExplosive(BaseEvent):
 
-    def __init__(self, pos):
+    def __init__(self, player, pos):
+        self.PlayerIndex = player
         self.name = "TriggerExplosive event"
         self.pos = pos
 

@@ -11,6 +11,15 @@ import View.const        as viewConst
 import Controller.const  as ctrlConst
 import Interface.const   as IfaConst
 
+class Explosion(object):
+    """
+    Object for rendering the explosion effect
+    """
+    def __init__(self, index, pos, time):
+        self.index = index
+        self.pos = pos
+        self.time = time
+
 class GraphicalView(object):
     """
     Draws the model state onto the screen.
@@ -28,6 +37,7 @@ class GraphicalView(object):
         self.screen = None
         self.clock = None
         self.smallfont = None
+        self.explosionEvent = []
 
         self.last_update = 0
     
@@ -48,6 +58,8 @@ class GraphicalView(object):
             self.display_fps()
             # limit the redraw speed to 30 frames per second
             self.clock.tick(viewConst.FramePerSec)
+        elif isinstance(event, Event_TriggerExplosive):
+            self.explosionEvent.append(Explosion(event.PlayerIndex, event.pos, viewConst.explosionTime))
         elif isinstance(event, Event_Quit):
             # shut down the pygame graphics
             self.is_initialized = False
@@ -156,12 +168,12 @@ class GraphicalView(object):
 
         for item in self.model.item_list:
             pos = (int(item.pos[0]), int(item.pos[1]))
-            draw.filled_circle(self.screen, pos[0], pos[1], \
+            itemSurface = pg.Surface(viewConst.GameSize, SRCALPHA)
+            draw.filled_circle(itemSurface, pos[0], pos[1], \
                                int(item.radius), item.color)
-            explosionEffect = pg.Surface(viewConst.GameSize, SRCALPHA)
-            draw.filled_circle(explosionEffect, pos[0], pos[1], \
-                               int(modelConst.explosive_radius), (255, 215, 0, 128))
-            self.screen.blit(explosionEffect, (0, 0))
+            draw.filled_circle(itemSurface, pos[0], pos[1], \
+                               int(item.radius * 0.7), (0, 0, 0, 0))
+            self.screen.blit(itemSurface, (0, 0))
 
         for player in self.model.player_list:
             for body in player.body_list[1:]:
@@ -199,6 +211,18 @@ class GraphicalView(object):
             pos = (int(bullet.pos[0]), int(bullet.pos[1]))
             draw.filled_circle(self.screen, pos[0], pos[1], \
                                int(bullet.radius), color)
+
+        for i, explosion in enumerate(self.explosionEvent[::-1]):
+            if explosion.time > 0:
+                explosion.time -= 1
+                color = self.model.player_list[explosion.index].color
+                pos = (int(explosion.pos[0]), int(explosion.pos[1]))
+                explosionEffect = pg.Surface(viewConst.GameSize, SRCALPHA)
+                draw.filled_circle(explosionEffect, pos[0], pos[1], \
+                                   int(modelConst.explosive_radius * (1 - explosion.time / viewConst.explosionTime)), Color(*color, int(192 * (explosion.time / viewConst.explosionTime))))
+                self.screen.blit(explosionEffect, (0, 0))
+            else:
+                del self.explosionEvent[i]
 
         # update the scene
         # To be decided: update merely the game window or the whole screen?

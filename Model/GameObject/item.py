@@ -18,7 +18,7 @@ class Explosive(Item):
         self.evManager = evManager
     
     def trigger(self, index, player_list, wb_list):
-        self.evManager.Post(Event_TriggerExplosive(self.pos))
+        self.evManager.Post(Event_TriggerExplosive(index, self.pos))
         self.absorb(index, player_list, wb_list)
 
     def absorb(self, index, player_list, wb_list):
