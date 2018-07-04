@@ -19,6 +19,7 @@ class Head(object):
         self.theta = index * (pi/2)
         self.direction = Vec( cos(self.theta), sin(self.theta) )
         
+        #information
         self.speed = modelconst.normal_speed
         self.is_dash = False
         self.dash_timer = 0
@@ -28,9 +29,9 @@ class Head(object):
         self.is_ingrav = False
         self.is_circling = False
         self.circling_radius = 0
+        self.direction_log = [self.direction]
         #if in grav
         self.grav_center = Vec( 0, 0 )
-        self.direction_log = [self.direction]
 
     def update(self,player_list, wb_list, bullet_list):
         
@@ -38,7 +39,6 @@ class Head(object):
                 self.direction_log.pop(0)
 
         self.pos += self.direction * self.speed
-        
         if self.is_circling:
             self.theta += (self.speed/self.circling_radius)*modelconst.dt
             self.direction = Vec( cos(self.theta), sin(self.theta) )
@@ -67,9 +67,7 @@ class Head(object):
         
         
         #collision with competitor's body
-        #TODO 
         #NEED TO BE FIXED !!!!!!!
-
         if not self.is_dash:
             for enemy in player_list:
                 if enemy.index == self.index :
