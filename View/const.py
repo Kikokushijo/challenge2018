@@ -49,6 +49,6 @@ playerColor   = [Color_Turquoise,  Color_Lightcoral, Color_Orangered, \
 
 # Durations
 
-explosionTime = 120
+explosionTime = 90
 killedExplosionRadius = 400
-killedExplosionTime = 240
+killedExplosionTime = 120
