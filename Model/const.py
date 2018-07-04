@@ -83,13 +83,16 @@ bullet_speed0 = normal_speed * dash_speed_multiplier**2
 #####################  item const #####################
 
 PROP_TYPE_EXPLOSIVE = 0
+PROP_TYPE_MULTIBULLET = 1
+PROP_TYPE_BIGBULLET = 2
 item_max = 3
-item_born_period = 0.5#second
+item_born_period = 1#second
 item_init_num = 0
 item_radius = 10
 
 explosive_radius = 150.0
-explosive_max = 5
+
+bigbullet_r = bullet_radius * 3
 
 
 #####################  item const #####################

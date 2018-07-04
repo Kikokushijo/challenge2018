@@ -37,15 +37,25 @@ class Explosive(Item):
                 if(cb.pos - self.pos).length_squared() < modelConst.explosive_radius**2:
                     player_list[index].body_list.append(Body(player_list[index].body_list[-1]))
                     other.body_list.pop()
-'''
-class Explosive(Item):
+
+class Multibullet(Item):
     def __init__(self):
-        super().__init__(modelConst.PROP_TYPE_EXPLOSIVE)
+        super().__init__(modelConst.PROP_TYPE_MULTIBULLET)
         self.radius = modelConst.item_radius
-        self.color = viewConst.explosive_color
+        self.color = viewConst.multibullet_color
     
     def trigger(self, index, player_list, wb_list):
-        self.absorb(index, player_list, wb_list)
-'''
+        player_list[index].have_bigbullet = False
+        player_list[index].have_multibullet = True
+
+class Bigbullet(Item):
+    def __init__(self):
+        super().__init__(modelConst.PROP_TYPE_BIGBULLET)
+        self.radius = modelConst.item_radius
+        self.color = viewConst.bigbullet_color
+    
+    def trigger(self, index, player_list, wb_list):
+        player_list[index].have_bigbullet = True
+        player_list[index].have_multibullet = False
 
 
