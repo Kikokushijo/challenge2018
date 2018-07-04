@@ -154,6 +154,11 @@ class GraphicalView(object):
             draw.filled_circle(self.screen, pos[0], pos[1], \
                                int(wb.radius), viewConst.wbColor)
 
+        for item in self.model.item_list:
+            pos = (int(item.pos[0]), int(item.pos[1]))
+            draw.filled_circle(self.screen, pos[0], pos[1], \
+                               int(item.radius), item.color)
+
         for player in self.model.player_list:
             for body in player.body_list[1:]:
                 pos = (int(body.pos[0]), int(body.pos[1]))
