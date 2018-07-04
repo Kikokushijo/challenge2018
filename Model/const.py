@@ -37,8 +37,8 @@ grav = []
 
 
 #####################  white ball const  #####################
-wb_init_num = 30
-wb_max_num  = 50
+wb_init_num = 150
+wb_max_num  = 250
 wb_born_period = 1 #second
 wb_radius   = 10
 #####################  white ball const  #####################
@@ -82,13 +82,14 @@ bullet_speed0 = normal_speed * dash_speed_multiplier**2
 
 #####################  item const #####################
 
-PROP_TYPE_EXPLOSION = 0
+PROP_TYPE_EXPLOSIVE = 0
 item_max = 10
 item_born_period = 1#second
 item_init_num = 1
+item_radius = 10
 
-explosion_radius = 500.0
-explosion_max = 5
+explosive_radius = 500.0
+explosive_max = 5
 
 
 #####################  item const #####################
