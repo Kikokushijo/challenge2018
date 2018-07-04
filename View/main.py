@@ -172,7 +172,7 @@ class GraphicalView(object):
 
         for item in self.model.item_list:
             pos = (int(item.pos[0]), int(item.pos[1]))
-            itemSurface = pg.Surface((int(4 * item.radius), int(4 * item.radius)), SRCALPHA)
+            itemSurface = pg.Surface((int(2.5 * item.radius), int(2.5 * item.radius)), SRCALPHA)
             Xsize, Ysize = itemSurface.get_size()
             draw.filled_circle(itemSurface, Xsize // 2, Ysize // 2, \
                                int(item.radius), item.color)
@@ -223,7 +223,7 @@ class GraphicalView(object):
                 color = self.model.player_list[explosion.index].color
                 pos = (int(explosion.pos[0]), int(explosion.pos[1]))
                 radius = explosion.radius
-                explosionEffect = pg.Surface((int(4 * radius), int(4 * radius)), SRCALPHA)
+                explosionEffect = pg.Surface((int(2.5 * radius), int(2.5 * radius)), SRCALPHA)
                 Xsize, Ysize = explosionEffect.get_size()
                 draw.filled_circle(explosionEffect, Xsize // 2, Ysize // 2, \
                                    int(1.1 * radius * (1 - explosion.time / explosion.totaltime)), Color(*color, int(192 * (explosion.time / explosion.totaltime))))
