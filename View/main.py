@@ -193,23 +193,18 @@ class GraphicalView(object):
                                    int(player.radius), player.color)
                 triRadius = player.radius * 0.7
                 theta = math.atan2(player.direction.y, player.direction.x)
-                x1, y1 = triRadius, 0
-                x2, y2 = -0.5 * triRadius, math.sqrt(3) / 2 * triRadius
-                x3, y3 = x2, -y2
-                x1, y1 = x1 * math.cos(theta) - y1 * math.sin(theta), x1 * math.sin(theta) + y1 * math.cos(theta)
-                x2, y2 = x2 * math.cos(theta) - y2 * math.sin(theta), x2 * math.sin(theta) + y2 * math.cos(theta)
-                x3, y3 = x3 * math.cos(theta) - y3 * math.sin(theta), x3 * math.sin(theta) + y3 * math.cos(theta)
-                sx1, sy1 = int(x1 * 0.6 + player.pos[0]), int(y1 * 0.6 + player.pos[1])
-                sx2, sy2 = int(x2 * 0.6 + player.pos[0]), int(y2 * 0.6 + player.pos[1])
-                sx3, sy3 = int(x3 * 0.6 + player.pos[0]), int(y3 * 0.6 + player.pos[1])
-                x1, y1 = int(x1 + player.pos[0]), int(y1 + player.pos[1])
-                x2, y2 = int(x2 + player.pos[0]), int(y2 + player.pos[1])
-                x3, y3 = int(x3 + player.pos[0]), int(y3 + player.pos[1])
+                vertex1_relative = pg.math.Vector2(triRadius, 0).rotate(theta * 180 / math.pi)
+                vertex2_relative = vertex1_relative.rotate(120)
+                vertex3_relative = vertex1_relative.rotate(240)
+                vertex1 = player.pos + vertex1_relative
+                vertex2 = player.pos + vertex2_relative
+                vertex3 = player.pos + vertex3_relative
+                draw.filled_trigon(self.screen, int(vertex1[0]), int(vertex1[1]), int(vertex2[0]), int(vertex2[1]), int(vertex3[0]), int(vertex3[1]), viewConst.Color_Snow)
                 if player.is_circling and player.is_ingrav:
-                    draw.filled_trigon(self.screen, x1, y1, x2, y2, x3, y3, viewConst.Color_Snow)
-                    draw.filled_trigon(self.screen, sx1, sy1, sx2, sy2, sx3, sy3, player.color)
-                else:
-                    draw.filled_trigon(self.screen, x1, y1, x2, y2, x3, y3, viewConst.Color_Snow)
+                    inner_vertex1 = player.pos + 0.6 * vertex1_relative
+                    inner_vertex2 = player.pos + 0.6 * vertex2_relative
+                    inner_vertex3 = player.pos + 0.6 * vertex3_relative
+                    draw.filled_trigon(self.screen, int(inner_vertex1[0]), int(inner_vertex1[1]), int(inner_vertex2[0]), int(inner_vertex2[1]), int(inner_vertex3[0]), int(inner_vertex3[1]), player.color)
 
         for bullet in self.model.bullet_list:
             color = self.model.player_list[bullet.index].color
