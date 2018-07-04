@@ -48,6 +48,7 @@ wb_radius   = 10
 
 
 max_dash_time = 50
+
 normal_speed = 2
 #dash_speed = normal_speed * 3
 dash_speed_multiplier = 3
