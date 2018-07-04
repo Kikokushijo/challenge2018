@@ -168,12 +168,13 @@ class GraphicalView(object):
 
         for item in self.model.item_list:
             pos = (int(item.pos[0]), int(item.pos[1]))
-            itemSurface = pg.Surface(viewConst.GameSize, SRCALPHA)
-            draw.filled_circle(itemSurface, pos[0], pos[1], \
+            itemSurface = pg.Surface((int(4 * item.radius), int(4 * item.radius)), SRCALPHA)
+            Xsize, Ysize = itemSurface.get_size()
+            draw.filled_circle(itemSurface, Xsize // 2, Ysize // 2, \
                                int(item.radius), item.color)
-            draw.filled_circle(itemSurface, pos[0], pos[1], \
+            draw.filled_circle(itemSurface, Xsize // 2, Ysize // 2, \
                                int(item.radius * 0.7), (0, 0, 0, 0))
-            self.screen.blit(itemSurface, (0, 0))
+            self.blit_at_center(itemSurface, pos)
 
         for player in self.model.player_list:
             for body in player.body_list[1:]:
@@ -217,10 +218,12 @@ class GraphicalView(object):
                 explosion.time -= 1
                 color = self.model.player_list[explosion.index].color
                 pos = (int(explosion.pos[0]), int(explosion.pos[1]))
-                explosionEffect = pg.Surface(viewConst.GameSize, SRCALPHA)
-                draw.filled_circle(explosionEffect, pos[0], pos[1], \
-                                   int(modelConst.explosive_radius * (1 - explosion.time / viewConst.explosionTime)), Color(*color, int(192 * (explosion.time / viewConst.explosionTime))))
-                self.screen.blit(explosionEffect, (0, 0))
+                radius = modelConst.explosive_radius
+                explosionEffect = pg.Surface((int(4 * radius), int(4 * radius)), SRCALPHA)
+                Xsize, Ysize = explosionEffect.get_size()
+                draw.filled_circle(explosionEffect, Xsize // 2, Ysize // 2, \
+                                   int(1.1 * radius * (1 - explosion.time / viewConst.explosionTime)), Color(*color, int(192 * (explosion.time / viewConst.explosionTime))))
+                self.blit_at_center(explosionEffect, pos)
             else:
                 del self.explosionEvent[i]
 
