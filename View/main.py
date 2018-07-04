@@ -217,7 +217,8 @@ class GraphicalView(object):
             draw.filled_circle(self.screen, pos[0], pos[1], \
                                int(bullet.radius), color)
 
-        for i, explosion in enumerate(self.explosionEvent[::-1]):
+        for i in range(len(self.explosionEvent)-1,-1,-1):
+            explosion = self.explosionEvent[i]
             if explosion.time > 0:
                 explosion.time -= 1
                 color = self.model.player_list[explosion.index].color
@@ -229,7 +230,7 @@ class GraphicalView(object):
                                    int(1.1 * radius * (1 - explosion.time / explosion.totaltime)), Color(*color, int(192 * (explosion.time / explosion.totaltime))))
                 self.blit_at_center(explosionEffect, pos)
             else:
-                del self.explosionEvent[i]
+                self.explosionEvent.pop(i)
 
         # update the scene
         # To be decided: update merely the game window or the whole screen?
