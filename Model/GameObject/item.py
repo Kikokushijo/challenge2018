@@ -8,7 +8,7 @@ import random
 class Item(object):
     def __init__(self,type = None):
         self.type = type
-        self.pos = Vec(random.randint(0, viewConst.ScreenSize[0] - 480), random.randint(0, viewConst.ScreenSize[0]))
+        self.pos = Vec(random.randint(0, viewConst.ScreenSize[1]), random.randint(0, viewConst.ScreenSize[1]))
 
 class Explosive(Item):
     def __init__(self, evManager):
