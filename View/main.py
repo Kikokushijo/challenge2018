@@ -91,8 +91,8 @@ class GraphicalView(object):
         self.is_initialized = True
 
     def blit_at_center(self, surface, position):
-        (Xsize, Ysize) = surface.get_size()
-        self.screen.blit(surface, (int(position[0]-Xsize/2), int(position[1]-Ysize/2)))
+        center = tuple([int(pos - size // 2) for pos, size in zip(position, surface.get_size())])
+        self.screen.blit(surface, center)
 
     # to be modified
     def render_menu(self):
@@ -157,75 +157,76 @@ class GraphicalView(object):
                        viewConst.GameSize[1] // 4 * i, viewConst.sbColor)
 
         for g in modelConst.grav:
-            pos = (int(g[0][0]), int(g[0][1]))
-            r = int(g[1] + modelConst.head_radius * 0.5)
-            draw.filled_circle(self.screen, pos[0], pos[1], \
-                               r, viewConst.gravColor)
-            draw.filled_circle(self.screen, pos[0], pos[1], \
-                               int(r * 0.07), viewConst.bgColor)
+            pos = tuple(map(int, g[0]))
+            radius = int(g[1] + modelConst.head_radius * 0.5)
+            draw.filled_circle(self.screen, *pos, \
+                               radius, viewConst.gravColor)
+            draw.filled_circle(self.screen, *pos, \
+                               int(radius * 0.07), viewConst.bgColor)
 
         for wb in self.model.wb_list:
-            pos = (int(wb.pos[0]), int(wb.pos[1]))
-            draw.filled_circle(self.screen, pos[0], pos[1], \
+            pos = tuple(map(int, wb.pos))
+            draw.filled_circle(self.screen, *pos, \
                                int(wb.radius), viewConst.wbColor)
 
         for item in self.model.item_list:
-            pos = (int(item.pos[0]), int(item.pos[1]))
-            itemSurface = pg.Surface((int(2.2 * item.radius), int(2.2 * item.radius)), pg.SRCALPHA)
-            Xsize, Ysize = itemSurface.get_size()
-            draw.filled_circle(itemSurface, Xsize // 2, Ysize // 2, \
+            pos = tuple(map(int, item.pos))
+            itemSurface = pg.Surface((int(2.2 * item.radius),) * 2, pg.SRCALPHA)
+            center = tuple([x // 2 for x in itemSurface.get_size()])
+            draw.filled_circle(itemSurface, *center, \
                                int(item.radius), item.color)
-            draw.filled_circle(itemSurface, Xsize // 2, Ysize // 2, \
+            draw.filled_circle(itemSurface, *center, \
                                int(item.radius * 0.7), (0, 0, 0, 0))
             self.blit_at_center(itemSurface, pos)
 
         for player in self.model.player_list:
             for body in player.body_list[1:]:
-                pos = (int(body.pos[0]), int(body.pos[1]))
-                draw.filled_circle(self.screen, pos[0], pos[1], \
+                pos = tuple(map(int, body.pos))
+                draw.filled_circle(self.screen, *pos, \
                                    int(body.radius), player.color)
 
         for player in self.model.player_list:
             if player.is_alive:
-                pos = (int(player.pos[0]), int(player.pos[1]))
-                draw.filled_circle(self.screen, pos[0], pos[1], \
+                pos = tuple(map(int, player.pos))
+                draw.filled_circle(self.screen, *pos, \
                                    int(player.radius), player.color)
+                # draw triangle
                 triRadius = player.radius * 0.7
                 theta = math.atan2(player.direction.y, player.direction.x)
-                vertex1_relative = pg.math.Vector2(triRadius, 0).rotate(theta * 180 / math.pi)
-                vertex2_relative = vertex1_relative.rotate(120)
-                vertex3_relative = vertex1_relative.rotate(240)
-                vertex1 = player.pos + vertex1_relative
-                vertex2 = player.pos + vertex2_relative
-                vertex3 = player.pos + vertex3_relative
-                draw.filled_trigon(self.screen, int(vertex1[0]), int(vertex1[1]), int(vertex2[0]), int(vertex2[1]), int(vertex3[0]), int(vertex3[1]), viewConst.Color_Snow)
+
+                relativeVertexStart = pg.math.Vector2(triRadius, 0).rotate(theta * 180 / math.pi)
+                relativeVertices = [relativeVertexStart.rotate(i * 120) for i in range(3)]
+
+                vertices = [player.pos + vertex for vertex in relativeVertices]
+                intVertices = [int(x) for vertex in vertices for x in vertex]
+
+                draw.filled_trigon(self.screen, *intVertices, viewConst.Color_Snow)
+
                 if player.is_circling and player.is_ingrav:
-                    inner_vertex1 = player.pos + 0.6 * vertex1_relative
-                    inner_vertex2 = player.pos + 0.6 * vertex2_relative
-                    inner_vertex3 = player.pos + 0.6 * vertex3_relative
-                    draw.filled_trigon(self.screen, int(inner_vertex1[0]), int(inner_vertex1[1]), int(inner_vertex2[0]), int(inner_vertex2[1]), int(inner_vertex3[0]), int(inner_vertex3[1]), player.color)
+                    innerVertices = [player.pos + 0.6 * vertex for vertex in relativeVertices]
+                    intInnerVertices = [int(x) for vertex in innerVertices for x in vertex]
+
+                    draw.filled_trigon(self.screen, *intInnerVertices, player.color)
 
         for bullet in self.model.bullet_list:
             color = self.model.player_list[bullet.index].color
-            pos = (int(bullet.pos[0]), int(bullet.pos[1]))
-            draw.filled_circle(self.screen, pos[0], pos[1], \
+            pos = tuple(map(int, bullet.pos))
+            draw.filled_circle(self.screen, *pos, \
                                int(bullet.radius), color)
 
-        for i in range(len(self.explosionEvent)-1,-1,-1):
-            explosion = self.explosionEvent[i]
-            if explosion.time > 0:
-                explosion.time -= 1
-                color = self.model.player_list[explosion.index].color
-                pos = (int(explosion.pos[0]), int(explosion.pos[1]))
-                radius = explosion.radius
-                explosionEffect = pg.Surface((int(2.1 * radius), int(2.1 * radius)), pg.SRCALPHA)
-                Xsize, Ysize = explosionEffect.get_size()
-                timeRatio = explosion.time / explosion.totaltime
-                draw.filled_circle(explosionEffect, Xsize // 2, Ysize // 2, \
-                                   int(1.1 * radius * (1 - timeRatio)), pg.Color(*color, int(192 * timeRatio)))
-                self.blit_at_center(explosionEffect, pos)
-            else:
-                self.explosionEvent.pop(i)
+        for explosion in self.explosionEvent:
+            explosion.time -= 1
+            color = self.model.player_list[explosion.index].color
+            pos = tuple(map(int, explosion.pos))
+            radius = explosion.radius
+            timeRatio = explosion.time / explosion.totaltime
+
+            explosionEffect = pg.Surface((int(2.1 * radius),) * 2, pg.SRCALPHA)
+            center = tuple([x // 2 for x in explosionEffect.get_size()])
+            draw.filled_circle(explosionEffect, *center, \
+                               int(1.1 * radius * (1 - timeRatio)), pg.Color(*color, int(192 * timeRatio)))
+            self.blit_at_center(explosionEffect, pos)
+        self.explosionEvent[:] = [x for x in self.explosionEvent if x.time > 0]
 
         # update the scene
         # To be decided: update merely the game window or the whole screen?
