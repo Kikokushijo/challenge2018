@@ -219,7 +219,7 @@ class GraphicalView(object):
                 pos = (int(explosion.pos[0]), int(explosion.pos[1]))
                 explosionEffect = pg.Surface(viewConst.GameSize, SRCALPHA)
                 draw.filled_circle(explosionEffect, pos[0], pos[1], \
-                                   int(modelConst.explosive_radius * (1 - explosion.time / viewConst.explosionTime)), Color(*color, int(192 * (explosion.time / viewConst.explosionTime))))
+                                   int(1.1 * modelConst.explosive_radius * (1 - explosion.time / viewConst.explosionTime)), Color(*color, int(192 * (explosion.time / viewConst.explosionTime))))
                 self.screen.blit(explosionEffect, (0, 0))
             else:
                 del self.explosionEvent[i]
