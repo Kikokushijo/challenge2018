@@ -58,14 +58,15 @@ head_radius = 11
 #the grav now is for debug
 grav = []
 grav_st=120
+grav_r = 75
 grav_dr=(800-grav_st*2)/4
 for i in range(5):
     if i % 2 == 0:
         for j in range(3):
-            grav.append((Vec(grav_st+grav_dr*2*j,grav_st+grav_dr*i),80))
+            grav.append((Vec(grav_st+grav_dr*2*j,grav_st+grav_dr*i),grav_r))
     else:
         for j in range(2):
-            grav.append((Vec(grav_st+grav_dr+grav_dr*2*j,0.5+grav_st+grav_dr*i),80))
+            grav.append((Vec(grav_st+grav_dr+grav_dr*2*j,0.5+grav_st+grav_dr*i),grav_r))
 # grav = [(Vec(160,160),50),(Vec(320,160),50),(Vec(480,160),50),\
 # (Vec(640,160),50),(Vec(200,400),50),(Vec(200,600),50),(Vec(200,800),50)]
 
@@ -80,7 +81,7 @@ body_gap = 6
 
 #####################  bullet const  #####################
 bullet_radius = 8
-bullet_a = 0.04
+bullet_a = 0.1
 bullet_speed0 = normal_speed * 7
 #####################  bullet const  #####################
 
@@ -96,7 +97,7 @@ item_radius = 10
 
 explosive_radius = 150.0
 
-bigbullet_r = bullet_radius * 3
+bigbullet_r = bullet_radius * 4
 
 
 #####################  item const #####################
