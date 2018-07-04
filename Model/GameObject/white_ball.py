@@ -8,7 +8,13 @@ class White_Ball(object):
     def __init__(self, pos = Vec(-1,-1) ):
         self.color = viewConst.wbColor
         self.radius = modelConst.wb_radius
-        if pos == Vec(-1, -1) :
+        if pos == Vec(-2, -2) :
+        	randpos = Vec(random.randint(0, viewConst.ScreenSize[0]-480), random.randint(0, viewConst.ScreenSize[0]))
+        	screen_mid = Vec( viewConst.ScreenSize[1]/2, viewConst.ScreenSize[1]/2 )
+        	while (randpos - screen_mid).length_squared() < modelConst.init_no_wb_r ** 2:
+        		randpos = Vec(random.randint(0, viewConst.ScreenSize[0]-480), random.randint(0, viewConst.ScreenSize[0]))
+        	self.pos = randpos
+        elif pos == Vec(-1, -1) :
             #random init the position of balls
             self.pos = Vec(random.randint(0, viewConst.ScreenSize[0]-480), random.randint(0, viewConst.ScreenSize[0]))
         else:

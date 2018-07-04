@@ -29,27 +29,36 @@ class Head(object):
         self.is_alive = True
         self.body_list = [self]
         self.is_ingrav = False
-        self.is_circling = False
-        self.circling_radius = 0
-        self.ori = 0
+        self.is_circling = True
+        self.circling_radius = modelconst.init_r
+        self.ori = 1
+        self.init_timer = 200
         #if in grav
         self.grav_center = Vec( 0, 0 )
         self.pos_log = [Vec(self.pos)]
 
     def update(self,player_list, wb_list, bullet_list):
         if not self.is_alive:
-            return
+            return 0
 
         self.pos += self.direction * self.speed
-        #update pos log
-        self.pos_log.append(Vec(self.pos))
-        if len(self.pos_log) > modelconst.pos_log_max :
-            self.pos_log.pop(0)
         
         if self.is_circling:
             self.theta += self.speed / self.circling_radius * self.ori
             #print(self.theta, self.speed/self.circling_radius)
             self.direction = Vec( cos(self.theta), -sin(self.theta) )
+        if self.init_timer != -1:
+            self.init_timer -= 1
+        if self.init_timer > 0:
+            return 0
+        elif self.init_timer == 0:
+            self.is_circling = False
+            self.init_timer = -1
+
+        #update pos log
+        self.pos_log.append(Vec(self.pos))
+        if len(self.pos_log) > modelconst.pos_log_max :
+            self.pos_log.pop(0)
         
         #is in circle
         self.is_ingrav=False
@@ -69,12 +78,11 @@ class Head(object):
         #collision with white ball
         for i, wb in enumerate(wb_list):
             if (self.pos - wb.pos).length_squared() < (self.radius + wb.radius)**2 :
-                #delete a withe ball
-                del wb_list[i]
                 #lengthen body list
                 self.body_list.append(Body(self.body_list[-1]))
-        
-        
+                #delete a withe ball
+                del wb_list[i]
+
         #collision with competitor's body and bullet
 
         if not self.is_dash:
@@ -99,7 +107,7 @@ class Head(object):
                 player_list[killer].body_list.append(Body(player_list[killer].body_list[-1]))
                 self.body_list.pop(-1)
 
-            return
+            return 1
         #collision with competitor's head
         if not self.is_dash:
             for enemy in player_list:
@@ -107,9 +115,11 @@ class Head(object):
                     continue
                 if (self.pos - enemy.pos).length_squared() < (self.radius + enemy.radius)**2 :
                     rrel = enemy.pos - self.pos
-                    self.direction.reflect_ip(rrel)
-                    enemy.direction.reflect_ip(rrel)
-                    self.is_circling = False
+                    if (self.direction - enemy.direction).dot(rrel) > 0:
+                        self.direction.reflect_ip(rrel)
+                        enemy.direction.reflect_ip(rrel)
+                        self.is_circling = False
+                        enemy.is_circling = False
         
         #collision with item
 
@@ -124,8 +134,10 @@ class Head(object):
         #self.theta = atan2(self.direction.x, -self.direction.y)
         for j in range(1, len(self.body_list)):
                 self.body_list[j].update()
-    
+        return 0
     def click(self, bullet_list) :
+        if self.init_timer != -1:
+            return
         if not self.is_dash:
             if self.is_ingrav:
                 self.is_circling = (not self.is_circling)
