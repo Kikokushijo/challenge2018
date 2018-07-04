@@ -37,8 +37,8 @@ grav = []
 
 
 #####################  white ball const  #####################
-wb_init_num = 100
-wb_max_num  = 150
+wb_init_num = 150
+wb_max_num  = 250
 wb_born_period = 1 #second
 wb_radius   = 10
 #####################  white ball const  #####################
@@ -51,9 +51,10 @@ max_dash_time = 50
 normal_speed = 1.0
 #dash_speed = normal_speed * 3
 dash_speed_multiplier = 3
-pos_log_max = 20
+pos_log_max = 25
 init_r = 40
-head_radius = 15
+init_no_wb_r = 80
+head_radius = 11
 #the grav now is for debug
 grav = []
 grav_st=120
@@ -65,25 +66,31 @@ for i in range(4):
 # (Vec(640,160),50),(Vec(200,400),50),(Vec(200,600),50),(Vec(200,800),50)]
 
 init_r=40
-head_radius = 10
 dt=1/viewconst.FramePerSec
 #####################     head const     #####################
 
+#####################    body const    ######################
+body_radius = 10
+body_gap = 6
+#####################    body const    ######################
+
 #####################  bullet const  #####################
-bullet_radius = head_radius
+bullet_radius = 8
 bullet_a = 0.02
 bullet_speed0 = normal_speed * dash_speed_multiplier**2
 #####################  bullet const  #####################
 
-#####################    body const    ######################
-body_radius = head_radius
-body_gap = 6
-#####################    body const    ######################
-
 #####################  item const #####################
 
-PROP_TYPE_EXPLOSION = 0
-explosion_radius = 500.0
+PROP_TYPE_EXPLOSIVE = 0
+item_max = 10
+item_born_period = 1#second
+item_init_num = 1
+item_radius = 10
+
+explosive_radius = 500.0
+explosive_max = 5
+
 
 #####################  item const #####################
 

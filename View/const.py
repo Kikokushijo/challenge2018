@@ -38,6 +38,7 @@ bgColor      =  Color_Gainsboro
 sbColor      =  Color_Black # scoreboard
 wbColor      =  Color_Snow
 gravColor    =  Color_Lightgray
+explosive_color = Color_Black
 playerColor  = [Color_Turquoise,  Color_Lightcoral, Color_Orangered, \
                 Color_Darkkhaki,  Color_Gold,       Color_Violet, \
                 Color_Darkviolet, Color_Limegreen,  Color_Olive, \
