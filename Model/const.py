@@ -48,10 +48,10 @@ wb_radius   = 10
 
 
 max_dash_time = 50
-normal_speed = 1.0
+normal_speed = 2
 #dash_speed = normal_speed * 3
 dash_speed_multiplier = 3
-pos_log_max = 25
+pos_log_max = 25 / normal_speed + 1
 init_r = 40
 init_no_wb_r = 80
 head_radius = 11
@@ -80,8 +80,8 @@ body_gap = 6
 
 #####################  bullet const  #####################
 bullet_radius = 8
-bullet_a = 0.02
-bullet_speed0 = normal_speed * dash_speed_multiplier**2
+bullet_a = 0.04
+bullet_speed0 = normal_speed * 7
 #####################  bullet const  #####################
 
 #####################  item const #####################
