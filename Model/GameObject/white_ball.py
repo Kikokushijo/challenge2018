@@ -9,7 +9,7 @@ class White_Ball(object):
         self.color = viewConst.wbColor
         self.radius = modelConst.wb_radius
         if pos == Vec(-2, -2) :
-        	randpos = Vec(random.randint(0, viewConst.ScreenSize[0]-480), random.randint(0, viewConst.ScreenSize[0]))
+        	randpos = Vec(random.randint(0, viewConst.ScreenSize[1]), random.randint(0, viewConst.ScreenSize[1]))
         	screen_mid = Vec( viewConst.ScreenSize[1]/2, viewConst.ScreenSize[1]/2 )
         	while (randpos - screen_mid).length_squared() < modelConst.init_no_wb_r ** 2:
         		randpos = Vec(random.randint(0, viewConst.ScreenSize[0]-480), random.randint(0, viewConst.ScreenSize[0]))

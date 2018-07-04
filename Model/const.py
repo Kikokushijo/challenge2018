@@ -86,7 +86,7 @@ PROP_TYPE_EXPLOSIVE = 0
 PROP_TYPE_MULTIBULLET = 1
 PROP_TYPE_BIGBULLET = 2
 item_max = 3
-item_born_period = 1#second
+item_born_period = 10#second
 item_init_num = 0
 item_radius = 10
 
