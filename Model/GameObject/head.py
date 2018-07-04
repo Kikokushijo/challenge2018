@@ -7,6 +7,7 @@ from pygame.math import Vector2 as Vec
 from Model.GameObject.white_ball import White_Ball
 from Model.GameObject.body import Body 
 from Model.GameObject.bullet import Bullet
+from Model.GameObject.item import Item
 
 class Head(object):
     def __init__(self, index, name = "player", is_AI = False):
@@ -37,7 +38,7 @@ class Head(object):
         self.grav_center = Vec( 0, 0 )
         self.pos_log = [Vec(self.pos)]
 
-    def update(self,player_list, wb_list, bullet_list):
+    def update(self,player_list, wb_list, bullet_list, item_list):
         if not self.is_alive:
             return
 
@@ -113,8 +114,9 @@ class Head(object):
                     self.is_circling = False
         
         #collision with item
-
-
+            #for item in item_list:
+                #if ( self.pos - item.pos ).length_squared() < (self.radius + item.radius)**2 :
+                    ##trigger item
         #dash timer
         if self.is_dash:
             self.dash_timer -= 1

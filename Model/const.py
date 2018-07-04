@@ -83,7 +83,13 @@ body_gap = 6
 #####################  item const #####################
 
 PROP_TYPE_EXPLOSION = 0
+item_max = 10
+item_born_period = 1#second
+item_init_num = 1
+
 explosion_radius = 500.0
+explosion_max = 5
+
 
 #####################  item const #####################
 
