@@ -50,6 +50,21 @@ class Event_MoveWayChange(BaseEvent):
     def __str__(self):
         return "{0} => Playerindex={1}".format(self.name, self.PlayerIndex)
 
+class Event_PlayerKilled(BaseEvent):
+
+    def __init__(self, player, pos):
+        self.name = "PlayerKilled event"
+        self.PlayerIndex = player
+        self.pos = pos
+
+    def __str__(self):
+        return "{0} => Playerindex={1} , Killed at {2}".format(self.name, self.PlayerIndex, self.pos)
+
+class Event_GameOver(BaseEvent):
+    def __init__ (self):
+        self.name = "GameOver event"
+    def __str__(self):
+        return self.name
 class Event_EveryTick(BaseEvent):
     """
     Tick event.
