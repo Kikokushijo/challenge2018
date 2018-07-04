@@ -170,14 +170,18 @@ class GraphicalView(object):
                 x1, y1 = triRadius, 0
                 x2, y2 = -0.5 * triRadius, math.sqrt(3) / 2 * triRadius
                 x3, y3 = x2, -y2
-                x1, y1 = x1 * math.cos(theta) - y1 * math.sin(theta) + player.pos[0], x1 * math.sin(theta) + y1 * math.cos(theta) + player.pos[1]
-                x2, y2 = x2 * math.cos(theta) - y2 * math.sin(theta) + player.pos[0], x2 * math.sin(theta) + y2 * math.cos(theta) + player.pos[1]
-                x3, y3 = x3 * math.cos(theta) - y3 * math.sin(theta) + player.pos[0], x3 * math.sin(theta) + y3 * math.cos(theta) + player.pos[1]
-                x1, y1 = int(x1), int(y1)
-                x2, y2 = int(x2), int(y2)
-                x3, y3 = int(x3), int(y3)
+                x1, y1 = x1 * math.cos(theta) - y1 * math.sin(theta), x1 * math.sin(theta) + y1 * math.cos(theta)
+                x2, y2 = x2 * math.cos(theta) - y2 * math.sin(theta), x2 * math.sin(theta) + y2 * math.cos(theta)
+                x3, y3 = x3 * math.cos(theta) - y3 * math.sin(theta), x3 * math.sin(theta) + y3 * math.cos(theta)
+                sx1, sy1 = int(x1 * 0.6 + player.pos[0]), int(y1 * 0.6 + player.pos[1])
+                sx2, sy2 = int(x2 * 0.6 + player.pos[0]), int(y2 * 0.6 + player.pos[1])
+                sx3, sy3 = int(x3 * 0.6 + player.pos[0]), int(y3 * 0.6 + player.pos[1])
+                x1, y1 = int(x1 + player.pos[0]), int(y1 + player.pos[1])
+                x2, y2 = int(x2 + player.pos[0]), int(y2 + player.pos[1])
+                x3, y3 = int(x3 + player.pos[0]), int(y3 + player.pos[1])
                 if player.is_circling:
-                    draw.aatrigon(self.screen, x1, y1, x2, y2, x3, y3, viewConst.Color_Snow)
+                    draw.filled_trigon(self.screen, x1, y1, x2, y2, x3, y3, viewConst.Color_Snow)
+                    draw.filled_trigon(self.screen, sx1, sy1, sx2, sy2, sx3, sy3, player.color)
                 else:
                     draw.filled_trigon(self.screen, x1, y1, x2, y2, x3, y3, viewConst.Color_Snow)
 
