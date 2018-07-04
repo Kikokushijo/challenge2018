@@ -9,11 +9,11 @@ class Item(object):
         self.type = type
         self.pos = Vec(random.randint(0, viewConst.ScreenSize[0]), random.randint(0, viewConst.ScreenSize[0]))
 
-class Explosion(Item):
+class Explosive(Item):
     def __init__(self):
-        super().__init__(modelConst.PROP_TYPE_EXPLOSION)
-        self.radius = modelConst.explosion_radius
-        self.color = viewConst.explosion_color
+        super().__init__(modelConst.PROP_TYPE_EXPLOSIVE)
+        self.radius = modelConst.item_radius
+        self.color = viewConst.explosive_color
     
     def trigger(self, index, player_list, wb_list):
         self.absorb(index, player_list, wb_list)
@@ -22,7 +22,7 @@ class Explosion(Item):
         #absorb whiteball
 
         for i,wb in enumerate(wb_list):
-            if (wb.pos - self.pos).length_squared() < modelConst.explosion_radius**2:
+            if (wb.pos - self.pos).length_squared() < modelConst.explosive_radius**2:
                 player_list[index].body_list.append(Body(player_list[index].body_list[-1]))
                 del wb_list[i]
         #absorb competitor's ball
@@ -30,7 +30,7 @@ class Explosion(Item):
             if other.index == index:
                 continue
             for cb in other.body_list[1:]:
-                if(cb.pos - self.pos).length_squared() < modelConst.explosion_radius**2:
+                if(cb.pos - self.pos).length_squared() < modelConst.explosive_radius**2:
                     player_list[index].body_list.append(Body(player_list[index].body_list[-1]))
                     other.body_list.pop()
 

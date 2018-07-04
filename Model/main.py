@@ -6,7 +6,7 @@ from Model.GameObject.white_ball import White_Ball
 from pygame.math import Vector2 as Vec
 from Model.GameObject.bullet import Bullet
 from Model.GameObject.head import Head
-from Model.GameObject.item import Item, Explosion
+from Model.GameObject.item import Item, Explosive
 
 import Model.const       as modelConst
 import View.const        as viewConst
@@ -50,9 +50,8 @@ class GameEngine(object):
     #init item list
     def init_item_list(self):
         self.item_list = []
-        #init_explosion
-        #for i in range(modelConst.item_init_num):
-        #    self.item_list.append(Explosion())
+        for i in range(modelConst.item_init_num):
+            self.item_list.append(Explosive())
 
     def init_player_list(self):
         self.player_list = []
@@ -73,7 +72,7 @@ class GameEngine(object):
     def create_item(self):
         # update and see if create new item
         if len(self.item_list) < modelConst.item_max and random.randint(0,modelConst.item_born_period*viewConst.FramePerSec)==0:
-            self.item_list.append(Explosion())
+            self.item_list.append(Explosive())
     
     def tick_update(self):
         #update bullets
@@ -83,8 +82,9 @@ class GameEngine(object):
                 self.wb_list.append(White_Ball(item.pos))
                 del self.bullet_list[i]
         #update white balls
-        self.create_ball()
-        self.create_item()
+        if self.player_list[0].init_timer == -1:
+            self.create_ball()
+            self.create_item()
         #update heads
         alive = 0
         for item in self.player_list:
