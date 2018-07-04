@@ -158,6 +158,10 @@ class GraphicalView(object):
             pos = (int(item.pos[0]), int(item.pos[1]))
             draw.filled_circle(self.screen, pos[0], pos[1], \
                                int(item.radius), item.color)
+            explosionEffect = pg.Surface(viewConst.GameSize, SRCALPHA)
+            draw.filled_circle(explosionEffect, pos[0], pos[1], \
+                               int(modelConst.explosive_radius), (255, 215, 0, 128))
+            self.screen.blit(explosionEffect, (0, 0))
 
         for player in self.model.player_list:
             for body in player.body_list[1:]:
