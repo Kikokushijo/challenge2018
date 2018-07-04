@@ -31,7 +31,6 @@ Vec_dir = [
     Vec( -1,0 )   ##down
 ]
 
-grav = []
 
 
 
@@ -58,17 +57,20 @@ init_r = 40
 init_no_wb_r = 80
 head_radius = 11
 #the grav now is for debug
-grav = []
+grav_list = [[]]
+
+grav = grav_list[0]
 grav_st=120
 grav_r = 75
 grav_dr=(800-grav_st*2)/4
 for i in range(5):
     if i % 2 == 0:
         for j in range(3):
-            grav.append((Vec(grav_st+grav_dr*2*j,grav_st+grav_dr*i),grav_r))
+            grav_list[0].append(tuple((Vec(grav_st+grav_dr*2*j,grav_st+grav_dr*i),grav_r)))
     else:
         for j in range(2):
-            grav.append((Vec(grav_st+grav_dr+grav_dr*2*j,0.5+grav_st+grav_dr*i),grav_r))
+            grav_list[0].append(tuple((Vec(grav_st + grav_dr + grav_dr * 2 * j, 0.5+grav_st+grav_dr*i),grav_r)))
+print(grav_list[0])
 # grav = [(Vec(160,160),50),(Vec(320,160),50),(Vec(480,160),50),\
 # (Vec(640,160),50),(Vec(200,400),50),(Vec(200,600),50),(Vec(200,800),50)]
 
