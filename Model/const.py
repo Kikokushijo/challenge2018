@@ -58,10 +58,14 @@ head_radius = 11
 #the grav now is for debug
 grav = []
 grav_st=120
-grav_dr=(800-grav_st*2)/3
-for i in range(4):
-    for j in range(4):
-        grav.append((Vec(grav_st+grav_dr*j,grav_st+grav_dr*i),60))
+grav_dr=(800-grav_st*2)/4
+for i in range(5):
+    if i % 2 == 0:
+        for j in range(3):
+            grav.append((Vec(grav_st+grav_dr*2*j,grav_st+grav_dr*i),80))
+    else:
+        for j in range(2):
+            grav.append((Vec(grav_st+grav_dr+grav_dr*2*j,0.5+grav_st+grav_dr*i),80))
 # grav = [(Vec(160,160),50),(Vec(320,160),50),(Vec(480,160),50),\
 # (Vec(640,160),50),(Vec(200,400),50),(Vec(200,600),50),(Vec(200,800),50)]
 
