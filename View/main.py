@@ -12,7 +12,7 @@ import Interface.const   as IfaConst
 
 class Explosion(object):
     """
-    Object for rendering the explosion effect
+    Class for rendering the explosion effect.
     """
     def __init__(self, index, pos, radius, time):
         self.index = index
@@ -57,7 +57,7 @@ class GraphicalView(object):
                 self.render_stop()
 
             self.display_fps()
-            # limit the redraw speed to 30 frames per second
+            # limit the redraw speed to 60 frames per second
             self.clock.tick(viewConst.FramePerSec)
         elif isinstance(event, Event_TriggerExplosive):
             self.explosionEvent.append(Explosion(event.PlayerIndex, event.pos, modelConst.explosive_radius, viewConst.explosionTime))
@@ -141,27 +141,27 @@ class GraphicalView(object):
 
     def drawScoreboard(self):
         gfxdraw.vline(self.screen, viewConst.GameSize[0], 0, \
-                   viewConst.GameSize[1], viewConst.sbColor)
+                      viewConst.GameSize[1], viewConst.sbColor)
 
         for i in range(1, 4):
             gfxdraw.hline(self.screen, viewConst.GameSize[0], \
-                       viewConst.ScreenSize[0], \
-                       viewConst.GameSize[1] // 4 * i, viewConst.sbColor)
+                          viewConst.ScreenSize[0], \
+                          viewConst.GameSize[1] // 4 * i, viewConst.sbColor)
 
     def drawGrav(self):
         for g in modelConst.grav:
             pos = tuple(map(int, g[0]))
             radius = int(g[1] + modelConst.head_radius * 0.5)
             gfxdraw.filled_circle(self.screen, *pos, \
-                               radius, viewConst.gravColor)
+                                  radius, viewConst.gravColor)
             gfxdraw.filled_circle(self.screen, *pos, \
-                               int(radius * 0.07), viewConst.bgColor)
+                                  int(radius * 0.07), viewConst.bgColor)
 
     def drawWhiteBall(self):
         for wb in self.model.wb_list:
             pos = tuple(map(int, wb.pos))
             gfxdraw.filled_circle(self.screen, *pos, \
-                               int(wb.radius), viewConst.wbColor)
+                                  int(wb.radius), viewConst.wbColor)
 
     def drawItem(self):
         for item in self.model.item_list:
@@ -169,9 +169,9 @@ class GraphicalView(object):
             itemSurface = pg.Surface((int(2.2 * item.radius),) * 2, pg.SRCALPHA)
             center = tuple([x // 2 for x in itemSurface.get_size()])
             gfxdraw.filled_circle(itemSurface, *center, \
-                               int(item.radius), item.color)
+                                  int(item.radius), item.color)
             gfxdraw.filled_circle(itemSurface, *center, \
-                               int(item.radius * 0.7), (0, 0, 0, 0))
+                                  int(item.radius * 0.7), (0, 0, 0, 0))
             self.blit_at_center(itemSurface, pos)
 
     def drawBody(self):
@@ -179,14 +179,14 @@ class GraphicalView(object):
             for body in player.body_list[1:]:
                 pos = tuple(map(int, body.pos))
                 gfxdraw.filled_circle(self.screen, *pos, \
-                                   int(body.radius), player.color)
+                                      int(body.radius), player.color)
 
     def drawHead(self):
         for player in self.model.player_list:
             if player.is_alive:
                 pos = tuple(map(int, player.pos))
                 gfxdraw.filled_circle(self.screen, *pos, \
-                                   int(player.radius), player.color)
+                                      int(player.radius), player.color)
                 # draw triangle
                 triRadius = player.radius * 0.7
                 theta = math.atan2(player.direction.y, player.direction.x)
@@ -207,8 +207,8 @@ class GraphicalView(object):
         for bullet in self.model.bullet_list:
             color = self.model.player_list[bullet.index].color
             pos = tuple(map(int, bullet.pos))
-            gfxdraw.filled_circle(self.screen, *pos,
-                               int(bullet.radius), color)
+            gfxdraw.filled_circle(self.screen, *pos, \
+                                  int(bullet.radius), color)
 
     def drawExplosion(self):
         for explosion in self.explosionEvent:
@@ -221,7 +221,7 @@ class GraphicalView(object):
             explosionEffect = pg.Surface((int(2.1 * radius),) * 2, pg.SRCALPHA)
             center = tuple([x // 2 for x in explosionEffect.get_size()])
             gfxdraw.filled_circle(explosionEffect, *center, \
-                               int(1.1 * radius * (1 - timeRatio)), pg.Color(*color, int(192 * timeRatio)))
+                                  int(1.1 * radius * (1 - timeRatio)), pg.Color(*color, int(192 * timeRatio)))
             self.blit_at_center(explosionEffect, pos)
         self.explosionEvent[:] = [x for x in self.explosionEvent if x.time > 0]
 
@@ -242,6 +242,5 @@ class GraphicalView(object):
         self.drawBullet()
         self.drawExplosion()
 
-        # update the scene
         # To be decided: update merely the game window or the whole screen?
         pg.display.flip()
