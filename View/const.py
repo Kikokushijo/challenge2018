@@ -67,3 +67,6 @@ teamNameFontSize   = 20
 
 teamLengthFont     = 'View/Font/NotoSansCJK-Black.ttc'
 teamLengthFontSize = 40
+
+teamScoreFont      = 'View/Font/NotoSansCJK-Black.ttc'
+teamScoreFontSize  = 60

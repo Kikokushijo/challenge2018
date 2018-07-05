@@ -160,6 +160,12 @@ class GraphicalView(object):
             color = viewConst.aliveTeamColor if player.is_alive else viewConst.deadTeamColor
             teamName = self.teamNameFont.render(viewTeamName.teamName[i], True, color)
             self.screen.blit(teamName, pos[i])
+        # Team Scores
+        pos = [(x, y + viewConst.GameSize[1] // 4) for x, y in pos]
+        for i, player in enumerate(self.model.player_list):
+            color = viewConst.Color_Black
+            teamName = self.teamNameFont.render(str(player.score), True, color)
+            self.screen.blit(teamName, pos[i])
         # Team Balls
         pos = [(viewConst.GameSize[0] + viewConst.GameSize[1] // (modelConst.PlayerNum * 2), viewConst.GameSize[1] // (modelConst.PlayerNum * 2) * i) for i in range(1, modelConst.PlayerNum * 2, 2)]
         radius = int(viewConst.GameSize[1] // (modelConst.PlayerNum * 2) * 0.7)
