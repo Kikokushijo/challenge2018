@@ -62,11 +62,11 @@ whiteBallGenerationTime = 30
 itemGenerationTime      = 60
 
 # Font
-teamNameFont       = 'View/Font/NotoSansCJK-Black.ttc'
+teamNameFont       = 'View/Font/Noto/NotoSansCJK-Black.ttc'
 teamNameFontSize   = 20
 
-teamLengthFont     = 'View/Font/NotoSansCJK-Black.ttc'
+teamLengthFont     = 'View/Font/Noto/NotoSansCJK-Black.ttc'
 teamLengthFontSize = 40
 
-teamScoreFont      = 'View/Font/NotoSansCJK-Black.ttc'
+teamScoreFont      = 'View/Font/Noto/NotoSansCJK-Black.ttc'
 teamScoreFontSize  = 60
