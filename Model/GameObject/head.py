@@ -90,7 +90,6 @@ class Head(object):
                 wb_list.pop(i)
 
         #collision with competitor's body and bullet
-
         if not self.is_dash:
             for enemy in player_list:
                 if enemy.index == self.index :
@@ -109,6 +108,7 @@ class Head(object):
                     self.is_alive = False
                     self.add_score(player_list)
                     break
+        ##player die
         if not self.is_alive:
             self.is_dash = True
             while len(self.body_list) > 1:
@@ -150,7 +150,7 @@ class Head(object):
         if self.init_timer != -1:
             return
         if not self.is_dash:
-            if self.is_ingrav:
+            if self.is_circling or self.is_ingrav:
                 self.is_circling = (not self.is_circling)
                 if self.is_circling:
                     self.circling_radius = (self.pos - self.grav_center).length()
