@@ -97,9 +97,6 @@ class GameEngine(object):
             else:
                 Tmp_P = Head(index, 'player' + self.AINames[index], True)
             self.player_list.append(Tmp_P)
-
-        for i in range(modelConst.PlayerNum):
-            self.player_list.append(Head(i,"player"+str(i),tmp[i]))
     
     def init_body_list(self):
         # No bodies at start of game

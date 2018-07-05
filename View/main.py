@@ -41,6 +41,7 @@ class GraphicalView(object):
         self.smallfont = None
         self.teamNameFont = None
         self.teamLengthFont = None
+        self.teamScoreFont = None
         self.explosionEvent = None
 
         self.last_update = 0
@@ -92,6 +93,7 @@ class GraphicalView(object):
         self.smallfont = pg.font.Font(None, 40)
         self.teamNameFont = pg.font.Font(viewConst.teamNameFont, viewConst.teamNameFontSize)
         self.teamLengthFont = pg.font.Font(viewConst.teamLengthFont, viewConst.teamLengthFontSize)
+        self.teamScoreFont = pg.font.Font(viewConst.teamScoreFont, viewConst.teamScoreFontSize)
         self.explosionEvent = []
 
         self.is_initialized = True
@@ -161,11 +163,11 @@ class GraphicalView(object):
             teamName = self.teamNameFont.render(viewTeamName.teamName[i], True, color)
             self.screen.blit(teamName, pos[i])
         # Team Scores
-        pos = [(x, y + viewConst.GameSize[1] // 4) for x, y in pos]
+        pos = [(x, y + viewConst.GameSize[1] // 32) for x, y in pos]
         for i, player in enumerate(self.model.player_list):
             color = viewConst.Color_Black
-            teamName = self.teamNameFont.render(str(player.score), True, color)
-            self.screen.blit(teamName, pos[i])
+            teamScore = self.teamScoreFont.render(str(player.score), True, color)
+            self.screen.blit(teamScore, pos[i])
         # Team Balls
         pos = [(viewConst.GameSize[0] + viewConst.GameSize[1] // (modelConst.PlayerNum * 2), viewConst.GameSize[1] // (modelConst.PlayerNum * 2) * i) for i in range(1, modelConst.PlayerNum * 2, 2)]
         radius = int(viewConst.GameSize[1] // (modelConst.PlayerNum * 2) * 0.7)
