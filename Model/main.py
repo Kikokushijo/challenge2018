@@ -28,6 +28,7 @@ class GameEngine(object):
         self.TurnTo = 0
 
         self.player_list = []
+        self.score_list = []
         self.wb_list = []
         self.bullet_list = []
         
@@ -67,6 +68,10 @@ class GameEngine(object):
         self.player_list = []
         for i in range(modelConst.PlayerNum):
             self.player_list.append(Head(i,"player"+str(i)))
+    def init_score_list(self):
+        for i in rande(modelConst.PlayerNum):
+            self.score_list.append(0)
+    
     def init_body_list(self):
         # No bodies at start of game
         pass

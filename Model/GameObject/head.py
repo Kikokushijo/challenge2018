@@ -147,7 +147,7 @@ class Head(object):
         if self.init_timer != -1:
             return
         if not self.is_dash:
-            if self.is_ingrav:
+            if self.is_circling or self.is_ingrav:
                 self.is_circling = (not self.is_circling)
                 if self.is_circling:
                     self.circling_radius = (self.pos - self.grav_center).length()
