@@ -24,12 +24,10 @@ class GameEngine(object):
         self.running = False
         self.state = StateMachine()
         self.AINames = AINames
-        # self.players = []
         self.TurnTo = 0
 
         self.player_list = []
-        self.score_list = []
-        self.init_score_list()
+        
         self.wb_list = []
         self.bullet_list = []
         
@@ -66,12 +64,16 @@ class GameEngine(object):
         '''
 
     def init_player_list(self):
+        tmp = []
+        if len(self.player_list) > 0:
+            for i in self.player_list:
+                tmp.append(i.score)
+        else :
+            for i in range(modelConst.PlayerNum):
+                tmp.append(0)
         self.player_list = []
         for i in range(modelConst.PlayerNum):
-            self.player_list.append(Head(i,"player"+str(i)))
-    def init_score_list(self):
-        for i in range(modelConst.PlayerNum):
-            self.score_list.append(0)
+            self.player_list.append(Head(i,"player"+str(i),tmp[i]))
     
     def init_body_list(self):
         # No bodies at start of game
@@ -113,9 +115,9 @@ class GameEngine(object):
         for item in self.player_list:
             if item.is_dash:
                 for i in range(modelConst.dash_speed_multiplier):
-                    killed = item.update(self.player_list,self.wb_list,self.bullet_list,self.item_list,self.score_list)
+                    killed = item.update(self.player_list,self.wb_list,self.bullet_list,self.item_list)
             else:
-                killed = item.update(self.player_list,self.wb_list,self.bullet_list,self.item_list,self.score_list)
+                killed = item.update(self.player_list,self.wb_list,self.bullet_list,self.item_list)
             if killed == 1:
                 self.evManager.Post(Event_PlayerKilled(item.index,item.pos))
             if item.is_alive:
