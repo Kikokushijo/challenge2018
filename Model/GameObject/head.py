@@ -41,7 +41,7 @@ class Head(object):
         self.grav_center = Vec( 0, 0 )
         self.pos_log = [Vec(self.pos)]
 
-    def update(self,player_list, wb_list, bullet_list, item_list):
+    def update(self,player_list, wb_list, bullet_list, item_list, score_list):
         if not self.is_alive:
             return 0
 
@@ -89,7 +89,6 @@ class Head(object):
                 wb_list.pop(i)
 
         #collision with competitor's body and bullet
-
         if not self.is_dash:
             for enemy in player_list:
                 if enemy.index == self.index :
@@ -99,13 +98,16 @@ class Head(object):
                         #self die
                         killer = enemy.index
                         self.is_alive = False
+                        self.add_score(score_list, self.index)
                         break
             for bullet in bullet_list :
                 if (bullet.index != self.index) and \
                    (self.pos - bullet.pos).length_squared() < (self.radius + bullet.radius)**2 :
                     killer = bullet.index
                     self.is_alive = False
+                    self.add_score(score_list, self.index)
                     break
+        ##player die
         if not self.is_alive:
             self.is_dash = True
             while len(self.body_list) > 1:
@@ -180,7 +182,12 @@ class Head(object):
                     else:
                         bullet_list.append(Bullet(self.pos,self.direction,self.index))
 
-
+    def add_score(self, score_list, index):
+        for i in range(modelconst.PlayerNum):
+            if i == index:
+                continue
+            else:
+                score_list[i] += 1
 
 
 

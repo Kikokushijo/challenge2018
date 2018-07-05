@@ -29,6 +29,7 @@ class GameEngine(object):
 
         self.player_list = []
         self.score_list = []
+        self.init_score_list()
         self.wb_list = []
         self.bullet_list = []
         
@@ -69,7 +70,7 @@ class GameEngine(object):
         for i in range(modelConst.PlayerNum):
             self.player_list.append(Head(i,"player"+str(i)))
     def init_score_list(self):
-        for i in rande(modelConst.PlayerNum):
+        for i in range(modelConst.PlayerNum):
             self.score_list.append(0)
     
     def init_body_list(self):
@@ -112,9 +113,9 @@ class GameEngine(object):
         for item in self.player_list:
             if item.is_dash:
                 for i in range(modelConst.dash_speed_multiplier):
-                    killed = item.update(self.player_list,self.wb_list,self.bullet_list,self.item_list)
+                    killed = item.update(self.player_list,self.wb_list,self.bullet_list,self.item_list,self.score_list)
             else:
-                killed = item.update(self.player_list,self.wb_list,self.bullet_list,self.item_list)
+                killed = item.update(self.player_list,self.wb_list,self.bullet_list,self.item_list,self.score_list)
             if killed == 1:
                 self.evManager.Post(Event_PlayerKilled(item.index,item.pos))
             if item.is_alive:
