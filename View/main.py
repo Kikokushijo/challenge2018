@@ -140,21 +140,21 @@ class GraphicalView(object):
             pg.display.flip()
 
     def drawScoreboard(self):
-        gfxdraw.vline(self.screen, viewConst.GameSize[0], 0, \
+        gfxdraw.vline(self.screen, viewConst.GameSize[0], 0,
                       viewConst.GameSize[1], viewConst.sbColor)
 
         for i in range(1, 4):
-            gfxdraw.hline(self.screen, viewConst.GameSize[0], \
-                          viewConst.ScreenSize[0], \
+            gfxdraw.hline(self.screen, viewConst.GameSize[0],
+                          viewConst.ScreenSize[0],
                           viewConst.GameSize[1] // 4 * i, viewConst.sbColor)
 
     def drawGrav(self):
         for g in modelConst.grav:
             pos = tuple(map(int, g[0]))
             radius = int(g[1] + modelConst.head_radius * 0.5)
-            gfxdraw.filled_circle(self.screen, *pos, \
+            gfxdraw.filled_circle(self.screen, *pos,
                                   radius, viewConst.gravColor)
-            gfxdraw.filled_circle(self.screen, *pos, \
+            gfxdraw.filled_circle(self.screen, *pos,
                                   int(radius * 0.07), viewConst.bgColor)
 
     def drawWhiteBall(self):
@@ -167,7 +167,7 @@ class GraphicalView(object):
                     radius *= timeRatio * 2
                 else:
                     radius *= -2 * timeRatio + 3
-            gfxdraw.filled_circle(self.screen, *pos, \
+            gfxdraw.filled_circle(self.screen, *pos,
                                   int(radius), viewConst.wbColor)
 
     def drawItem(self):
@@ -179,9 +179,9 @@ class GraphicalView(object):
             if item.age < viewConst.itemGenerationTime:
                 timeRatio = item.age / viewConst.itemGenerationTime
                 color += (int(timeRatio * 255),)
-            gfxdraw.filled_circle(itemSurface, *center, \
+            gfxdraw.filled_circle(itemSurface, *center,
                                   int(item.radius), color)
-            gfxdraw.filled_circle(itemSurface, *center, \
+            gfxdraw.filled_circle(itemSurface, *center,
                                   int(item.radius * 0.7), (0, 0, 0, 0))
             self.blit_at_center(itemSurface, pos)
 
@@ -189,14 +189,14 @@ class GraphicalView(object):
         for player in self.model.player_list:
             for body in player.body_list[1:]:
                 pos = tuple(map(int, body.pos))
-                gfxdraw.filled_circle(self.screen, *pos, \
+                gfxdraw.filled_circle(self.screen, *pos,
                                       int(body.radius), player.color)
 
     def drawHead(self):
         for player in self.model.player_list:
             if player.is_alive:
                 pos = tuple(map(int, player.pos))
-                gfxdraw.filled_circle(self.screen, *pos, \
+                gfxdraw.filled_circle(self.screen, *pos,
                                       int(player.radius), player.color)
                 # draw triangle
                 triRadius = player.radius * 0.7
@@ -220,7 +220,7 @@ class GraphicalView(object):
             if (bullet.age // viewConst.bulletFlickerCycle) % 2 == 0:
                 color = tuple([int(i * 127 / 255 + 128) for i in color])
             pos = tuple(map(int, bullet.pos))
-            gfxdraw.filled_circle(self.screen, *pos, \
+            gfxdraw.filled_circle(self.screen, *pos,
                                   int(bullet.radius), color)
 
     def drawExplosion(self):
@@ -233,7 +233,7 @@ class GraphicalView(object):
 
             explosionEffect = pg.Surface((int(2.1 * radius),) * 2, pg.SRCALPHA)
             center = tuple([x // 2 for x in explosionEffect.get_size()])
-            gfxdraw.filled_circle(explosionEffect, *center, \
+            gfxdraw.filled_circle(explosionEffect, *center,
                                   int(1.1 * radius * (1 - timeRatio)), pg.Color(*color, int(192 * timeRatio)))
             self.blit_at_center(explosionEffect, pos)
         self.explosionEvent[:] = [x for x in self.explosionEvent if x.time > 0]
