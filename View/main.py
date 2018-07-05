@@ -9,6 +9,7 @@ import Model.const       as modelConst
 import View.const        as viewConst
 import Controller.const  as ctrlConst
 import Interface.const   as IfaConst
+import View.teamName     as viewTeamName
 
 class Explosion(object):
     """
@@ -38,7 +39,9 @@ class GraphicalView(object):
         self.screen = None
         self.clock = None
         self.smallfont = None
-        self.explosionEvent = []
+        self.teamNameFont = None
+        self.teamLengthFont = None
+        self.explosionEvent = None
 
         self.last_update = 0
     
@@ -87,6 +90,9 @@ class GraphicalView(object):
         self.screen = pg.display.set_mode(viewConst.ScreenSize)
         self.clock = pg.time.Clock()
         self.smallfont = pg.font.Font(None, 40)
+        self.teamNameFont = pg.font.Font(viewConst.teamNameFont, viewConst.teamNameFontSize)
+        self.teamLengthFont = pg.font.Font(viewConst.teamLengthFont, viewConst.teamLengthFontSize)
+        self.explosionEvent = []
 
         self.is_initialized = True
 
@@ -140,13 +146,31 @@ class GraphicalView(object):
             pg.display.flip()
 
     def drawScoreboard(self):
+        # Frame
         gfxdraw.vline(self.screen, viewConst.GameSize[0], 0,
                       viewConst.GameSize[1], viewConst.sbColor)
 
-        for i in range(1, 4):
+        for i in range(1, modelConst.PlayerNum):
             gfxdraw.hline(self.screen, viewConst.GameSize[0],
                           viewConst.ScreenSize[0],
-                          viewConst.GameSize[1] // 4 * i, viewConst.sbColor)
+                          viewConst.GameSize[1] // modelConst.PlayerNum * i, viewConst.sbColor)
+        # Team Names
+        pos = [(viewConst.GameSize[0] + viewConst.GameSize[1] // modelConst.PlayerNum, viewConst.GameSize[1] // modelConst.PlayerNum * i + viewConst.GameSize[1] // (modelConst.PlayerNum * 8)) for i in range(modelConst.PlayerNum)]
+        for i, player in enumerate(self.model.player_list):
+            color = viewConst.aliveTeamColor if player.is_alive else viewConst.deadTeamColor
+            teamName = self.teamNameFont.render(viewTeamName.teamName[i], True, color)
+            self.screen.blit(teamName, pos[i])
+        # Team Balls
+        pos = [(viewConst.GameSize[0] + viewConst.GameSize[1] // (modelConst.PlayerNum * 2), viewConst.GameSize[1] // (modelConst.PlayerNum * 2) * i) for i in range(1, modelConst.PlayerNum * 2, 2)]
+        radius = int(viewConst.GameSize[1] // (modelConst.PlayerNum * 2) * 0.7)
+        for i, player in enumerate(self.model.player_list):
+            gfxdraw.filled_circle(self.screen, *(pos[i]),
+                                  radius, player.color)
+        # Team Player Lengths
+        for i, player in enumerate(self.model.player_list):
+            length = str(len(player.body_list)) if player.is_alive else '0'
+            teamLength = self.teamLengthFont.render(length, True, viewConst.teamLengthColor)
+            self.blit_at_center(teamLength, pos[i])
 
     def drawGrav(self):
         for g in modelConst.grav:
@@ -209,7 +233,7 @@ class GraphicalView(object):
                 intVertices = [int(x) for vertex in vertices for x in vertex]
                 gfxdraw.filled_trigon(self.screen, *intVertices, viewConst.Color_Snow)
 
-                if player.is_circling and player.is_ingrav:
+                if player.is_circling:
                     innerVertices = [player.pos + 0.6 * vertex for vertex in relativeVertices]
                     intInnerVertices = [int(x) for vertex in innerVertices for x in vertex]
                     gfxdraw.filled_trigon(self.screen, *intInnerVertices, player.color)

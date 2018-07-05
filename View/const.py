@@ -35,10 +35,14 @@ Color_Lightgray      = (211, 211, 211)
 Color_Firebrick      = (178,  34,  34)
 Color_Saddlebrown    = (139,  69,  19)
 Color_Darkolivegreen = ( 85, 107,  47)
+Color_Darkred        = (139,   0,   0)
 
 # Predefined Colors
 bgColor           =  Color_Gainsboro
 sbColor           =  Color_Black # scoreboard
+aliveTeamColor    =  Color_Black
+deadTeamColor     =  Color_Red
+teamLengthColor   =  Color_Snow
 wbColor           =  Color_Snow
 gravColor         =  Color_Lightgray
 explosive_color   =  Color_Firebrick
@@ -56,3 +60,10 @@ killedExplosionTime     = 90
 bulletFlickerCycle      = 15
 whiteBallGenerationTime = 30
 itemGenerationTime      = 60
+
+# Font
+teamNameFont       = 'View/Font/NotoSansCJK-Black.ttc'
+teamNameFontSize   = 20
+
+teamLengthFont     = 'View/Font/NotoSansCJK-Black.ttc'
+teamLengthFontSize = 40
