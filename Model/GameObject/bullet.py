@@ -9,6 +9,7 @@ class Bullet(object):
         self.index = index
         self.radius = radius
         self.speed = modelConst.bullet_speed0
+        self.age = 0
     def update(self):
         '''
         return:
@@ -26,6 +27,7 @@ class Bullet(object):
         
         self.pos += self.direction * self.speed
         self.speed -= modelConst.bullet_a
+        self.age += 1
         
         return self.speed > 0
     

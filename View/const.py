@@ -51,3 +51,4 @@ playerColor       = [Color_Turquoise,  Color_Lightcoral, Color_Orangered, \
 explosionTime         = 80
 killedExplosionRadius = 200
 killedExplosionTime   = 100
+bulletFlickerCycle = 15

@@ -206,6 +206,8 @@ class GraphicalView(object):
     def drawBullet(self):
         for bullet in self.model.bullet_list:
             color = self.model.player_list[bullet.index].color
+            if (bullet.age // viewConst.bulletFlickerCycle) % 2 == 0:
+                color = tuple([int(i * 63 / 255 + 192) for i in color])
             pos = tuple(map(int, bullet.pos))
             gfxdraw.filled_circle(self.screen, *pos, \
                                   int(bullet.radius), color)
