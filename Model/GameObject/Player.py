@@ -7,6 +7,7 @@ class player(object):
         self.name = name
         self.is_AI = is_AI
         self.index = index
+        self.score = 0
         self.ai = None
         self.color = [ random.randint(0,255) for _ in range(3) ]
 

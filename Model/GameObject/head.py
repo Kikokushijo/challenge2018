@@ -10,7 +10,7 @@ from Model.GameObject.bullet import Bullet
 from Model.GameObject.item import Item
 
 class Head(object):
-    def __init__(self, index, name = "player", is_AI = False):
+    def __init__(self, index, name = "player", is_AI = False, Score = 0):
         # basic data
         self.name = name
         self.index = index
@@ -29,6 +29,7 @@ class Head(object):
         self.dash_timer = 0
         self.radius = modelconst.head_radius
         self.is_alive = True
+        self.score = Score
         self.body_list = [self]
         self.is_ingrav = False
         self.is_circling = True
@@ -99,12 +100,14 @@ class Head(object):
                         #self die
                         killer = enemy.index
                         self.is_alive = False
+                        self.add_score(player_list)
                         break
             for bullet in bullet_list :
                 if (bullet.index != self.index) and \
                    (self.pos - bullet.pos).length_squared() < (self.radius + bullet.radius)**2 :
                     killer = bullet.index
                     self.is_alive = False
+                    self.add_score(player_list)
                     break
         if not self.is_alive:
             self.is_dash = True
@@ -180,8 +183,13 @@ class Head(object):
                     else:
                         bullet_list.append(Bullet(self.pos,self.direction,self.index))
 
-
-
+    def add_score(self, player_list):
+        for enemy in player_list:
+            if enemy.index == self.index:
+                continue
+            else :
+                if enemy.is_alive:
+                    enemy.score += 1
 
 
 

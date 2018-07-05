@@ -14,6 +14,7 @@ class White_Ball(object):
         	screen_mid = Vec( viewConst.ScreenSize[1]/2, viewConst.ScreenSize[1]/2 )
         	while (randpos - screen_mid).length_squared() < modelConst.init_no_wb_r ** 2:
         		randpos = Vec(random.randint(0, viewConst.ScreenSize[0]-480), random.randint(0, viewConst.ScreenSize[0]))
+        		randpos = Vec(random.randint(0+modelConst.wb_radius, viewConst.ScreenSize[0]-480-modelConst.wb_radius), random.randint(0+modelConst.wb_radius, viewConst.ScreenSize[1]-modelConst.wb_radius))
         	self.pos = randpos
         elif pos == Vec(-1, -1) :
             #random init the position of balls

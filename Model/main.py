@@ -24,10 +24,10 @@ class GameEngine(object):
         self.running = False
         self.state = StateMachine()
         self.AINames = AINames
-        # self.players = []
         self.TurnTo = 0
 
         self.player_list = []
+        
         self.wb_list = []
         self.bullet_list = []
         
@@ -64,6 +64,13 @@ class GameEngine(object):
         '''
 
     def init_player_list(self):
+        tmp = []
+        if len(self.player_list) > 0:
+            for i in self.player_list:
+                tmp.append(i.score)
+        else :
+            for i in range(modelConst.PlayerNum):
+                tmp.append(0)
         self.player_list = []
         ManualPlayerNum = 0
         for index in range(modelConst.PlayerNum):
@@ -91,6 +98,9 @@ class GameEngine(object):
                 Tmp_P = Head(index, 'player' + self.AINames[index], True)
             self.player_list.append(Tmp_P)
 
+        for i in range(modelConst.PlayerNum):
+            self.player_list.append(Head(i,"player"+str(i),tmp[i]))
+    
     def init_body_list(self):
         # No bodies at start of game
         pass
