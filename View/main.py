@@ -175,8 +175,12 @@ class GraphicalView(object):
             pos = tuple(map(int, item.pos))
             itemSurface = pg.Surface((int(2.2 * item.radius),) * 2, pg.SRCALPHA)
             center = tuple([x // 2 for x in itemSurface.get_size()])
+            color = item.color
+            if item.age < viewConst.itemGenerationTime:
+                timeRatio = item.age / viewConst.itemGenerationTime
+                color += (int(timeRatio * 255),)
             gfxdraw.filled_circle(itemSurface, *center, \
-                                  int(item.radius), item.color)
+                                  int(item.radius), color)
             gfxdraw.filled_circle(itemSurface, *center, \
                                   int(item.radius * 0.7), (0, 0, 0, 0))
             self.blit_at_center(itemSurface, pos)

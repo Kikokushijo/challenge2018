@@ -128,6 +128,9 @@ class GameEngine(object):
             self.create_item()
         for wb in self.wb_list:
             wb.update()
+        #update items
+        for item in self.item_list:
+            item.update()
         #update heads
         alive = 0
         for item in self.player_list:

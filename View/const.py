@@ -53,3 +53,4 @@ killedExplosionRadius = 200
 killedExplosionTime   = 90
 bulletFlickerCycle = 15
 whiteBallGenerationTime = 30
+itemGenerationTime = 60

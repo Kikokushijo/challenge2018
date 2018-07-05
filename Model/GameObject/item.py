@@ -9,6 +9,10 @@ class Item(object):
     def __init__(self,type = None):
         self.type = type
         self.pos = Vec(random.randint(0, viewConst.ScreenSize[1]), random.randint(0, viewConst.ScreenSize[1]))
+        self.age = 0
+
+    def update(self):
+        self.age += 1
 
 class Explosive(Item):
     def __init__(self, evManager):

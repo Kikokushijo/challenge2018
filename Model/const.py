@@ -98,7 +98,7 @@ PROP_TYPE_BIGBULLET = 2
 item_max = 3
 item_born_period = 10#second
 item_init_num = 0
-item_radius = 10
+item_radius = 12
 
 explosive_radius = 150.0
 
