@@ -8,7 +8,6 @@ class Helper(object):
         self.model = model
         self.index = index
     
-    
     #map info
     def getExplosionRadius(self):
         return modelConst.explosion_radius
@@ -16,21 +15,29 @@ class Helper(object):
     def getWhiteballRadius(self):
         return modelConst.wb_radius
 
-    def getNearsetGrav(self):
-        pos = self.model.player_list[self.index].pos
-        min_value = float('inf')
-        min_index = None
-        for index, (gPos, gRadius) in enumerate(modelConst.grav):
-            dist = (gPos - pos).length() - gRadius
-            if dist < min_value:
-                min_value = dist
-                min_index = index
-        return min_index
+    def getNearestGravOnRoute(self):
+        hPos = self.getMyHeadPos()
+        hDir = self.getMyDir()
+        min_dist = float('inf')
+        min_gPos = None
+        min_gRadius = None
+        for gPos, gRadius in modelConst.grav:
+            inner_product = (gPos - hPos).dot(hDir) 
+            outer_product = abs((gPos - hPos).cross(hDir))
+            if inner_product > 0 and outer_product > 0 and outer_product < modelConst.head_radius + gRadius:
+                dist = (gPos - hPos).length_squared()
+                if dist < min_dist:
+                    min_dist = dist
+                    min_pos = Vec(gPos)
+                    min_gRadius = gRadius
+        if min_gPos = None:
+            return None
+        return min_gPos, min_gRadius
 
     def getAllGravs(self):
         return [(Vec(gPos), gRadius) for gPos, gRadius in modelConst.grav]
 
-    def getNearsetPosToCenter(self):
+    def getNearestPosToCenter(self):
         if not self.checkMeInGrav():
             return None
         gPos, gRadius = self.getMyGrav()
@@ -43,6 +50,15 @@ class Helper(object):
         count = 0
         for wb in self.model.wb_list:
             if (wb.pos - center).length_squared() <= radius ** 2:
+                count += 1
+        return count
+
+    def getOtherBulletNumInRange(self, center, radius):
+        count = 0
+        for bullet in self.model.bullet_list:
+            if bullet.index = self.index:
+                continue
+            if (bullet.pos - center).length_squared() <= radius ** 2:
                 count += 1
         return count
 
@@ -95,6 +111,8 @@ class Helper(object):
                 if dist < min_dist:
                     min_dist = dist
                     min_pos = Vec(wb.pos)
+        if min_pos = (0, 0):
+            return None 
         return min_pos
 
     def headOnRoute(self):
@@ -123,6 +141,13 @@ class Helper(object):
                 if inner_product > 0 and outer_product > 0 and outer_product < modelConst.dash_radius:
                     pos_list.append(Vec(body.pos))
         return pos_list
+
+    def dashOnRoute(self, pos, radius):
+        hPos = self.getMyHeadPos()
+        hDir = self.getMyDir()
+        inner_product = (pos - hPos).dot(hDir)
+        outer_product = abs((pos - hPos).cross(hDir))
+        return inner_product > 0 and outer_product > 0 and outer_product < modelConst.head_radius + radius
 
 
     #me info
@@ -159,7 +184,7 @@ class Helper(object):
     def checkMeCircling(self):
         return self.model.player_list[self.index].is_circling
 
-    def checkInvsible(self):
+    def checkInvisible(self):
         return self.model.player_list[self.index].is_dash
 
     def getMyShotPos(self):
