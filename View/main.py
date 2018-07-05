@@ -160,8 +160,15 @@ class GraphicalView(object):
     def drawWhiteBall(self):
         for wb in self.model.wb_list:
             pos = tuple(map(int, wb.pos))
+            radius = wb.radius
+            if wb.age < viewConst.whiteBallGenerationTime:
+                timeRatio = wb.age / viewConst.whiteBallGenerationTime
+                if timeRatio < 0.75:
+                    radius *= timeRatio * 2
+                else:
+                    radius *= -2 * timeRatio + 3
             gfxdraw.filled_circle(self.screen, *pos, \
-                                  int(wb.radius), viewConst.wbColor)
+                                  int(radius), viewConst.wbColor)
 
     def drawItem(self):
         for item in self.model.item_list:

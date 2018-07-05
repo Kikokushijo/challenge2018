@@ -126,6 +126,8 @@ class GameEngine(object):
         if self.player_list[0].init_timer == -1:
             self.create_ball()
             self.create_item()
+        for wb in self.wb_list:
+            wb.update()
         #update heads
         alive = 0
         for item in self.player_list:

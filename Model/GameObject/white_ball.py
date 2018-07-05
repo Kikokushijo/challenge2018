@@ -8,6 +8,7 @@ class White_Ball(object):
     def __init__(self, pos = Vec(-1,-1) ):
         self.color = viewConst.wbColor
         self.radius = modelConst.wb_radius
+        self.age = 0
         if pos == Vec(-2, -2) :
         	randpos = Vec(random.randint(0, viewConst.ScreenSize[1]), random.randint(0, viewConst.ScreenSize[1]))
         	screen_mid = Vec( viewConst.ScreenSize[1]/2, viewConst.ScreenSize[1]/2 )
@@ -20,6 +21,9 @@ class White_Ball(object):
         else:
             #use the pos passed in
             self.pos = Vec(pos)
+
+    def update(self):
+        self.age += 1
 
 
 # class WB_List(object):
