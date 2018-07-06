@@ -36,6 +36,7 @@ class GameEngine(object):
         ##explsion
         self.item_list = []
         self.ticks = 0
+        self.score_list = [0, 0, 0, 0]
         
     def initialize(self):
         self.ticks = 0
@@ -162,15 +163,15 @@ class GameEngine(object):
         for item in self.player_list:
             if item.is_dash:
                 for i in range(modelConst.dash_speed_multiplier):
-                    killed = item.update(self.player_list,self.wb_list,self.bullet_list,self.item_list)
+                    killed = item.update(self.player_list,self.wb_list,self.bullet_list,self.item_list,self.score_list)
             else:
-                killed = item.update(self.player_list,self.wb_list,self.bullet_list,self.item_list)
+                killed = item.update(self.player_list,self.wb_list,self.bullet_list,self.item_list,self.score_list)
             if killed == 1:
                 self.evManager.Post(Event_PlayerKilled(item.index,item.pos))
             if item.is_alive:
                 alive += 1
-        if alive == 1:
-            self.evManager.Post(Event_GameOver())
+        if alive <= 1:
+            self.evManager.Post(Event_StateChange(STATE_ENDGAME))
         self.ticks += 1
 
     def notify(self, event):
@@ -190,11 +191,15 @@ class GameEngine(object):
             # if event.state is None >> pop state.
             if event.state is None:
                 # false if no more states are left
+                if self.state.peek() == STATE_ENDGAME:
+                    self.initialize()
                 if not self.state.pop():
                     self.evManager.Post(Event_Quit())
             elif event.state == STATE_RESTART:
                 self.state.clear()
                 self.state.push(STATE_MENU)
+            elif event.state == STATE_ENDGAME:
+                self.state.push(STATE_ENDGAME)
             else:
                 # push a new state on the stack
                 self.state.push(event.state)

@@ -166,7 +166,7 @@ class GraphicalView(object):
         pos = [(x, y + viewConst.GameSize[1] // 32) for x, y in pos]
         for i, player in enumerate(self.model.player_list):
             color = viewConst.Color_Black
-            teamScore = self.teamScoreFont.render(str(player.score), True, color)
+            teamScore = self.teamScoreFont.render(str(self.model.score_list[player.index]), True, color)
             self.screen.blit(teamScore, pos[i])
         # Team Balls
         pos = [(viewConst.GameSize[0] + viewConst.GameSize[1] // (modelConst.PlayerNum * 2), viewConst.GameSize[1] // (modelConst.PlayerNum * 2) * i) for i in range(1, modelConst.PlayerNum * 2, 2)]
