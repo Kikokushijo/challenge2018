@@ -33,7 +33,7 @@ Vec_dir = [
 ]
 
 #####################  white ball const  #####################
-wb_init_num = 30
+wb_init_num = 15
 wb_max_num  = 50
 wb_born_period = 1 #second
 wb_radius   = 10
@@ -124,7 +124,7 @@ bullet_radius = 8
 bullet_a = 0.1
 bullet_speed0 = normal_speed * 7
 
-suddendeath_ticks = viewconst.FramePerSec * 20
+suddendeath_ticks = viewconst.FramePerSec * 40
 suddendeath_speed = normal_speed
 freq = 7
 #####################  bullet const  #####################
@@ -134,9 +134,9 @@ freq = 7
 PROP_TYPE_EXPLOSIVE = 0
 PROP_TYPE_MULTIBULLET = 1
 PROP_TYPE_BIGBULLET = 2
-item_max = 10
-item_born_period = 1#second
-item_init_num = 0
+item_max = 4
+item_born_period = 5#second
+item_init_num = 1
 item_radius = 12
 
 explosive_radius = 150.0
