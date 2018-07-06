@@ -41,7 +41,8 @@ wb_radius   = 10
 
 
 def init_grav_list(g_list):
-    grav_st=120
+    # --------------------------- Grav 0 --------------------------- 
+    grav_st=85
     grav_r = 75
     grav_dr=(800-grav_st*2)/4
     for i in range(5):
@@ -51,14 +52,28 @@ def init_grav_list(g_list):
         else:
             for j in range(2):
                 g_list[0].append([Vec(grav_st + grav_dr + grav_dr * 2 * j, 0.5+grav_st+grav_dr*i), grav_r])
-    # grav = [(Vec(160,160),50),(Vec(320,160),50),(Vec(480,160),50),\
-    # (Vec(640,160),50),(Vec(200,400),50),(Vec(200,600),50),(Vec(200,800),50)]
-
+    # --------------------------- Grav 1 --------------------------- 
     grav_r=55
     grav_circle_num=int(viewconst.GameSize[0] / sqrt(2) / grav_r - sqrt(2) + 1)
     shift_size=int((viewconst.GameSize[0]-2*grav_r)/(grav_circle_num-1))
     for i in range(grav_circle_num):
         g_list[1].append([Vec(viewconst.GameSize[0] - grav_r - (shift_size*i), grav_r + (shift_size*i)),grav_r])
+    # --------------------------- Grav 2 --------------------------- 
+    g_list[2].append([Vec(400,400),200])
+    g_list[2].append([Vec(100,100),80])
+    g_list[2].append([Vec(100,700),80])
+    g_list[2].append([Vec(700,100),80])
+    g_list[2].append([Vec(700,700),80])
+    g_list[2].append([Vec(208,208),55])
+    g_list[2].append([Vec(208,592),55])
+    g_list[2].append([Vec(592,208),55])
+    g_list[2].append([Vec(592,592),55])
+    # --------------------------- Grav 3 --------------------------- 
+    # grav_st=60
+    # grav_r = 55
+    # grav_dr=(800-grav_st*2)/10
+    # for i in range(10):
+    #     g_list[3].append([Vec(grav_st+grav_dr*i,100),30])
 
 def next_grav():
     '''change the gravity map cyclicly'''
