@@ -4,6 +4,7 @@ STATE_MENU = 1
 STATE_STOP = 2
 STATE_PLAY = 3
 STATE_ENDGAME = 4
+STATE_ENDMATCH = 5
 class StateMachine(object):
     """
     Manages a stack based state machine.
