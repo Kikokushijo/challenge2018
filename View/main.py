@@ -59,6 +59,9 @@ class GraphicalView(object):
                 self.render_play()
             if cur_state == model.STATE_STOP:
                 self.render_stop()
+            if cur_state == model.STATE_ENDGAME:
+                self.clearRenderObject()
+                self.render_endgame()
 
             self.display_fps()
             # limit the redraw speed to 60 frames per second
@@ -97,6 +100,9 @@ class GraphicalView(object):
         self.explosionEvent = []
 
         self.is_initialized = True
+
+    def clearRenderObject(self):
+        self.explosionEvent[:] = []
 
     def blit_at_center(self, surface, position):
         center = tuple([int(pos - size // 2) for pos, size in zip(position, surface.get_size())])
@@ -145,6 +151,13 @@ class GraphicalView(object):
             self.screen.blit(somewords, (pos_x, pos_y))
 
             # update surface
+            pg.display.flip()
+
+    def render_endgame(self):
+        if self.last_update != model.STATE_ENDGAME:
+            self.last_update = model.STATE_ENDGAME
+
+            self.screen.fill(viewConst.bgColor, pg.Rect((0, 0), viewConst.GameSize))
             pg.display.flip()
 
     def drawScoreboard(self):
