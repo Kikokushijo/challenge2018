@@ -305,7 +305,6 @@ class GraphicalView(object):
                 intVertices = [int(x) for vertex in vertices for x in vertex]
                 gfxdraw.filled_trigon(self.screen, *intVertices, viewConst.Color_Snow)
 
-    def render_endgame(self):
                 if player.is_circling:
                     innerVertices = [player.pos + 0.6 * vertex for vertex in relativeVertices]
                     intInnerVertices = [int(x) for vertex in innerVertices for x in vertex]
