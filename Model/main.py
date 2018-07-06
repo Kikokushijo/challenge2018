@@ -120,14 +120,12 @@ class GameEngine(object):
         # update and see if create new item
         if len(self.item_list) < modelConst.item_max and random.randint(0,modelConst.item_born_period*viewConst.FramePerSec)==0:
             rnd = random.randint(1,3)
-            if rnd > 0:
+            if rnd == 1:
                 self.item_list.append(Explosive(self.evManager))
-            '''
             if rnd == 2:
                 self.item_list.append(Multibullet())
             if rnd == 3:
                 self.item_list.append(Bigbullet())
-            '''
     def create_bullet(self):
         if self.ticks < modelConst.suddendeath_ticks:
             return
@@ -196,6 +194,7 @@ class GameEngine(object):
             if event.state is None:
                 # false if no more states are left
                 if self.state.peek() == STATE_ENDGAME:
+                    modelConst.next_grav()
                     self.evManager.Post(Event_Initialize())
                 if not self.state.pop():
                     self.evManager.Post(Event_Quit())

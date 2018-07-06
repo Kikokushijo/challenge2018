@@ -78,8 +78,8 @@ def init_grav_list(g_list):
 def next_grav():
     '''change the gravity map cyclicly'''
     global grav
-    grav = grav_list[next_grav.counter%len(grav_list)]
     next_grav.counter += 1
+    grav = grav_list[next_grav.counter%len(grav_list)]
 next_grav.counter = 0
 
 
