@@ -10,6 +10,10 @@ class TeamAI( BaseAI ):
 
     def decide( self ):
         helper = self.helper
+        hPos = helper.getMyHeadPos()
+        wb_radius = helper.getWhiteballRadius()
+        if helper.getOtherBulletNumInRange(hPos, 10 * wb_radius) > 0:
+            return AI_MoveWayChange
         if not helper.checkMeInGrav():
             if helper.bodyOnRoute():
                 return AI_MoveWayChange
