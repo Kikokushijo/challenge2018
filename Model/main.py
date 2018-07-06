@@ -41,6 +41,7 @@ class GameEngine(object):
         
     def initialize(self):
         self.ticks = 0
+        self.tmp_score_list = [0, 0, 0, 0]
         self.endgame_ticks = 0
         self.init_wb_list()
         self.init_player_list()
@@ -162,11 +163,12 @@ class GameEngine(object):
         #update heads
         alive = 0
         for item in self.player_list:
+            killed=0
             if item.is_dash:
                 for i in range(modelConst.dash_speed_multiplier):
-                    killed = item.update(self.player_list,self.wb_list,self.bullet_list,self.item_list,self.score_list)
+                    killed |= item.update(self.player_list,self.wb_list,self.bullet_list,self.item_list,self.score_list,self.tmp_score_list)
             else:
-                killed = item.update(self.player_list,self.wb_list,self.bullet_list,self.item_list,self.score_list)
+                killed = item.update(self.player_list,self.wb_list,self.bullet_list,self.item_list,self.score_list,self.tmp_score_list)
             if killed == 1:
                 self.evManager.Post(Event_PlayerKilled(item.index,item.pos))
             if item.is_alive:
