@@ -354,14 +354,19 @@ class GraphicalView(object):
         self.blit_at_center(countDownFigure, countdown.pos)
 
     def drawMovingScore(self, movingscore):
-        movingScoreSurface = pg.Surface((viewConst.GameSize[0] * 3 // 16, viewConst.GameSize[1] * 3 // 16))
+        movingScoreSurface = pg.Surface((viewConst.GameSize[0] * 3 // 16 * 2, viewConst.GameSize[1] * 3 // 16))
         timeRatio = max(movingscore.time / movingscore.totaltime, 0)
         color = self.model.player_list[movingscore.index].color
         movingScoreSurface.fill(color)
 
         tmpScoreFigure = self.tmpScoreFont.render('+' + str(self.model.tmp_score_list[movingscore.index]), True, viewConst.Color_Snow)
-        center = tuple([int(pos // 2 - size // 2) for pos, size in zip(movingScoreSurface.get_size(), tmpScoreFigure.get_size())])
+        sizeSurface = movingScoreSurface.get_size()
+        sizeFigure = tmpScoreFigure.get_size()
+        center = (sizeSurface[0] - sizeFigure[0] * 2, (sizeSurface[1] - sizeFigure[1]) // 2)
         movingScoreSurface.blit(tmpScoreFigure, center)
+
+        movingScoreSurface.fill(viewConst.Color_Gold, (sizeSurface[0] - 38, 0, 7, sizeSurface[1]))
+        movingScoreSurface.fill(viewConst.Color_Gold, (sizeSurface[0] - 18, 0, 7, sizeSurface[1]))
 
         movingScoreSurface.set_alpha(int(255 * (1 - timeRatio)))
         pos = (movingscore.pos[0] + viewConst.GameSize[0] // 16 * (1 - timeRatio), movingscore.pos[1])
