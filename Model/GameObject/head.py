@@ -133,11 +133,16 @@ class Head(object):
                         enemy.is_circling = False
         
         #collision with item
-        for i in range(len(item_list)-1,-1,-1):
-            item = item_list [ i ]
-            if ( self.pos - item.pos ).length_squared() < (self.radius + item.radius)**2 :
-                item.trigger(self.index,player_list,wb_list)
-                item_list.pop(i)
+        cnt = 0
+        for i in player_list:
+            if i.is_alive:
+                cnt += 1
+        if cnt != 1:
+            for i in range(len(item_list)-1,-1,-1):
+                item = item_list [ i ]
+                if ( self.pos - item.pos ).length_squared() < (self.radius + item.radius)**2 :
+                    item.trigger(self.index,player_list,wb_list)
+                    item_list.pop(i)
         #dash timer
         if self.is_dash:
             self.dash_timer -= 1
@@ -150,6 +155,8 @@ class Head(object):
                 self.body_list[j].update()
         return 0
     def click(self, bullet_list, wb_list) :
+        if not self.is_alive:
+            return
         if self.init_timer != -1:
             return
         if not self.is_dash:
