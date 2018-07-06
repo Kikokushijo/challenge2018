@@ -54,12 +54,14 @@ playerColor       = [Color_Darkviolet,     Color_Royalblue, Color_Saddlebrown,
                      Color_Lightcoral,     Color_Burlywood, Color_Silver]
 
 # Durations
-explosionTime           = 30
-killedExplosionRadius   = 200
-killedExplosionTime     = 90
-bulletFlickerCycle      = 15
-whiteBallGenerationTime = 30
-itemGenerationTime      = 60
+magicCircleGenerationTime = 120
+timeLimitExceedStampTime  = 30
+explosionTime             = 30
+killedExplosionRadius     = 200
+killedExplosionTime       = 90
+bulletFlickerCycle        = 15
+whiteBallGenerationTime   = 30
+itemGenerationTime        = 60
 
 # Font
 teamNameFont       = 'View/Font/Noto/NotoSansCJK-Black.ttc'

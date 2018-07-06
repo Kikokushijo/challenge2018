@@ -11,16 +11,46 @@ import Controller.const  as ctrlConst
 import Interface.const   as IfaConst
 import View.teamName     as viewTeamName
 
-class Explosion(object):
+class RenderObject:
+    """
+    Class for rendering special object.
+    """
+    def __init__(self, pos, time, immortal = True):
+        self.pos = pos
+        self.time = time
+        self.totaltime = time
+        self.immortal = immortal
+
+    def update(self):
+        self.time -= 1
+
+class Explosion(RenderObject):
     """
     Class for rendering the explosion effect.
     """
     def __init__(self, index, pos, radius, time):
+        super.__init__(pos, time, False)
         self.index = index
-        self.pos = pos
-        self.time = time
-        self.totaltime = time
         self.radius = radius
+
+class TimeLimitExceedStamp(RenderObject):
+    """
+    Class for censuring the dilatory mischiefs.
+    """
+    def __init__(self, pos, time):
+        super.__init__(pos, time)
+
+class MagicCircle(RenderObject):
+    """
+    Class for summon the Dark Bullet Death Deity.
+    """
+    def __init__(self, pos, time):
+        super.__init__(pos, time)
+        self.theta = 0.0
+
+    def update(self):
+        super.update()
+        self.theta += 4 * math.pi / self.totaltime
 
 class GraphicalView(object):
     """
@@ -39,10 +69,13 @@ class GraphicalView(object):
         self.screen = None
         self.clock = None
         self.smallfont = None
+        self.renderObjects = None
+
         self.teamNameFont = None
         self.teamLengthFont = None
         self.teamScoreFont = None
-        self.explosionEvent = None
+
+        self.magicCircleImage = None
 
         self.last_update = 0
     
@@ -55,21 +88,28 @@ class GraphicalView(object):
             cur_state = self.model.state.peek()
             if cur_state == model.STATE_MENU:
                 self.render_menu()
-            if cur_state == model.STATE_PLAY:
+            elif cur_state == model.STATE_PLAY:
                 self.render_play()
-            if cur_state == model.STATE_STOP:
+            elif cur_state == model.STATE_STOP:
                 self.render_stop()
-            if cur_state == model.STATE_ENDGAME:
-                self.clearRenderObject()
+            elif cur_state == model.STATE_ENDGAME:
                 self.render_endgame()
+            elif cur_state == model.STATE_ENDMATCH:
+                self.render_endmatch()
 
             self.display_fps()
             # limit the redraw speed to 60 frames per second
             self.clock.tick(viewConst.FramePerSec)
         elif isinstance(event, Event_TriggerExplosive):
-            self.explosionEvent.append(Explosion(event.PlayerIndex, event.pos, modelConst.explosive_radius, viewConst.explosionTime))
+            self.renderObjects.append(Explosion(event.PlayerIndex, event.pos, modelConst.explosive_radius, viewConst.explosionTime))
         elif isinstance(event, Event_PlayerKilled):
-            self.explosionEvent.append(Explosion(event.PlayerIndex, event.pos, viewConst.killedExplosionRadius, viewConst.killedExplosionTime))
+            self.renderObjects.append(Explosion(event.PlayerIndex, event.pos, viewConst.killedExplosionRadius, viewConst.killedExplosionTime))
+        elif isinstance(event, Event_TimeLimitExceed):
+            pos = ((viewConst.ScreenSize[0] + viewConst.GameSize[0]) // 2, viewConst.GameSize[1] // 8 * (2 * event.PlayerIndex + 1))
+            self.renderObjects.append(TimeLimitExceedStamp(pos, viewConst.timeLimitExceedStampTime))
+        elif isinstance(event, Event_SuddenDeath):
+            pos = tuple([x // 2 for x in viewConst.GameSize])
+            self.renderObjects.append(MagicCircle(pos, viewConst.magicCircleGenerationTime))
         elif isinstance(event, Event_Quit):
             # shut down the pygame graphics
             self.is_initialized = False
@@ -97,12 +137,11 @@ class GraphicalView(object):
         self.teamNameFont = pg.font.Font(viewConst.teamNameFont, viewConst.teamNameFontSize)
         self.teamLengthFont = pg.font.Font(viewConst.teamLengthFont, viewConst.teamLengthFontSize)
         self.teamScoreFont = pg.font.Font(viewConst.teamScoreFont, viewConst.teamScoreFontSize)
-        self.explosionEvent = []
+        self.renderObjects = []
+
+        self.magicCircleImage = pg.image.load('View/Image/magicCircle.png').convert_alpha()
 
         self.is_initialized = True
-
-    def clearRenderObject(self):
-        self.explosionEvent[:] = []
 
     def blit_at_center(self, surface, position):
         center = tuple([int(pos - size // 2) for pos, size in zip(position, surface.get_size())])
@@ -159,6 +198,10 @@ class GraphicalView(object):
 
             self.screen.fill(viewConst.bgColor, pg.Rect((0, 0), viewConst.GameSize))
             pg.display.flip()
+
+    def render_endmatch(self):
+        if self.last_update != model.STATE_ENDMATCH:
+            self.last_update = model.STATE_ENDMATCH
 
     def drawScoreboard(self):
         # Frame
@@ -268,20 +311,37 @@ class GraphicalView(object):
             gfxdraw.filled_circle(self.screen, *pos,
                                   int(bullet.radius), color)
 
-    def drawExplosion(self):
-        for explosion in self.explosionEvent:
-            explosion.time -= 1
-            color = self.model.player_list[explosion.index].color
-            pos = tuple(map(int, explosion.pos))
-            radius = explosion.radius
-            timeRatio = explosion.time / explosion.totaltime
+    def drawExplosion(self, explosion):
+        color = self.model.player_list[explosion.index].color
+        pos = tuple(map(int, explosion.pos))
+        radius = explosion.radius
+        timeRatio = explosion.time / explosion.totaltime
 
-            explosionEffect = pg.Surface((int(2.1 * radius),) * 2, pg.SRCALPHA)
-            center = tuple([x // 2 for x in explosionEffect.get_size()])
-            gfxdraw.filled_circle(explosionEffect, *center,
-                                  int(1.1 * radius * (1 - timeRatio)), pg.Color(*color, int(192 * timeRatio)))
-            self.blit_at_center(explosionEffect, pos)
-        self.explosionEvent[:] = [x for x in self.explosionEvent if x.time > 0]
+        explosionEffect = pg.Surface((int(2.1 * radius),) * 2, pg.SRCALPHA)
+        center = tuple([x // 2 for x in explosionEffect.get_size()])
+        gfxdraw.filled_circle(explosionEffect, *center,
+                              int(1.1 * radius * (1 - timeRatio)), pg.Color(*color, int(192 * timeRatio)))
+        self.blit_at_center(explosionEffect, pos)
+
+    def drawTimeLimitExceedStamp(self, tle):
+        pass
+
+    def drawMagicCircle(self, magicCircle):
+        scaleFactor = max(magicCircle.time / magicCircle.totaltime, 0)
+        magicCircleEffect = pg.transform.rotozoom(self.magicCircleImage, magicCircle.theta, scaleFactor)
+        self.blit_at_center(magicCircleEffect, magicCircle.pos)
+        pass
+
+    def drawRenderObject(self):
+        for renderObject in self.renderObjects:
+            if isinstance(renderObject, Explosion):
+                drawExplosion(renderObject)
+            elif isinstance(renderObject, TimeLimitExceedStamp):
+                drawTimeLimitExceedStamp(renderObject)
+            elif isinstance(renderObject, MagicCircle):
+                drawMagicCircle(renderObject)
+            renderObject.update()
+        self.renderObjects[:] = [x for x in self.renderObjects if x.immortal or x.time > 0]
 
     def render_play(self):
         """
@@ -298,7 +358,7 @@ class GraphicalView(object):
         self.drawBody()
         self.drawHead()
         self.drawBullet()
-        self.drawExplosion()
+        self.drawRenderObject()
 
         # To be decided: update merely the game window or the whole screen?
         pg.display.flip()
