@@ -325,7 +325,7 @@ class GraphicalView(object):
             if isinstance(instance, renderObject.Explosion):
                 self.drawExplosion(instance)
             elif isinstance(instance, renderObject.TimeLimitExceedStamp):
-                self.drawTimeLimitEinstanceceedStamp(instance)
+                self.drawTimeLimitExceedStamp(instance)
             elif isinstance(instance, renderObject.MagicCircle):
                 self.drawMagicCircle(instance)
             elif isinstance(instance, renderObject.CountDown):
