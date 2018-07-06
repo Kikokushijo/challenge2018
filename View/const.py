@@ -56,6 +56,7 @@ playerColor       = [Color_Darkviolet,     Color_Royalblue, Color_Saddlebrown,
 # Durations
 magicCircleGenerationTime = 120
 timeLimitExceedStampTime  = 30
+scoreFlagEmergeTime       = 60
 explosionTime             = 30
 killedExplosionRadius     = 200
 killedExplosionTime       = 90
