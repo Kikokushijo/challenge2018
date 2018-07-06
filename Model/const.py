@@ -118,7 +118,7 @@ bullet_radius = 8
 bullet_a = 0.1
 bullet_speed0 = normal_speed * 7
 
-suddendeath_ticks = viewconst.FramePerSec * 10000
+suddendeath_ticks = viewconst.FramePerSec * 20
 suddendeath_speed = normal_speed
 freq = 7
 #####################  bullet const  #####################
