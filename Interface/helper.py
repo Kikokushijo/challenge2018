@@ -172,7 +172,7 @@ class Helper(object):
                 return gPos, gRadius
 
     def getDashPos(self):
-        if not self.checkInvsible():
+        if not self.checkInvisible():
             return None
         hPos = self.getMyHeadPos()
         hDir = self.getMyDir()
