@@ -59,6 +59,11 @@ class CountDown(RenderObject):
     def __init__(self, pos, time):
         super().__init__(pos, time, False)
 
+class MovingScore(RenderObject):
+    def __init__(self, index, pos, time):
+        super().__init__(pos, time)
+        self.index = index
+
 class GraphicalView(object):
     """
     Draws the model state onto the screen.
@@ -82,6 +87,7 @@ class GraphicalView(object):
         self.teamLengthFont = None
         self.teamScoreFont = None
         self.countDownFont = None
+        self.tmpScoreFont = None
 
         self.magicCircleImage = None
 
@@ -146,8 +152,9 @@ class GraphicalView(object):
         self.teamLengthFont = pg.font.Font(viewConst.teamLengthFont, viewConst.teamLengthFontSize)
         self.teamScoreFont = pg.font.Font(viewConst.teamScoreFont, viewConst.teamScoreFontSize)
         self.countDownFont = pg.font.Font(viewConst.countDownFont, viewConst.countDownFontSize)
-        pos = tuple([x // 2 for x in viewConst.GameSize])
-        self.renderObjects = [CountDown(pos, 180)]
+        self.tmpScoreFont = pg.font.Font(viewConst.tmpScoreFont, viewConst.tmpScoreFontSize)
+
+        self.renderObjects = []
 
         self.magicCircleImage = pg.image.load('View/Image/magicCircle.png').convert_alpha()
 
@@ -201,17 +208,6 @@ class GraphicalView(object):
 
             # update surface
             pg.display.flip()
-
-    def render_endgame(self):
-        if self.last_update != model.STATE_ENDGAME:
-            self.last_update = model.STATE_ENDGAME
-
-            self.screen.fill(viewConst.bgColor, pg.Rect((0, 0), viewConst.GameSize))
-            pg.display.flip()
-
-    def render_endmatch(self):
-        if self.last_update != model.STATE_ENDMATCH:
-            self.last_update = model.STATE_ENDMATCH
 
     def drawScoreboard(self):
         # Frame
@@ -310,6 +306,7 @@ class GraphicalView(object):
                 intVertices = [int(x) for vertex in vertices for x in vertex]
                 gfxdraw.filled_trigon(self.screen, *intVertices, viewConst.Color_Snow)
 
+    def render_endgame(self):
                 if player.is_circling:
                     innerVertices = [player.pos + 0.6 * vertex for vertex in relativeVertices]
                     intInnerVertices = [int(x) for vertex in innerVertices for x in vertex]
@@ -358,6 +355,20 @@ class GraphicalView(object):
         countDownFigure = self.countDownFont.render(str(figure), True, color)
         self.blit_at_center(countDownFigure, countdown.pos)
 
+    def drawMovingScore(self, movingscore):
+        movingScoreSurface = pg.Surface((viewConst.GameSize[0] * 3 // 16, viewConst.GameSize[1] * 3 // 16))
+        timeRatio = max(movingscore.time / movingscore.totaltime, 0)
+        color = self.model.player_list[movingscore.index].color
+        movingScoreSurface.fill(color)
+
+        tmpScoreFigure = self.tmpScoreFont.render('+' + str(self.model.tmp_score_list[movingscore.index]), True, viewConst.Color_Snow)
+        center = tuple([int(pos // 2 - size // 2) for pos, size in zip(movingScoreSurface.get_size(), tmpScoreFigure.get_size())])
+        movingScoreSurface.blit(tmpScoreFigure, center)
+
+        movingScoreSurface.set_alpha(int(255 * (1 - timeRatio)))
+        pos = (movingscore.pos[0] + viewConst.GameSize[0] // 16 * (1 - timeRatio), movingscore.pos[1])
+        self.blit_at_center(movingScoreSurface, pos)
+
     def drawRenderObject(self):
         for renderObject in self.renderObjects:
             if isinstance(renderObject, Explosion):
@@ -368,6 +379,8 @@ class GraphicalView(object):
                 self.drawMagicCircle(renderObject)
             elif isinstance(renderObject, CountDown):
                 self.drawCountDown(renderObject)
+            elif isinstance(renderObject, MovingScore):
+                self.drawMovingScore(renderObject)
             renderObject.update()
         self.renderObjects[:] = [x for x in self.renderObjects if x.immortal or x.time > 0]
 
@@ -375,6 +388,10 @@ class GraphicalView(object):
         """
         Render the game play.
         """
+        if self.last_update != model.STATE_PLAY and self.last_update != model.STATE_STOP:
+            self.renderObjects[:] = []
+            pos = tuple([x // 2 for x in viewConst.GameSize])
+            self.renderObjects.append(CountDown(pos, 180))
         self.last_update = model.STATE_PLAY
 
         self.screen.fill(viewConst.bgColor)
@@ -389,4 +406,22 @@ class GraphicalView(object):
         self.drawRenderObject()
 
         # To be decided: update merely the game window or the whole screen?
+        pg.display.flip()
+
+    def render_endgame(self):
+        if self.last_update != model.STATE_ENDGAME:
+            self.last_update = model.STATE_ENDGAME
+            self.renderObjects[:] = []
+            movingScores = [MovingScore(i, (viewConst.GameSize[0] // 8, viewConst.GameSize[1] // 8 * (2 * i + 1)), 30) for i in range(modelConst.PlayerNum)]
+            self.renderObjects.extend(movingScores)
+
+        self.screen.fill(viewConst.bgColor, pg.Rect((0, 0), viewConst.GameSize))
+        self.drawRenderObject()
+        pg.display.flip()
+
+    def render_endmatch(self):
+        if self.last_update != model.STATE_ENDMATCH:
+            self.last_update = model.STATE_ENDMATCH
+
+        self.screen.fill(viewConst.bgColor, pg.Rect((0, 0), viewConst.GameSize))
         pg.display.flip()

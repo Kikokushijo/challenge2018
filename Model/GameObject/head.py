@@ -208,6 +208,7 @@ class Head(object):
             else :
                 if enemy.is_alive:
                     score_list[enemy.index] += 1
+                    tmp_score_list[enemy.index] += 1
 
 
 

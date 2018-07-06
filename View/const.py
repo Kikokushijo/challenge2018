@@ -75,3 +75,6 @@ teamScoreFontSize  = 60
 
 countDownFont      = 'View/Font/Noto/NotoSansCJK-Black.ttc'
 countDownFontSize  = 200
+
+tmpScoreFont       = 'View/Font/Noto/NotoSansCJK-Black.ttc'
+tmpScoreFontSize   = 80
