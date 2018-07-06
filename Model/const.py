@@ -103,7 +103,7 @@ bullet_radius = 8
 bullet_a = 0.1
 bullet_speed0 = normal_speed * 7
 
-suddendeath_ticks = viewconst.FramePerSec * 100
+suddendeath_ticks = viewconst.FramePerSec * 10000
 suddendeath_speed = normal_speed
 freq = 7
 #####################  bullet const  #####################
@@ -113,8 +113,8 @@ freq = 7
 PROP_TYPE_EXPLOSIVE = 0
 PROP_TYPE_MULTIBULLET = 1
 PROP_TYPE_BIGBULLET = 2
-item_max = 3
-item_born_period = 10#second
+item_max = 10
+item_born_period = 1#second
 item_init_num = 0
 item_radius = 12
 
