@@ -60,6 +60,7 @@ class GraphicalView(object):
             if cur_state == model.STATE_STOP:
                 self.render_stop()
             if cur_state == model.STATE_ENDGAME:
+                self.clearRenderObject()
                 self.render_endgame()
 
             self.display_fps()
@@ -99,6 +100,9 @@ class GraphicalView(object):
         self.explosionEvent = []
 
         self.is_initialized = True
+
+    def clearRenderObject(self):
+        self.explosionEvent[:] = []
 
     def blit_at_center(self, surface, position):
         center = tuple([int(pos - size // 2) for pos, size in zip(position, surface.get_size())])
@@ -153,7 +157,7 @@ class GraphicalView(object):
         if self.last_update != model.STATE_ENDGAME:
             self.last_update = model.STATE_ENDGAME
 
-            self.screen.fill(viewConst.Color_Snow, pg.Rect((0, 0), viewConst.GameSize))
+            self.screen.fill(viewConst.bgColor, pg.Rect((0, 0), viewConst.GameSize))
             pg.display.flip()
 
     def drawScoreboard(self):
