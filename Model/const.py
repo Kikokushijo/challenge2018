@@ -82,14 +82,14 @@ def init_grav_list(g_list):
         g_list[3].append([Vec(800-grav_st,grav_st+grav_dr*i),grav_r])
     # --------------------------- Grav 4 --------------------------- 
     g_list[4].append([Vec(630,300),150])
-    g_list[4].append([Vec(250,600),100])
+    g_list[4].append([Vec(250,570),100])
     g_list[4].append([Vec(80,400),70])
-    g_list[4].append([Vec(400,100),50])
+    g_list[4].append([Vec(430,100),50])
     g_list[4].append([Vec(80,700),50])
     g_list[4].append([Vec(370,300),60])
     g_list[4].append([Vec(200,90),80])
     g_list[4].append([Vec(120,250),40])
-    g_list[4].append([Vec(690,700),90])
+    g_list[4].append([Vec(700,700),90])
 
 
 
