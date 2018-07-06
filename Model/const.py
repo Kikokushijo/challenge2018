@@ -130,6 +130,7 @@ init_r=40
 body_radius = 10
 body_gap = 6
 dash_radius = head_radius + body_radius
+dash_cool=30
 #####################    body const    ######################
 
 #####################  bullet const  #####################
