@@ -129,7 +129,8 @@ class GameEngine(object):
     def create_bullet(self):
         if self.ticks < modelConst.suddendeath_ticks:
             return
-
+        if self.ticks == modelConst.suddendeath_ticks:
+            self.evManager.Post(Event_SuddenDeath())
         if random.randint(0, modelConst.freq * int(viewConst.FramePerSec**2 / (self.ticks - modelConst.suddendeath_ticks + 1))) ==0:
             screen_mid = Vec( viewConst.ScreenSize[1]/2, viewConst.ScreenSize[1]/2 )
             rndtheta = random.random() * 2 * pi
