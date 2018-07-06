@@ -1,4 +1,5 @@
 import imp, traceback
+import sys, signal
 
 import Model.main as model
 from Events.Manager import *
@@ -33,7 +34,10 @@ class Interface(object):
         if isinstance(event, Event_EveryTick):
             cur_state = self.model.state.peek()
             if cur_state == model.STATE_PLAY:
-                self.API_play()
+                if sys.platform == 'linux':
+                    self.API_play_linux()
+                else:
+                    self.API_play()
         elif isinstance(event, Event_Quit):
             pass
         elif isinstance(event, Event_Initialize):
@@ -48,7 +52,27 @@ class Interface(object):
                 # self.evManager.Post(Event_Move(player.index, AI_Dir))
                 if AI_Dir == AI.AI_MoveWayChange:
                     self.evManager.Post(Event_MoveWayChange(player.index))
-        
+
+    def API_play_linux(self):
+        # for player in self.model.player_list:
+        for idx, player in enumerate(self.model.player_list):
+            if player.is_AI:
+                try:
+                    signal.signal(signal.SIGALRM, self.handler)
+                    signal.setitimer(signal.ITIMER_REAL, 0.005)
+                    AI_Dir = self.playerAI[player.index].decide()
+                    if AI_Dir == AI.AI_MoveWayChange:
+                        self.evManager.Post(Event_MoveWayChange(player.index))
+                except signal.ItimerError:
+                    print('TimeOut: %s' % player.name)
+                finally:
+                    signal.setitimer(signal.ITIMER_REAL, 0)
+                    signal.signal(signal.SIGALRM, signal.SIG_DFL)
+
+
+    def handler(self, signum, frame):
+        raise signal.ItimerError
+
     def initialize(self):
         if self.is_initAI: return
 
