@@ -83,10 +83,11 @@ class Head(object):
         #collision with white ball
         for i in range(len(wb_list)-1,-1,-1):
             wb = wb_list[i]
+            if wb.following:
+                continue
             if (self.pos - wb.pos).length_squared() < (self.radius + wb.radius)**2 :
-                #lengthen body list
-                self.body_list.append(Body(self.body_list[-1]))
-                #delete a withe ball
+
+                wb_list.append(White_Ball(Vec(wb.pos),True,self.index))
                 wb_list.pop(i)
 
         #collision with competitor's body and bullet
@@ -113,7 +114,8 @@ class Head(object):
             self.is_dash = True
             while len(self.body_list) > 1:
                 if killer != -1:
-                    player_list[killer].body_list.append(Body(player_list[killer].body_list[-1]))
+                    wb_list.append(White_Ball(Vec(self.body_list[-1].pos),True,killer))
+                    #player_list[killer].body_list.append(Body(player_list[killer].body_list[-1]))
                 self.body_list.pop(-1)
 
             return 1
@@ -147,7 +149,7 @@ class Head(object):
         for j in range(1, len(self.body_list)):
                 self.body_list[j].update()
         return 0
-    def click(self, bullet_list) :
+    def click(self, bullet_list, wb_list) :
         if self.init_timer != -1:
             return
         if not self.is_dash:

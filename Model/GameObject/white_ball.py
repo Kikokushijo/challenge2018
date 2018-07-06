@@ -2,13 +2,24 @@
 from pygame.math import Vector2 as Vec
 import Model.const as modelConst
 import View.const as viewConst
+from Model.GameObject.body import Body 
 import random
 
 class White_Ball(object):
-    def __init__(self, pos = Vec(-1,-1) ):
-        self.color = viewConst.wbColor
+    def __init__(self, pos = Vec(-1,-1), following = False, target = -1, index = -1):
+        self.following = following
+        self.target = target
+        self.index = index
+        if target == -1:
+            self.age = viewConst.whiteBallGenerationTime + 1
+        else:
+            self.age = 0
+        if index == -1:
+            self.color = viewConst.wbColor
+        else:
+            self.color = viewConst.playerColor[index]
+        self.speed = modelConst.wb_speed
         self.radius = modelConst.wb_radius
-        self.age = 0
         if pos == Vec(-2, -2) :
         	randpos = Vec(random.randint(0+modelConst.wb_radius, viewConst.ScreenSize[0]-480-modelConst.wb_radius), random.randint(0+modelConst.wb_radius, viewConst.ScreenSize[1]-modelConst.wb_radius))
         	screen_mid = Vec( viewConst.ScreenSize[1]/2, viewConst.ScreenSize[1]/2 )
@@ -22,55 +33,22 @@ class White_Ball(object):
             #use the pos passed in
             self.pos = Vec(pos)
 
-    def update(self):
+    def update(self, player_list):
         self.age += 1
+        if not self.following:
+            return True
+        else:
+            if not player_list[self.target].is_alive:
+                return False
+            targetobj = player_list[self.target].body_list[-1]
+            targetpos = targetobj.pos_log[0]
+            if (self.pos - targetpos).length_squared() < self.speed ** 2:
+                player_list[targetobj.index].body_list.append(Body(player_list[targetobj.index].body_list[-1],self.index == -1))
+                return False
+            else:
+                direction = (targetpos - self.pos).normalize()
+                self.pos += direction * self.speed
+                return True
 
 
-# class WB_List(object):
-#   def __init__(self):
-#       self.fps=viewConst.FramePerSec
-#       self.num=modelConst.wb_init_num
-#       #number of balls 
-#       self.max_num=modelConst.wb_max_num
-#       #max_number of balls 
-#       self.born_period=modelConst.wb_born_period
-#       self.wb_list=[]
-#       # the list of all white balls
-#       self.dead_list=[]
-#       # the index list of inactive balls
-#       self.dead_num=0
-#       # the number of inactive balls
-#         for x in range(num):
-#           self.wb_list[x]=White_Ball()
-#         # initialize the list of balls
-#     def del_ball(self,index):
-#       # call by head, delete all balls
-#       self.wb_list[x].active=False
-#       self.num-=1
-#       self.dead_num+=1
-#     def init_ball(self,pos):
-#         if self.dead_num==0: 
-#                 #all balls are active, so create a new ball at the end of the list
-#                 new_ball=White_Ball()
-#                 new_ball.pos=Vec(pos)
-#                 self.wb_list.append(new_ball)
-#             else:
-#                 #reuse the dead ball in deadlist
-#                 self.wb_list[self.dead_num-1].active=True
-#                 self.wb_list[self.dead_num-1].pos=Vec(pos)
-#                 self.dead_num-=1
-#             self.num+=1
-#     def Update(self):
-#       if self.num <= self.max_num && random.randint(0,self.born_period*self.fps)==0:
-#           # the num of balls < max nu m of balls
-#           # && use random to check if we want to create new balls
-#           #let's create new balls!
-#           if self.dead_num==0: 
-#               #all balls are active, so create a new ball at the end of the list
-#               new_ball=White_Ball()
-#               self.wb_list.append(new_ball)
-#           else:
-#               #reuse the dead ball in deadlist
-#               self.wb_list[self.dead_num-1]=White_Ball()
-#               self.dead_num-=1
-#           self.num+=1
+

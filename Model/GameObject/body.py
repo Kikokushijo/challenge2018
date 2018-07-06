@@ -4,11 +4,14 @@ import random
 from math import pi, sin, cos
 from pygame.math import Vector2 as Vec
 class Body(object):
-	def __init__(self, pre):
+	def __init__(self, pre, following = False):
 		self.pre = pre
 		self.index = pre.index
 		self.color = pre.color
-		self.radius = 0
+		if following:
+			self.radius = modelconst.body_radius
+		else:
+			self.radius = 0
 		self.pos = Vec(pre.pos_log[0])
 		#try:
 		#	self.pos = pre.pos - pre.direction * (pre.radius + modelconst.body_radius + modelconst.body_gap)
