@@ -30,7 +30,7 @@ class Helper(object):
                     min_dist = dist
                     min_pos = Vec(gPos)
                     min_gRadius = gRadius
-        if min_gPos == None:
+        if min_gPos is None:
             return None
         return min_gPos, min_gRadius
 
