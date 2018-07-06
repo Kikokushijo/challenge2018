@@ -37,9 +37,12 @@ class GameEngine(object):
         self.item_list = []
         self.ticks = 0
         self.score_list = [0, 0, 0, 0]
+        self.endgame_ticks = 0
         
     def initialize(self):
         self.ticks = 0
+        self.tmp_score_list = [0, 0, 0, 0]
+        self.endgame_ticks = 0
         self.init_wb_list()
         self.init_player_list()
         self.init_body_list()
@@ -118,18 +121,17 @@ class GameEngine(object):
         # update and see if create new item
         if len(self.item_list) < modelConst.item_max and random.randint(0,modelConst.item_born_period*viewConst.FramePerSec)==0:
             rnd = random.randint(1,3)
-            if rnd > 0:
+            if rnd == 1:
                 self.item_list.append(Explosive(self.evManager))
-            '''
             if rnd == 2:
                 self.item_list.append(Multibullet())
             if rnd == 3:
                 self.item_list.append(Bigbullet())
-            '''
     def create_bullet(self):
         if self.ticks < modelConst.suddendeath_ticks:
             return
-
+        if self.ticks == modelConst.suddendeath_ticks:
+            self.evManager.Post(Event_SuddenDeath())
         if random.randint(0, modelConst.freq * int(viewConst.FramePerSec**2 / (self.ticks - modelConst.suddendeath_ticks + 1))) ==0:
             screen_mid = Vec( viewConst.ScreenSize[1]/2, viewConst.ScreenSize[1]/2 )
             rndtheta = random.random() * 2 * pi
@@ -161,17 +163,20 @@ class GameEngine(object):
         #update heads
         alive = 0
         for item in self.player_list:
+            killed=0
             if item.is_dash:
                 for i in range(modelConst.dash_speed_multiplier):
-                    killed = item.update(self.player_list,self.wb_list,self.bullet_list,self.item_list,self.score_list)
+                    killed |= item.update(self.player_list,self.wb_list,self.bullet_list,self.item_list,self.score_list,self.tmp_score_list)
             else:
-                killed = item.update(self.player_list,self.wb_list,self.bullet_list,self.item_list,self.score_list)
+                killed = item.update(self.player_list,self.wb_list,self.bullet_list,self.item_list,self.score_list,self.tmp_score_list)
             if killed == 1:
                 self.evManager.Post(Event_PlayerKilled(item.index,item.pos))
             if item.is_alive:
                 alive += 1
         if alive <= 1:
-            self.evManager.Post(Event_StateChange(STATE_ENDGAME))
+            self.endgame_ticks += 1
+            if self.endgame_ticks > 300:
+                self.evManager.Post(Event_StateChange(STATE_ENDGAME))
         self.ticks += 1
 
     def notify(self, event):
@@ -192,7 +197,8 @@ class GameEngine(object):
             if event.state is None:
                 # false if no more states are left
                 if self.state.peek() == STATE_ENDGAME:
-                    self.initialize()
+                    modelConst.next_grav()
+                    self.evManager.Post(Event_Initialize())
                 if not self.state.pop():
                     self.evManager.Post(Event_Quit())
             elif event.state == STATE_RESTART:

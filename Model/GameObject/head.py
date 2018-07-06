@@ -42,7 +42,7 @@ class Head(object):
         self.grav_center = Vec( 0, 0 )
         self.pos_log = [Vec(self.pos)]
 
-    def update(self,player_list, wb_list, bullet_list, item_list, score_list):
+    def update(self,player_list, wb_list, bullet_list, item_list, score_list, tmp_score_list):
         if not self.is_alive:
             return 0
 
@@ -100,14 +100,17 @@ class Head(object):
                         #self die
                         killer = enemy.index
                         self.is_alive = False
-                        self.add_score(player_list,score_list)
+                        self.add_score(player_list,score_list,tmp_score_list)
                         break
+                else:
+                    continue
+                break
             for bullet in bullet_list :
                 if (bullet.index != self.index) and (bullet.index == -1 or player_list[bullet.index].is_alive) and \
                    (self.pos - bullet.pos).length_squared() < (self.radius + bullet.radius)**2 :
                     killer = bullet.index
                     self.is_alive = False
-                    self.add_score(player_list,score_list)
+                    self.add_score(player_list,score_list,tmp_score_list)
                     break
         ##player die
         if not self.is_alive:
@@ -133,11 +136,16 @@ class Head(object):
                         enemy.is_circling = False
         
         #collision with item
-        for i in range(len(item_list)-1,-1,-1):
-            item = item_list [ i ]
-            if ( self.pos - item.pos ).length_squared() < (self.radius + item.radius)**2 :
-                item.trigger(self.index,player_list,wb_list)
-                item_list.pop(i)
+        cnt = 0
+        for i in player_list:
+            if i.is_alive:
+                cnt += 1
+        if cnt != 1:
+            for i in range(len(item_list)-1,-1,-1):
+                item = item_list [ i ]
+                if ( self.pos - item.pos ).length_squared() < (self.radius + item.radius)**2 :
+                    item.trigger(self.index,player_list,wb_list)
+                    item_list.pop(i)
         #dash timer
         if self.is_dash:
             self.dash_timer -= 1
@@ -150,6 +158,8 @@ class Head(object):
                 self.body_list[j].update()
         return 0
     def click(self, bullet_list, wb_list) :
+        if not self.is_alive:
+            return
         if self.init_timer != -1:
             return
         if not self.is_dash:
@@ -186,7 +196,7 @@ class Head(object):
                     else:
                         bullet_list.append(Bullet(self.pos,self.direction,self.index))
 
-    def add_score(self, player_list, score_list):
+    def add_score(self, player_list, score_list,tmp_score_list):
         for enemy in player_list:
             if enemy.index == self.index:
                 continue
