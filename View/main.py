@@ -29,7 +29,7 @@ class Explosion(RenderObject):
     Class for rendering the explosion effect.
     """
     def __init__(self, index, pos, radius, time):
-        super.__init__(pos, time, False)
+        super().__init__(pos, time, False)
         self.index = index
         self.radius = radius
 
@@ -38,19 +38,26 @@ class TimeLimitExceedStamp(RenderObject):
     Class for censuring the dilatory mischiefs.
     """
     def __init__(self, pos, time):
-        super.__init__(pos, time)
+        super().__init__(pos, time)
 
 class MagicCircle(RenderObject):
     """
     Class for summon the Dark Bullet Death Deity.
     """
     def __init__(self, pos, time):
-        super.__init__(pos, time)
+        super().__init__(pos, time)
         self.theta = 0.0
 
     def update(self):
-        super.update()
-        self.theta += 4 * math.pi / self.totaltime
+        super().update()
+        self.theta += 180 / self.totaltime if self.time > 0 else 0.1
+
+class CountDown(RenderObject):
+    """
+    Class for count down.
+    """
+    def __init__(self, pos, time):
+        super().__init__(pos, time, False)
 
 class GraphicalView(object):
     """
@@ -74,6 +81,7 @@ class GraphicalView(object):
         self.teamNameFont = None
         self.teamLengthFont = None
         self.teamScoreFont = None
+        self.countDownFont = None
 
         self.magicCircleImage = None
 
@@ -137,7 +145,9 @@ class GraphicalView(object):
         self.teamNameFont = pg.font.Font(viewConst.teamNameFont, viewConst.teamNameFontSize)
         self.teamLengthFont = pg.font.Font(viewConst.teamLengthFont, viewConst.teamLengthFontSize)
         self.teamScoreFont = pg.font.Font(viewConst.teamScoreFont, viewConst.teamScoreFontSize)
-        self.renderObjects = []
+        self.countDownFont = pg.font.Font(viewConst.countDownFont, viewConst.countDownFontSize)
+        pos = tuple([x // 2 for x in viewConst.GameSize])
+        self.renderObjects = [CountDown(pos, 180)]
 
         self.magicCircleImage = pg.image.load('View/Image/magicCircle.png').convert_alpha()
 
@@ -284,8 +294,11 @@ class GraphicalView(object):
         for player in self.model.player_list:
             if player.is_alive:
                 pos = tuple(map(int, player.pos))
+                color = player.color
+                if player.is_dash:
+                    color = tuple([int(i * 127 / 255 + 128) for i in color])
                 gfxdraw.filled_circle(self.screen, *pos,
-                                      int(player.radius), player.color)
+                                      int(player.radius), color)
                 # draw triangle
                 triRadius = player.radius * 0.7
                 theta = math.atan2(player.direction.y, player.direction.x)
@@ -300,7 +313,7 @@ class GraphicalView(object):
                 if player.is_circling:
                     innerVertices = [player.pos + 0.6 * vertex for vertex in relativeVertices]
                     intInnerVertices = [int(x) for vertex in innerVertices for x in vertex]
-                    gfxdraw.filled_trigon(self.screen, *intInnerVertices, player.color)
+                    gfxdraw.filled_trigon(self.screen, *intInnerVertices, color)
 
     def drawBullet(self):
         for bullet in self.model.bullet_list:
@@ -327,19 +340,34 @@ class GraphicalView(object):
         pass
 
     def drawMagicCircle(self, magicCircle):
-        scaleFactor = max(magicCircle.time / magicCircle.totaltime, 0)
+        scaleFactor = 0.3
+        scaleFactor *= 1 - max(magicCircle.time / magicCircle.totaltime, 0)
         magicCircleEffect = pg.transform.rotozoom(self.magicCircleImage, magicCircle.theta, scaleFactor)
         self.blit_at_center(magicCircleEffect, magicCircle.pos)
-        pass
+
+    def drawCountDown(self, countdown):
+        if countdown.time / countdown.totaltime > 2/3:
+            color = viewConst.Color_Firebrick
+            figure = 3
+        elif countdown.time / countdown.totaltime > 1/3:
+            color = viewConst.Color_Royalblue
+            figure = 2
+        else:
+            color = viewConst.Color_Darkolivegreen
+            figure = 1
+        countDownFigure = self.countDownFont.render(str(figure), True, color)
+        self.blit_at_center(countDownFigure, countdown.pos)
 
     def drawRenderObject(self):
         for renderObject in self.renderObjects:
             if isinstance(renderObject, Explosion):
-                drawExplosion(renderObject)
+                self.drawExplosion(renderObject)
             elif isinstance(renderObject, TimeLimitExceedStamp):
-                drawTimeLimitExceedStamp(renderObject)
+                self.drawTimeLimitExceedStamp(renderObject)
             elif isinstance(renderObject, MagicCircle):
-                drawMagicCircle(renderObject)
+                self.drawMagicCircle(renderObject)
+            elif isinstance(renderObject, CountDown):
+                self.drawCountDown(renderObject)
             renderObject.update()
         self.renderObjects[:] = [x for x in self.renderObjects if x.immortal or x.time > 0]
 
