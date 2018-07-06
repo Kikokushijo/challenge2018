@@ -117,12 +117,14 @@ class GameEngine(object):
         # update and see if create new item
         if len(self.item_list) < modelConst.item_max and random.randint(0,modelConst.item_born_period*viewConst.FramePerSec)==0:
             rnd = random.randint(1,3)
-            if rnd == 1:
+            if rnd > 0:
                 self.item_list.append(Explosive(self.evManager))
+            '''
             if rnd == 2:
                 self.item_list.append(Multibullet())
             if rnd == 3:
                 self.item_list.append(Bigbullet())
+            '''
     def create_bullet(self):
         if self.ticks < modelConst.suddendeath_ticks:
             return
@@ -130,7 +132,7 @@ class GameEngine(object):
         if random.randint(0, modelConst.freq * int(viewConst.FramePerSec**2 / (self.ticks - modelConst.suddendeath_ticks + 1))) ==0:
             screen_mid = Vec( viewConst.ScreenSize[1]/2, viewConst.ScreenSize[1]/2 )
             rndtheta = random.random() * 2 * pi
-            self.bullet_list.append( Bullet(screen_mid, Vec(cos(rndtheta),sin(rndtheta)), -1, \
+            self.bullet_list.append( Bullet(screen_mid, Vec(cos(rndtheta),sin(rndtheta)), -1, modelConst.bullet_radius,\
                                             modelConst.suddendeath_speed , 0 ) )
     
     def tick_update(self):
@@ -146,11 +148,15 @@ class GameEngine(object):
             self.create_ball()
             self.create_item()
         self.create_bullet()
-        for wb in self.wb_list:
-            wb.update()
         #update items
         for item in self.item_list:
             item.update()
+
+
+        for i in range(len(self.wb_list)-1,-1,-1):
+            item = self.wb_list[i]
+            if not item.update(self.player_list):
+                self.wb_list.pop(i)
         #update heads
         alive = 0
         for item in self.player_list:

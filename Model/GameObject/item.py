@@ -3,6 +3,7 @@ import View.const as viewConst
 from pygame.math import Vector2 as Vec
 from Model.GameObject.body import Body 
 from Events.Manager import *
+from Model.GameObject.white_ball import White_Ball
 
 import random
 class Item(object):
@@ -31,16 +32,29 @@ class Explosive(Item):
         for i in range(len(wb_list)-1,-1,-1):
             wb = wb_list[i]
             if (wb.pos - self.pos).length_squared() < modelConst.explosive_radius**2:
-                player_list[index].body_list.append(Body(player_list[index].body_list[-1]))
+                wb_list.append(White_Ball(wb.pos,True,index))
                 wb_list.pop(i)
         #absorb competitor's ball
         for other in player_list:
             if other.index == index:
                 continue
-            for cb in other.body_list[1:]:
+            tag = 0
+            for i in range(len(other.body_list)-1,0,-1):
+                cb = other.body_list[i]
                 if(cb.pos - self.pos).length_squared() < modelConst.explosive_radius**2:
-                    player_list[index].body_list.append(Body(player_list[index].body_list[-1]))
-                    other.body_list.pop()
+                    tag = 1
+            if tag == 0:
+                continue
+            tag = 0
+            for i in range(len(other.body_list)-1,0,-1):
+                cb = other.body_list[i]
+                if(cb.pos - self.pos).length_squared() < modelConst.explosive_radius**2:
+                    wb_list.append(White_Ball(wb.pos,True,index))
+                    other.body_list.pop(i)
+                    tag = 1
+                elif tag == 0:
+                    wb_list.append(White_Ball(wb.pos,True,index,index))
+                    other.body_list.pop(i)
 
 class Multibullet(Item):
     def __init__(self):
