@@ -63,6 +63,15 @@ class Event_TimeLimitExceed(BaseEvent):
     def __str__(self):
         return "{0} => Playerindex={1}".format(self.name, self.PlayerIndex)
 
+class Event_SuddenDeath(BaseEvent):
+    """
+    Event of time limit exceed when running AI code.
+    """
+    def __init__(self):
+        self.name = "SuddenDeath Event"
+    def __str__(self):
+        return "{0}".format(self.name)
+
 
 class Event_TriggerExplosive(BaseEvent):
 

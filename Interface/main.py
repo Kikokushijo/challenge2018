@@ -5,6 +5,7 @@ import Model.main as model
 from Events.Manager import *
 
 from Interface.helper import Helper
+from time import time
 
 import AI.base as AI
 
@@ -34,7 +35,7 @@ class Interface(object):
         if isinstance(event, Event_EveryTick):
             cur_state = self.model.state.peek()
             if cur_state == model.STATE_PLAY:
-                if sys.platform == 'linux':
+                if sys.platform in ['linux', 'darwin']:
                     self.API_play_linux()
                 else:
                     self.API_play()
@@ -59,12 +60,15 @@ class Interface(object):
             if player.is_AI:
                 try:
                     signal.signal(signal.SIGALRM, self.handler)
-                    signal.setitimer(signal.ITIMER_REAL, 0.005)
+                    signal.setitimer(signal.ITIMER_REAL, 0.001)
+                    start_time = time()
                     AI_Dir = self.playerAI[player.index].decide()
+                    # print('player:', idx, time() - start_time)
                     if AI_Dir == AI.AI_MoveWayChange:
                         self.evManager.Post(Event_MoveWayChange(player.index))
                 except signal.ItimerError:
-                    print('TimeOut: %s' % player.name)
+                    # print('TimeOut: %s' % player.name)
+                    self.evManager.Post(Event_TimeLimitExceed(player.index))
                 finally:
                     signal.setitimer(signal.ITIMER_REAL, 0)
                     signal.signal(signal.SIGALRM, signal.SIG_DFL)
