@@ -185,7 +185,7 @@ class GameEngine(object):
         elif isinstance(event, Event_MoveWayChange):
             cur_state = self.state.peek()
             if cur_state == STATE_PLAY:
-                self.player_list[event.PlayerIndex].click(self.bullet_list)
+                self.player_list[event.PlayerIndex].click(self.bullet_list,self.wb_list)
         elif isinstance(event, Event_StateChange):
             # if event.state is None >> pop state.
             if event.state is None:
@@ -198,14 +198,6 @@ class GameEngine(object):
             else:
                 # push a new state on the stack
                 self.state.push(event.state)
-        elif isinstance(event, Event_MoveWayChange):
-            #modified in challenge 2018 
-            #key board event
-            """
-            if keyboard is pressed, change the head_moving way
-            """
-            #print(event)
-            self.player_list[event.PlayerIndex].click(self.bullet_list)
         elif isinstance(event, Event_Quit):
             self.running = False
         elif isinstance(event, Event_Initialize) or \

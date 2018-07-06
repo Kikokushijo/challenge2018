@@ -126,6 +126,7 @@ bigbullet_r = bullet_radius * 4
 #####################  item const #####################
 
 wb_speed = normal_speed * 1.5
+wb_fast_speed = dash_speed * 1.5
 
 
 

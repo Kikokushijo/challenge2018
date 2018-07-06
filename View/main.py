@@ -200,7 +200,7 @@ class GraphicalView(object):
                 else:
                     radius *= -2 * timeRatio + 3
             gfxdraw.filled_circle(self.screen, *pos,
-                                  int(radius), viewConst.wbColor)
+                                  int(radius), wb.color)
 
     def drawItem(self):
         for item in self.model.item_list:

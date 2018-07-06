@@ -32,7 +32,7 @@ class Explosive(Item):
         for i in range(len(wb_list)-1,-1,-1):
             wb = wb_list[i]
             if (wb.pos - self.pos).length_squared() < modelConst.explosive_radius**2:
-                wb_list.append(White_Ball(wb.pos,True,index))
+                wb_list.append(White_Ball(Vec(wb.pos),True,index))
                 wb_list.pop(i)
         #absorb competitor's ball
         for other in player_list:
@@ -42,18 +42,16 @@ class Explosive(Item):
             for i in range(len(other.body_list)-1,0,-1):
                 cb = other.body_list[i]
                 if(cb.pos - self.pos).length_squared() < modelConst.explosive_radius**2:
-                    tag = 1
+                    tag = i
             if tag == 0:
                 continue
-            tag = 0
             for i in range(len(other.body_list)-1,0,-1):
                 cb = other.body_list[i]
                 if(cb.pos - self.pos).length_squared() < modelConst.explosive_radius**2:
-                    wb_list.append(White_Ball(wb.pos,True,index))
+                    wb_list.append(White_Ball(Vec(cb.pos),True,index))
                     other.body_list.pop(i)
-                    tag = 1
-                elif tag == 0:
-                    wb_list.append(White_Ball(wb.pos,True,index,index))
+                elif i > tag:
+                    wb_list.append(White_Ball(Vec(cb.pos),True,other.index,other.index))
                     other.body_list.pop(i)
 
 class Multibullet(Item):

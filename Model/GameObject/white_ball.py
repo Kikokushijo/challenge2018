@@ -10,10 +10,16 @@ class White_Ball(object):
         self.following = following
         self.target = target
         self.index = index
-        self.color = viewConst.wbColor
-        self.radius = modelConst.wb_radius
+        if target == -1:
+            self.age = viewConst.whiteBallGenerationTime + 1
+        else:
+            self.age = 0
+        if index == -1:
+            self.color = viewConst.wbColor
+        else:
+            self.color = viewConst.playerColor[index]
         self.speed = modelConst.wb_speed
-        self.age = 0
+        self.radius = modelConst.wb_radius
         if pos == Vec(-2, -2) :
         	randpos = Vec(random.randint(0+modelConst.wb_radius, viewConst.ScreenSize[0]-480-modelConst.wb_radius), random.randint(0+modelConst.wb_radius, viewConst.ScreenSize[1]-modelConst.wb_radius))
         	screen_mid = Vec( viewConst.ScreenSize[1]/2, viewConst.ScreenSize[1]/2 )
@@ -32,10 +38,12 @@ class White_Ball(object):
         if not self.following:
             return True
         else:
+            if not player_list[self.target].is_alive:
+                return False
             targetobj = player_list[self.target].body_list[-1]
             targetpos = targetobj.pos_log[0]
             if (self.pos - targetpos).length_squared() < self.speed ** 2:
-                player_list[targetobj.index].body_list.append(Body(player_list[targetobj.index].body_list[-1]))
+                player_list[targetobj.index].body_list.append(Body(player_list[targetobj.index].body_list[-1],self.index == -1))
                 return False
             else:
                 direction = (targetpos - self.pos).normalize()
