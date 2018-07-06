@@ -45,6 +45,8 @@ class Control(object):
                         self.ctrl_stop(event)
                     elif cur_state == model.STATE_ENDGAME:
                         self.ctrl_endgame(event)
+                    elif cur_state == model.STATE_ENDMATCH:
+                        self.ctrl_endmatch(event)
         elif isinstance(event, Event_Initialize):
             self.initialize()
 
@@ -107,6 +109,15 @@ class Control(object):
         if event.type == pg.KEYDOWN:
             # restart the game
             if event.key == pg.K_SPACE:
+                self.evManager.Post(Event_StateChange(None))
+
+    def ctrl_endmatch(self, event):
+        """
+        Handles endmatch events.
+        """
+        if event.type == pg.KEYDOWN:
+            # restart the game
+            if event.key == pg.K_ESCAPE:
                 self.evManager.Post(Event_StateChange(None))
         
     def Get_KeyPressIn(self, keylist):

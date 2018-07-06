@@ -27,6 +27,7 @@ class Head(object):
         self.speed = modelconst.normal_speed
         self.is_dash = False
         self.dash_timer = 0
+        self.dash_cool=0
         self.radius = modelconst.head_radius
         self.is_alive = True
         self.score = Score
@@ -152,6 +153,9 @@ class Head(object):
             if self.dash_timer == 0:
                 self.is_dash = False
                 #self.speed = modelconst.normal_speed
+        # dash cool
+        if self.dash_cool>0:
+            self.dash_cool-=1
         #update theta
         #self.theta = atan2(self.direction.x, -self.direction.y)
         for j in range(1, len(self.body_list)):
@@ -179,9 +183,10 @@ class Head(object):
                 else:
                     self.circling_radius = 0
 
-            else:
+            elif self.dash_cool==0:
                 self.is_dash = True
                 self.dash_timer = modelconst.max_dash_time * modelconst.dash_speed_multiplier
+                self.dash_cool=self.dash_timer+modelconst.dash_cool
                 #self.speed = modelconst.dash_speed
                 if len(self.body_list)>1 :
                     self.body_list.pop(-1)

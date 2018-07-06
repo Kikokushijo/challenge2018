@@ -38,6 +38,8 @@ class GameEngine(object):
         self.ticks = 0
         self.score_list = [0, 0, 0, 0]
         self.endgame_ticks = 0
+
+        self.gamenumber = 1
         
     def initialize(self):
         self.ticks = 0
@@ -176,7 +178,11 @@ class GameEngine(object):
         if alive <= 1:
             self.endgame_ticks += 1
             if self.endgame_ticks > 300:
-                self.evManager.Post(Event_StateChange(STATE_ENDGAME))
+                if self.gamenumber == 5:
+                    self.evManager.Post(Event_StateChange(STATE_ENDMATCH))
+                else:
+                    self.evManager.Post(Event_StateChange(STATE_ENDGAME))
+                self.gamenumber += 1
         self.ticks += 1
 
     def notify(self, event):
@@ -206,6 +212,9 @@ class GameEngine(object):
                 self.state.push(STATE_MENU)
             elif event.state == STATE_ENDGAME:
                 self.state.push(STATE_ENDGAME)
+            elif event.state == STATE_ENDMATCH:
+                self.state.clear()
+                self.state.push(STATE_ENDMATCH)
             else:
                 # push a new state on the stack
                 self.state.push(event.state)

@@ -33,7 +33,7 @@ Vec_dir = [
 ]
 
 #####################  white ball const  #####################
-wb_init_num = 30
+wb_init_num = 15
 wb_max_num  = 50
 wb_born_period = 1 #second
 wb_radius   = 10
@@ -82,14 +82,14 @@ def init_grav_list(g_list):
         g_list[3].append([Vec(800-grav_st,grav_st+grav_dr*i),grav_r])
     # --------------------------- Grav 4 --------------------------- 
     g_list[4].append([Vec(630,300),150])
-    g_list[4].append([Vec(250,600),100])
+    g_list[4].append([Vec(250,570),100])
     g_list[4].append([Vec(80,400),70])
-    g_list[4].append([Vec(400,100),50])
+    g_list[4].append([Vec(430,100),50])
     g_list[4].append([Vec(80,700),50])
     g_list[4].append([Vec(370,300),60])
     g_list[4].append([Vec(200,90),80])
     g_list[4].append([Vec(120,250),40])
-    g_list[4].append([Vec(690,700),90])
+    g_list[4].append([Vec(700,700),90])
 
 
 
@@ -130,6 +130,7 @@ init_r=40
 body_radius = 10
 body_gap = 6
 dash_radius = head_radius + body_radius
+dash_cool=30
 #####################    body const    ######################
 
 #####################  bullet const  #####################
@@ -137,7 +138,7 @@ bullet_radius = 8
 bullet_a = 0.1
 bullet_speed0 = normal_speed * 7
 
-suddendeath_ticks = viewconst.FramePerSec * 20
+suddendeath_ticks = viewconst.FramePerSec * 40
 suddendeath_speed = normal_speed
 freq = 7
 #####################  bullet const  #####################
@@ -147,9 +148,9 @@ freq = 7
 PROP_TYPE_EXPLOSIVE = 0
 PROP_TYPE_MULTIBULLET = 1
 PROP_TYPE_BIGBULLET = 2
-item_max = 10
-item_born_period = 1#second
-item_init_num = 0
+item_max = 4
+item_born_period = 5#second
+item_init_num = 1
 item_radius = 12
 
 explosive_radius = 150.0
