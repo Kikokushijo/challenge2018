@@ -69,11 +69,17 @@ def init_grav_list(g_list):
     g_list[2].append([Vec(592,208),55])
     g_list[2].append([Vec(592,592),55])
     # --------------------------- Grav 3 --------------------------- 
-    # grav_st=60
-    # grav_r = 55
-    # grav_dr=(800-grav_st*2)/10
-    # for i in range(10):
-    #     g_list[3].append([Vec(grav_st+grav_dr*i,100),30])
+    grav_st=80
+    grav_r = 50
+    grav_dr=(800-grav_st*2)/5
+    g_list[3].append([Vec(135,135),grav_r*2+20])
+    g_list[3].append([Vec(800-135,800-135),grav_r*2+20])
+    for i in range(4):
+        g_list[3].append([Vec(grav_st+grav_dr*(i+2),grav_st),grav_r])
+        g_list[3].append([Vec(grav_st+grav_dr*i,800-grav_st),grav_r])
+    for i in range(1,4):
+        g_list[3].append([Vec(grav_st,grav_st+grav_dr*(i+1)),grav_r])
+        g_list[3].append([Vec(800-grav_st,grav_st+grav_dr*i),grav_r])
 
 def next_grav():
     '''change the gravity map cyclicly'''
@@ -100,7 +106,7 @@ head_radius = 11
 #the grav now is for debug
 grav_list = [ [] for _ in range(5) ]
 
-grav = grav_list[0]
+grav = grav_list[3]
 init_grav_list(grav_list)
 
 
