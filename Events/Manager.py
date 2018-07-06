@@ -18,6 +18,9 @@ class Event_Initialize(BaseEvent):
         return self.name
 
 class Event_Restart(BaseEvent):
+    """
+    Restart event.
+    """
     def __init__(self):
         self.name = "Restart event"
     def __str__(self):
@@ -34,7 +37,7 @@ class Event_Quit(BaseEvent):
 
 class Event_StateChange(BaseEvent):
     """
-    change state event.
+    Change state event.
     """
     def __init__(self, state):
         self.name = "StateChange event"
@@ -43,12 +46,24 @@ class Event_StateChange(BaseEvent):
         return "{0} => StateTo:{1}".format(self.name, self.state)
 
 class Event_MoveWayChange(BaseEvent):
-
+    
     def __init__(self, player):
         self.name = "MoveWayChange event"
         self.PlayerIndex = player
     def __str__(self):
         return "{0} => Playerindex={1}".format(self.name, self.PlayerIndex)
+
+class Event_TimeLimitExceed(BaseEvent):
+    """
+    Event of time limit exceed when running AI code.
+    """
+    def __init__(self, player):
+        self.name = "TimeLimitExceed event"
+        self.PlayerIndex = player
+    def __str__(self):
+        return "{0} => Playerindex={1}".format(self.name, self.PlayerIndex)
+
+
 class Event_TriggerExplosive(BaseEvent):
 
     def __init__(self, player, pos):
