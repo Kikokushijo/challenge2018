@@ -30,7 +30,7 @@ class Helper(object):
                     min_dist = dist
                     min_pos = Vec(gPos)
                     min_gRadius = gRadius
-        if min_gPos = None:
+        if min_gPos == None:
             return None
         return min_gPos, min_gRadius
 
@@ -56,7 +56,7 @@ class Helper(object):
     def getOtherBulletNumInRange(self, center, radius):
         count = 0
         for bullet in self.model.bullet_list:
-            if bullet.index = self.index:
+            if bullet.index == self.index:
                 continue
             if (bullet.pos - center).length_squared() <= radius ** 2:
                 count += 1
@@ -111,7 +111,7 @@ class Helper(object):
                 if dist < min_dist:
                     min_dist = dist
                     min_pos = Vec(wb.pos)
-        if min_pos = (0, 0):
+        if min_pos == (0, 0):
             return None 
         return min_pos
 
@@ -172,7 +172,7 @@ class Helper(object):
                 return gPos, gRadius
 
     def getDashPos(self):
-        if not self.checkInvsible():
+        if not self.checkInvisible():
             return None
         hPos = self.getMyHeadPos()
         hDir = self.getMyDir()
