@@ -1,5 +1,6 @@
 from pygame.math import Vector2 as Vec
 import View.const as viewconst
+from math import sqrt, ceil
 PlayerNum = 4
 MaxManualPlayerNum = 4
 
@@ -31,17 +32,41 @@ Vec_dir = [
     Vec( -1,0 )   ##down
 ]
 
-grav = []
-
-
-
-
 #####################  white ball const  #####################
 wb_init_num = 30
 wb_max_num  = 50
 wb_born_period = 1 #second
 wb_radius   = 10
 #####################  white ball const  #####################
+
+
+def init_grav_list(g_list):
+    grav_st=120
+    grav_r = 75
+    grav_dr=(800-grav_st*2)/4
+    for i in range(5):
+        if i % 2 == 0:
+            for j in range(3):
+                g_list[0].append([Vec(grav_st+grav_dr*2*j,grav_st+grav_dr*i), grav_r])
+        else:
+            for j in range(2):
+                g_list[0].append([Vec(grav_st + grav_dr + grav_dr * 2 * j, 0.5+grav_st+grav_dr*i), grav_r])
+    # grav = [(Vec(160,160),50),(Vec(320,160),50),(Vec(480,160),50),\
+    # (Vec(640,160),50),(Vec(200,400),50),(Vec(200,600),50),(Vec(200,800),50)]
+
+    grav_r=55
+    grav_circle_num=int(viewconst.GameSize[0] / sqrt(2) / grav_r - sqrt(2) + 1)
+    shift_size=int((viewconst.GameSize[0]-2*grav_r)/(grav_circle_num-1))
+    for i in range(grav_circle_num):
+        g_list[1].append([Vec(viewconst.GameSize[0] - grav_r - (shift_size*i), grav_r + (shift_size*i)),grav_r])
+
+def next_grav():
+    '''change the gravity map cyclicly'''
+    global grav
+    grav = grav_list[next_grav.counter%len(grav_list)]
+    next_grav.counter += 1
+next_grav.counter = 0
+
 
 
 #####################     head const     #####################
@@ -58,19 +83,11 @@ init_r = 40
 init_no_wb_r = 80
 head_radius = 11
 #the grav now is for debug
-grav = []
-grav_st=120
-grav_r = 75
-grav_dr=(800-grav_st*2)/4
-for i in range(5):
-    if i % 2 == 0:
-        for j in range(3):
-            grav.append((Vec(grav_st+grav_dr*2*j,grav_st+grav_dr*i),grav_r))
-    else:
-        for j in range(2):
-            grav.append((Vec(grav_st+grav_dr+grav_dr*2*j,0.5+grav_st+grav_dr*i),grav_r))
-# grav = [(Vec(160,160),50),(Vec(320,160),50),(Vec(480,160),50),\
-# (Vec(640,160),50),(Vec(200,400),50),(Vec(200,600),50),(Vec(200,800),50)]
+grav_list = [ [] for _ in range(5) ]
+
+grav = grav_list[0]
+init_grav_list(grav_list)
+
 
 init_r=40
 dt=1/viewconst.FramePerSec
