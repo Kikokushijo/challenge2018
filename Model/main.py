@@ -220,9 +220,11 @@ class GameEngine(object):
                 self.state.push(event.state)
         elif isinstance(event, Event_Quit):
             self.running = False
-        elif isinstance(event, Event_Initialize) or \
-             isinstance(event, Event_Restart):
+        elif isinstance(event, Event_Initialize):
             self.initialize()
+        elif isinstance(event, Event_Restart):
+            self.initialize()
+            self.score_list = [0, 0, 0, 0]
 
 
     def run(self):
