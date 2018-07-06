@@ -39,10 +39,12 @@ class Control(object):
                     cur_state = self.model.state.peek()
                     if cur_state == model.STATE_MENU:
                         self.ctrl_menu(event)
-                    if cur_state == model.STATE_PLAY:
+                    elif cur_state == model.STATE_PLAY:
                         self.ctrl_play(event)
-                    if cur_state == model.STATE_STOP:
+                    elif cur_state == model.STATE_STOP:
                         self.ctrl_stop(event)
+                    elif cur_state == model.STATE_ENDGAME:
+                        self.ctrl_endgame(event)
         elif isinstance(event, Event_Initialize):
             self.initialize()
 
@@ -97,6 +99,15 @@ class Control(object):
                 #         self.evManager.Post(
                 #             Event_Move( player.index, ctrlConst.DirHash[DirHashValue] )
                 #         )
+
+    def ctrl_endgame(self, event):
+        """
+        Handles endgame events.
+        """
+        if event.type == pg.KEYDOWN:
+            # restart the game
+            if event.key == pg.K_SPACE:
+                self.evManager.Post(Event_StateChange(None))
         
     def Get_KeyPressIn(self, keylist):
         return [key for key, value in enumerate(pg.key.get_pressed()) if value == 1 and key in keylist]
