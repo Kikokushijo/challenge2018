@@ -112,7 +112,8 @@ class Head(object):
         if not self.is_alive:
             self.is_dash = True
             while len(self.body_list) > 1:
-                player_list[killer].body_list.append(Body(player_list[killer].body_list[-1]))
+                if killer != -1:
+                    player_list[killer].body_list.append(Body(player_list[killer].body_list[-1]))
                 self.body_list.pop(-1)
 
             return 1

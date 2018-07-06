@@ -248,7 +248,7 @@ class GraphicalView(object):
 
     def drawBullet(self):
         for bullet in self.model.bullet_list:
-            color = self.model.player_list[bullet.index].color
+            color = bullet.color
             if (bullet.age // viewConst.bulletFlickerCycle) % 2 == 0:
                 color = tuple([int(i * 127 / 255 + 128) for i in color])
             pos = tuple(map(int, bullet.pos))

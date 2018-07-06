@@ -12,6 +12,7 @@ import Model.const       as modelConst
 import View.const        as viewConst
 import Controller.const  as ctrlConst
 import Interface.const   as IfaConst
+from math import pi, sin, cos, atan2
 
 class GameEngine(object):
     """
@@ -34,8 +35,10 @@ class GameEngine(object):
         #self item
         ##explsion
         self.item_list = []
+        self.ticks = 0
         
     def initialize(self):
+        self.ticks = 0
         self.init_wb_list()
         self.init_player_list()
         self.init_body_list()
@@ -120,6 +123,15 @@ class GameEngine(object):
                 self.item_list.append(Multibullet())
             if rnd == 3:
                 self.item_list.append(Bigbullet())
+    def create_bullet(self):
+        if self.ticks < modelConst.suddendeath_ticks:
+            return
+
+        if random.randint(0, modelConst.freq * int(viewConst.FramePerSec**2 / (self.ticks - modelConst.suddendeath_ticks + 1))) ==0:
+            screen_mid = Vec( viewConst.ScreenSize[1]/2, viewConst.ScreenSize[1]/2 )
+            rndtheta = random.random() * 2 * pi
+            self.bullet_list.append( Bullet(screen_mid, Vec(cos(rndtheta),sin(rndtheta)), -1, \
+                                            modelConst.suddendeath_speed , 0 ) )
     
     def tick_update(self):
         #update bullets
@@ -133,6 +145,7 @@ class GameEngine(object):
         if self.player_list[0].init_timer == -1:
             self.create_ball()
             self.create_item()
+        self.create_bullet()
         for wb in self.wb_list:
             wb.update()
         #update items
@@ -152,6 +165,7 @@ class GameEngine(object):
                 alive += 1
         if alive == 1:
             self.evManager.Post(Event_GameOver())
+        self.ticks += 1
 
     def notify(self, event):
         """
