@@ -9,7 +9,6 @@ import Model.const       as modelConst
 import View.const        as viewConst
 import Controller.const  as ctrlConst
 import Interface.const   as IfaConst
-import View.teamName     as viewTeamName
 
 class RenderObject:
     """
@@ -222,7 +221,7 @@ class GraphicalView(object):
         pos = [(viewConst.GameSize[0] + viewConst.GameSize[1] // modelConst.PlayerNum, viewConst.GameSize[1] // modelConst.PlayerNum * i + viewConst.GameSize[1] // (modelConst.PlayerNum * 8)) for i in range(modelConst.PlayerNum)]
         for i, player in enumerate(self.model.player_list):
             color = viewConst.aliveTeamColor if player.is_alive else viewConst.deadTeamColor
-            teamName = self.teamNameFont.render(viewTeamName.teamName[i], True, color)
+            teamName = self.teamNameFont.render(player.name, True, color)
             self.screen.blit(teamName, pos[i])
         # Team Scores
         pos = [(x, y + viewConst.GameSize[1] // 32) for x, y in pos]
