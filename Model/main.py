@@ -12,6 +12,7 @@ import Model.const       as modelConst
 import View.const        as viewConst
 import Controller.const  as ctrlConst
 import Interface.const   as IfaConst
+from math import pi, sin, cos, atan2
 
 class GameEngine(object):
     """
@@ -24,18 +25,20 @@ class GameEngine(object):
         self.running = False
         self.state = StateMachine()
         self.AINames = AINames
-        # self.players = []
         self.TurnTo = 0
 
         self.player_list = []
+        
         self.wb_list = []
         self.bullet_list = []
         
         #self item
         ##explsion
         self.item_list = []
+        self.ticks = 0
         
     def initialize(self):
+        self.ticks = 0
         self.init_wb_list()
         self.init_player_list()
         self.init_body_list()
@@ -64,6 +67,13 @@ class GameEngine(object):
         '''
 
     def init_player_list(self):
+        tmp = []
+        if len(self.player_list) > 0:
+            for i in self.player_list:
+                tmp.append(i.score)
+        else :
+            for i in range(modelConst.PlayerNum):
+                tmp.append(0)
         self.player_list = []
         ManualPlayerNum = 0
         for index in range(modelConst.PlayerNum):
@@ -90,7 +100,7 @@ class GameEngine(object):
             else:
                 Tmp_P = Head(index, 'player' + self.AINames[index], True)
             self.player_list.append(Tmp_P)
-
+    
     def init_body_list(self):
         # No bodies at start of game
         pass
@@ -107,12 +117,23 @@ class GameEngine(object):
         # update and see if create new item
         if len(self.item_list) < modelConst.item_max and random.randint(0,modelConst.item_born_period*viewConst.FramePerSec)==0:
             rnd = random.randint(1,3)
-            if rnd == 1:
+            if rnd > 0:
                 self.item_list.append(Explosive(self.evManager))
+            '''
             if rnd == 2:
                 self.item_list.append(Multibullet())
             if rnd == 3:
                 self.item_list.append(Bigbullet())
+            '''
+    def create_bullet(self):
+        if self.ticks < modelConst.suddendeath_ticks:
+            return
+
+        if random.randint(0, modelConst.freq * int(viewConst.FramePerSec**2 / (self.ticks - modelConst.suddendeath_ticks + 1))) ==0:
+            screen_mid = Vec( viewConst.ScreenSize[1]/2, viewConst.ScreenSize[1]/2 )
+            rndtheta = random.random() * 2 * pi
+            self.bullet_list.append( Bullet(screen_mid, Vec(cos(rndtheta),sin(rndtheta)), -1, modelConst.bullet_radius,\
+                                            modelConst.suddendeath_speed , 0 ) )
     
     def tick_update(self):
         #update bullets
@@ -126,6 +147,16 @@ class GameEngine(object):
         if self.player_list[0].init_timer == -1:
             self.create_ball()
             self.create_item()
+        self.create_bullet()
+        #update items
+        for item in self.item_list:
+            item.update()
+
+
+        for i in range(len(self.wb_list)-1,-1,-1):
+            item = self.wb_list[i]
+            if not item.update(self.player_list):
+                self.wb_list.pop(i)
         #update heads
         alive = 0
         for item in self.player_list:
@@ -140,6 +171,7 @@ class GameEngine(object):
                 alive += 1
         if alive == 1:
             self.evManager.Post(Event_GameOver())
+        self.ticks += 1
 
     def notify(self, event):
         """
@@ -153,7 +185,7 @@ class GameEngine(object):
         elif isinstance(event, Event_MoveWayChange):
             cur_state = self.state.peek()
             if cur_state == STATE_PLAY:
-                self.player_list[event.PlayerIndex].click(self.bullet_list)
+                self.player_list[event.PlayerIndex].click(self.bullet_list,self.wb_list)
         elif isinstance(event, Event_StateChange):
             # if event.state is None >> pop state.
             if event.state is None:
@@ -166,14 +198,6 @@ class GameEngine(object):
             else:
                 # push a new state on the stack
                 self.state.push(event.state)
-        elif isinstance(event, Event_MoveWayChange):
-            #modified in challenge 2018 
-            #key board event
-            """
-            if keyboard is pressed, change the head_moving way
-            """
-            #print(event)
-            self.player_list[event.PlayerIndex].click(self.bullet_list)
         elif isinstance(event, Event_Quit):
             self.running = False
         elif isinstance(event, Event_Initialize) or \

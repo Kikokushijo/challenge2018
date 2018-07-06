@@ -90,7 +90,6 @@ init_grav_list(grav_list)
 
 
 init_r=40
-dt=1/viewconst.FramePerSec
 #####################     head const     #####################
 
 #####################    body const    ######################
@@ -103,6 +102,10 @@ dash_radius = head_radius + body_radius
 bullet_radius = 8
 bullet_a = 0.1
 bullet_speed0 = normal_speed * 7
+
+suddendeath_ticks = viewconst.FramePerSec * 10000
+suddendeath_speed = normal_speed
+freq = 7
 #####################  bullet const  #####################
 
 #####################  item const #####################
@@ -110,10 +113,10 @@ bullet_speed0 = normal_speed * 7
 PROP_TYPE_EXPLOSIVE = 0
 PROP_TYPE_MULTIBULLET = 1
 PROP_TYPE_BIGBULLET = 2
-item_max = 3
-item_born_period = 10#second
+item_max = 10
+item_born_period = 1#second
 item_init_num = 0
-item_radius = 10
+item_radius = 12
 
 explosive_radius = 150.0
 
@@ -121,5 +124,9 @@ bigbullet_r = bullet_radius * 4
 
 
 #####################  item const #####################
+
+wb_speed = normal_speed * 1.5
+wb_fast_speed = dash_speed * 1.5
+
 
 

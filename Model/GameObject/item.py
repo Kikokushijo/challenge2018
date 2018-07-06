@@ -3,12 +3,17 @@ import View.const as viewConst
 from pygame.math import Vector2 as Vec
 from Model.GameObject.body import Body 
 from Events.Manager import *
+from Model.GameObject.white_ball import White_Ball
 
 import random
 class Item(object):
     def __init__(self,type = None):
         self.type = type
-        self.pos = Vec(random.randint(0, viewConst.ScreenSize[1]), random.randint(0, viewConst.ScreenSize[1]))
+        self.pos = Vec(random.randint(0+modelConst.item_radius, viewConst.ScreenSize[1]-modelConst.item_radius), random.randint(0+modelConst.item_radius, viewConst.ScreenSize[1]-modelConst.item_radius))
+        self.age = 0
+
+    def update(self):
+        self.age += 1
 
 class Explosive(Item):
     def __init__(self, evManager):
@@ -27,16 +32,27 @@ class Explosive(Item):
         for i in range(len(wb_list)-1,-1,-1):
             wb = wb_list[i]
             if (wb.pos - self.pos).length_squared() < modelConst.explosive_radius**2:
-                player_list[index].body_list.append(Body(player_list[index].body_list[-1]))
+                wb_list.append(White_Ball(Vec(wb.pos),True,index))
                 wb_list.pop(i)
         #absorb competitor's ball
         for other in player_list:
             if other.index == index:
                 continue
-            for cb in other.body_list[1:]:
+            tag = 0
+            for i in range(len(other.body_list)-1,0,-1):
+                cb = other.body_list[i]
                 if(cb.pos - self.pos).length_squared() < modelConst.explosive_radius**2:
-                    player_list[index].body_list.append(Body(player_list[index].body_list[-1]))
-                    other.body_list.pop()
+                    tag = i
+            if tag == 0:
+                continue
+            for i in range(len(other.body_list)-1,0,-1):
+                cb = other.body_list[i]
+                if(cb.pos - self.pos).length_squared() < modelConst.explosive_radius**2:
+                    wb_list.append(White_Ball(Vec(cb.pos),True,index))
+                    other.body_list.pop(i)
+                elif i > tag:
+                    wb_list.append(White_Ball(Vec(cb.pos),True,other.index,other.index))
+                    other.body_list.pop(i)
 
 class Multibullet(Item):
     def __init__(self):
