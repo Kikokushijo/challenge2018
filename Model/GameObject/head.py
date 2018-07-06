@@ -103,7 +103,7 @@ class Head(object):
                         self.add_score(player_list,score_list)
                         break
             for bullet in bullet_list :
-                if (bullet.index != self.index) and (player_list[bullet.index].is_alive)and \
+                if (bullet.index != self.index) and (bullet.index == -1 or player_list[bullet.index].is_alive) and \
                    (self.pos - bullet.pos).length_squared() < (self.radius + bullet.radius)**2 :
                     killer = bullet.index
                     self.is_alive = False
