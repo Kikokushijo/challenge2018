@@ -1,6 +1,5 @@
 import pygame as pg
-import pygame.gfxdraw as draw
-from pygame.locals import *
+import pygame.gfxdraw as gfxdraw
 import math
 
 import Model.main as model
@@ -10,10 +9,11 @@ import Model.const       as modelConst
 import View.const        as viewConst
 import Controller.const  as ctrlConst
 import Interface.const   as IfaConst
+import View.teamName     as viewTeamName
 
 class Explosion(object):
     """
-    Object for rendering the explosion effect
+    Class for rendering the explosion effect.
     """
     def __init__(self, index, pos, radius, time):
         self.index = index
@@ -39,7 +39,10 @@ class GraphicalView(object):
         self.screen = None
         self.clock = None
         self.smallfont = None
-        self.explosionEvent = []
+        self.teamNameFont = None
+        self.teamLengthFont = None
+        self.teamScoreFont = None
+        self.explosionEvent = None
 
         self.last_update = 0
     
@@ -58,7 +61,7 @@ class GraphicalView(object):
                 self.render_stop()
 
             self.display_fps()
-            # limit the redraw speed to 30 frames per second
+            # limit the redraw speed to 60 frames per second
             self.clock.tick(viewConst.FramePerSec)
         elif isinstance(event, Event_TriggerExplosive):
             self.explosionEvent.append(Explosion(event.PlayerIndex, event.pos, modelConst.explosive_radius, viewConst.explosionTime))
@@ -88,12 +91,16 @@ class GraphicalView(object):
         self.screen = pg.display.set_mode(viewConst.ScreenSize)
         self.clock = pg.time.Clock()
         self.smallfont = pg.font.Font(None, 40)
+        self.teamNameFont = pg.font.Font(viewConst.teamNameFont, viewConst.teamNameFontSize)
+        self.teamLengthFont = pg.font.Font(viewConst.teamLengthFont, viewConst.teamLengthFontSize)
+        self.teamScoreFont = pg.font.Font(viewConst.teamScoreFont, viewConst.teamScoreFontSize)
+        self.explosionEvent = []
 
         self.is_initialized = True
 
     def blit_at_center(self, surface, position):
-        (Xsize, Ysize) = surface.get_size()
-        self.screen.blit(surface, (int(position[0]-Xsize/2), int(position[1]-Ysize/2)))
+        center = tuple([int(pos - size // 2) for pos, size in zip(position, surface.get_size())])
+        self.screen.blit(surface, center)
 
     # to be modified
     def render_menu(self):
@@ -140,6 +147,129 @@ class GraphicalView(object):
             # update surface
             pg.display.flip()
 
+    def drawScoreboard(self):
+        # Frame
+        gfxdraw.vline(self.screen, viewConst.GameSize[0], 0,
+                      viewConst.GameSize[1], viewConst.sbColor)
+
+        for i in range(1, modelConst.PlayerNum):
+            gfxdraw.hline(self.screen, viewConst.GameSize[0],
+                          viewConst.ScreenSize[0],
+                          viewConst.GameSize[1] // modelConst.PlayerNum * i, viewConst.sbColor)
+        # Team Names
+        pos = [(viewConst.GameSize[0] + viewConst.GameSize[1] // modelConst.PlayerNum, viewConst.GameSize[1] // modelConst.PlayerNum * i + viewConst.GameSize[1] // (modelConst.PlayerNum * 8)) for i in range(modelConst.PlayerNum)]
+        for i, player in enumerate(self.model.player_list):
+            color = viewConst.aliveTeamColor if player.is_alive else viewConst.deadTeamColor
+            teamName = self.teamNameFont.render(viewTeamName.teamName[i], True, color)
+            self.screen.blit(teamName, pos[i])
+        # Team Scores
+        pos = [(x, y + viewConst.GameSize[1] // 32) for x, y in pos]
+        for i, player in enumerate(self.model.player_list):
+            color = viewConst.Color_Black
+            teamScore = self.teamScoreFont.render(str(player.score), True, color)
+            self.screen.blit(teamScore, pos[i])
+        # Team Balls
+        pos = [(viewConst.GameSize[0] + viewConst.GameSize[1] // (modelConst.PlayerNum * 2), viewConst.GameSize[1] // (modelConst.PlayerNum * 2) * i) for i in range(1, modelConst.PlayerNum * 2, 2)]
+        radius = int(viewConst.GameSize[1] // (modelConst.PlayerNum * 2) * 0.7)
+        for i, player in enumerate(self.model.player_list):
+            gfxdraw.filled_circle(self.screen, *(pos[i]),
+                                  radius, player.color)
+        # Team Player Lengths
+        for i, player in enumerate(self.model.player_list):
+            length = str(len(player.body_list)) if player.is_alive else '0'
+            teamLength = self.teamLengthFont.render(length, True, viewConst.teamLengthColor)
+            self.blit_at_center(teamLength, pos[i])
+
+    def drawGrav(self):
+        for g in modelConst.grav:
+            pos = tuple(map(int, g[0]))
+            radius = int(g[1] + modelConst.head_radius * 0.5)
+            gfxdraw.filled_circle(self.screen, *pos,
+                                  radius, viewConst.gravColor)
+            gfxdraw.filled_circle(self.screen, *pos,
+                                  int(radius * 0.07), viewConst.bgColor)
+
+    def drawWhiteBall(self):
+        for wb in self.model.wb_list:
+            pos = tuple(map(int, wb.pos))
+            radius = wb.radius
+            if wb.age < viewConst.whiteBallGenerationTime:
+                timeRatio = wb.age / viewConst.whiteBallGenerationTime
+                if timeRatio < 0.75:
+                    radius *= timeRatio * 2
+                else:
+                    radius *= -2 * timeRatio + 3
+            gfxdraw.filled_circle(self.screen, *pos,
+                                  int(radius), viewConst.wbColor)
+
+    def drawItem(self):
+        for item in self.model.item_list:
+            pos = tuple(map(int, item.pos))
+            itemSurface = pg.Surface((int(2.2 * item.radius),) * 2, pg.SRCALPHA)
+            center = tuple([x // 2 for x in itemSurface.get_size()])
+            color = item.color
+            if item.age < viewConst.itemGenerationTime:
+                timeRatio = item.age / viewConst.itemGenerationTime
+                color += (int(timeRatio * 255),)
+            gfxdraw.filled_circle(itemSurface, *center,
+                                  int(item.radius), color)
+            gfxdraw.filled_circle(itemSurface, *center,
+                                  int(item.radius * 0.7), (0, 0, 0, 0))
+            self.blit_at_center(itemSurface, pos)
+
+    def drawBody(self):
+        for player in self.model.player_list:
+            for body in player.body_list[1:]:
+                pos = tuple(map(int, body.pos))
+                gfxdraw.filled_circle(self.screen, *pos,
+                                      int(body.radius), player.color)
+
+    def drawHead(self):
+        for player in self.model.player_list:
+            if player.is_alive:
+                pos = tuple(map(int, player.pos))
+                gfxdraw.filled_circle(self.screen, *pos,
+                                      int(player.radius), player.color)
+                # draw triangle
+                triRadius = player.radius * 0.7
+                theta = math.atan2(player.direction.y, player.direction.x)
+
+                relativeVertexStart = pg.math.Vector2(triRadius, 0).rotate(theta * 180 / math.pi)
+                relativeVertices = [relativeVertexStart.rotate(i * 120) for i in range(3)]
+
+                vertices = [player.pos + vertex for vertex in relativeVertices]
+                intVertices = [int(x) for vertex in vertices for x in vertex]
+                gfxdraw.filled_trigon(self.screen, *intVertices, viewConst.Color_Snow)
+
+                if player.is_circling:
+                    innerVertices = [player.pos + 0.6 * vertex for vertex in relativeVertices]
+                    intInnerVertices = [int(x) for vertex in innerVertices for x in vertex]
+                    gfxdraw.filled_trigon(self.screen, *intInnerVertices, player.color)
+
+    def drawBullet(self):
+        for bullet in self.model.bullet_list:
+            color = bullet.color
+            if (bullet.age // viewConst.bulletFlickerCycle) % 2 == 0:
+                color = tuple([int(i * 127 / 255 + 128) for i in color])
+            pos = tuple(map(int, bullet.pos))
+            gfxdraw.filled_circle(self.screen, *pos,
+                                  int(bullet.radius), color)
+
+    def drawExplosion(self):
+        for explosion in self.explosionEvent:
+            explosion.time -= 1
+            color = self.model.player_list[explosion.index].color
+            pos = tuple(map(int, explosion.pos))
+            radius = explosion.radius
+            timeRatio = explosion.time / explosion.totaltime
+
+            explosionEffect = pg.Surface((int(2.1 * radius),) * 2, pg.SRCALPHA)
+            center = tuple([x // 2 for x in explosionEffect.get_size()])
+            gfxdraw.filled_circle(explosionEffect, *center,
+                                  int(1.1 * radius * (1 - timeRatio)), pg.Color(*color, int(192 * timeRatio)))
+            self.blit_at_center(explosionEffect, pos)
+        self.explosionEvent[:] = [x for x in self.explosionEvent if x.time > 0]
+
     def render_play(self):
         """
         Render the game play.
@@ -148,90 +278,14 @@ class GraphicalView(object):
 
         self.screen.fill(viewConst.bgColor)
 
-        # draw scoreboard
-        draw.vline(self.screen, viewConst.GameSize[0], 0, \
-                   viewConst.GameSize[1], viewConst.sbColor)
+        self.drawScoreboard()
+        self.drawGrav()
+        self.drawWhiteBall()
+        self.drawItem()
+        self.drawBody()
+        self.drawHead()
+        self.drawBullet()
+        self.drawExplosion()
 
-        for i in range(1, 4):
-            draw.hline(self.screen, viewConst.GameSize[0], \
-                       viewConst.ScreenSize[0], \
-                       viewConst.GameSize[1] // 4 * i, viewConst.sbColor)
-
-        for g in modelConst.grav:
-            pos = (int(g[0][0]), int(g[0][1]))
-            r = int(g[1] + modelConst.head_radius * 0.5)
-            draw.filled_circle(self.screen, pos[0], pos[1], \
-                               r, viewConst.gravColor)
-            draw.filled_circle(self.screen, pos[0], pos[1], \
-                               int(r * 0.07), viewConst.bgColor)
-
-        for wb in self.model.wb_list:
-            pos = (int(wb.pos[0]), int(wb.pos[1]))
-            draw.filled_circle(self.screen, pos[0], pos[1], \
-                               int(wb.radius), viewConst.wbColor)
-
-        for item in self.model.item_list:
-            pos = (int(item.pos[0]), int(item.pos[1]))
-            itemSurface = pg.Surface((int(2.2 * item.radius), int(2.2 * item.radius)), SRCALPHA)
-            Xsize, Ysize = itemSurface.get_size()
-            draw.filled_circle(itemSurface, Xsize // 2, Ysize // 2, \
-                               int(item.radius), item.color)
-            draw.filled_circle(itemSurface, Xsize // 2, Ysize // 2, \
-                               int(item.radius * 0.7), (0, 0, 0, 0))
-            self.blit_at_center(itemSurface, pos)
-
-        for player in self.model.player_list:
-            for body in player.body_list[1:]:
-                pos = (int(body.pos[0]), int(body.pos[1]))
-                draw.filled_circle(self.screen, pos[0], pos[1], \
-                                   int(body.radius), player.color)
-
-        for player in self.model.player_list:
-            if player.is_alive:
-                pos = (int(player.pos[0]), int(player.pos[1]))
-                draw.filled_circle(self.screen, pos[0], pos[1], \
-                                   int(player.radius), player.color)
-                triRadius = player.radius * 0.7
-                theta = math.atan2(player.direction.y, player.direction.x)
-                x1, y1 = triRadius, 0
-                x2, y2 = -0.5 * triRadius, math.sqrt(3) / 2 * triRadius
-                x3, y3 = x2, -y2
-                x1, y1 = x1 * math.cos(theta) - y1 * math.sin(theta), x1 * math.sin(theta) + y1 * math.cos(theta)
-                x2, y2 = x2 * math.cos(theta) - y2 * math.sin(theta), x2 * math.sin(theta) + y2 * math.cos(theta)
-                x3, y3 = x3 * math.cos(theta) - y3 * math.sin(theta), x3 * math.sin(theta) + y3 * math.cos(theta)
-                sx1, sy1 = int(x1 * 0.6 + player.pos[0]), int(y1 * 0.6 + player.pos[1])
-                sx2, sy2 = int(x2 * 0.6 + player.pos[0]), int(y2 * 0.6 + player.pos[1])
-                sx3, sy3 = int(x3 * 0.6 + player.pos[0]), int(y3 * 0.6 + player.pos[1])
-                x1, y1 = int(x1 + player.pos[0]), int(y1 + player.pos[1])
-                x2, y2 = int(x2 + player.pos[0]), int(y2 + player.pos[1])
-                x3, y3 = int(x3 + player.pos[0]), int(y3 + player.pos[1])
-                if player.is_circling and player.is_ingrav:
-                    draw.filled_trigon(self.screen, x1, y1, x2, y2, x3, y3, viewConst.Color_Snow)
-                    draw.filled_trigon(self.screen, sx1, sy1, sx2, sy2, sx3, sy3, player.color)
-                else:
-                    draw.filled_trigon(self.screen, x1, y1, x2, y2, x3, y3, viewConst.Color_Snow)
-
-        for bullet in self.model.bullet_list:
-            color = self.model.player_list[bullet.index].color
-            pos = (int(bullet.pos[0]), int(bullet.pos[1]))
-            draw.filled_circle(self.screen, pos[0], pos[1], \
-                               int(bullet.radius), color)
-
-        for i in range(len(self.explosionEvent)-1,-1,-1):
-            explosion = self.explosionEvent[i]
-            if explosion.time > 0:
-                explosion.time -= 1
-                color = self.model.player_list[explosion.index].color
-                pos = (int(explosion.pos[0]), int(explosion.pos[1]))
-                radius = explosion.radius
-                explosionEffect = pg.Surface((int(2.1 * radius), int(2.1 * radius)), SRCALPHA)
-                Xsize, Ysize = explosionEffect.get_size()
-                draw.filled_circle(explosionEffect, Xsize // 2, Ysize // 2, \
-                                   int(1.1 * radius * (1 - explosion.time / explosion.totaltime)), Color(*color, int(192 * (explosion.time / explosion.totaltime))))
-                self.blit_at_center(explosionEffect, pos)
-            else:
-                self.explosionEvent.pop(i)
-
-        # update the scene
         # To be decided: update merely the game window or the whole screen?
         pg.display.flip()

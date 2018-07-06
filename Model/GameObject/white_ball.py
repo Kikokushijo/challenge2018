@@ -8,18 +8,22 @@ class White_Ball(object):
     def __init__(self, pos = Vec(-1,-1) ):
         self.color = viewConst.wbColor
         self.radius = modelConst.wb_radius
+        self.age = 0
         if pos == Vec(-2, -2) :
-        	randpos = Vec(random.randint(0, viewConst.ScreenSize[1]), random.randint(0, viewConst.ScreenSize[1]))
+        	randpos = Vec(random.randint(0+modelConst.wb_radius, viewConst.ScreenSize[0]-480-modelConst.wb_radius), random.randint(0+modelConst.wb_radius, viewConst.ScreenSize[1]-modelConst.wb_radius))
         	screen_mid = Vec( viewConst.ScreenSize[1]/2, viewConst.ScreenSize[1]/2 )
         	while (randpos - screen_mid).length_squared() < modelConst.init_no_wb_r ** 2:
-        		randpos = Vec(random.randint(0, viewConst.ScreenSize[0]-480), random.randint(0, viewConst.ScreenSize[0]))
+        		randpos = Vec(random.randint(0+modelConst.wb_radius, viewConst.ScreenSize[0]-480-modelConst.wb_radius), random.randint(0+modelConst.wb_radius, viewConst.ScreenSize[1]-modelConst.wb_radius))
         	self.pos = randpos
         elif pos == Vec(-1, -1) :
             #random init the position of balls
-            self.pos = Vec(random.randint(0, viewConst.ScreenSize[0]-480), random.randint(0, viewConst.ScreenSize[0]))
+            self.pos = Vec(random.randint(0+modelConst.wb_radius, viewConst.ScreenSize[0]-480-modelConst.wb_radius), random.randint(0+modelConst.wb_radius, viewConst.ScreenSize[1]-modelConst.wb_radius))
         else:
             #use the pos passed in
             self.pos = Vec(pos)
+
+    def update(self):
+        self.age += 1
 
 
 # class WB_List(object):
