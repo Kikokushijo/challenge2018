@@ -71,6 +71,10 @@ class GraphicalView(object):
         elif isinstance(event, Event_SuddenDeath):
             pos = tuple([x // 2 for x in viewConst.GameSize])
             self.renderObjects.append(renderObject.MagicCircle(pos, viewConst.magicCircleGenerationTime))
+        elif isinstance(event, Event_Skill):
+            print(event)
+            pos = tuple([x // 2 for x in viewConst.GameSize])
+            self.renderObjects.append(renderObject.SkillCardCutIn(event.PlayerIndex, pos, viewConst.skillCardCutInTime, event.number))
         elif isinstance(event, Event_Quit):
             # shut down the pygame graphics
             self.is_initialized = False
@@ -104,6 +108,26 @@ class GraphicalView(object):
         self.renderObjects = []
 
         self.magicCircleImage = pg.image.load('View/Image/magicCircle.png').convert_alpha()
+        self.cutInImage       = [(pg.image.load('View/Image/Darkviolet.png').convert_alpha(),
+                                  pg.image.load('View/Image/Darkviolet_bw.png').convert_alpha()),
+                                 (pg.image.load('View/Image/Royalblue.png').convert_alpha(),
+                                  pg.image.load('View/Image/Royalblue_bw.png').convert_alpha()),
+                                 (pg.image.load('View/Image/Saddlebrown.png').convert_alpha(),
+                                  pg.image.load('View/Image/Saddlebrown_bw.png').convert_alpha())]
+        self.cutInImageSmall = [tuple([pg.transform.scale(img1, viewConst.skillCardCutInPicSmallSize),
+                                       pg.transform.scale(img2, viewConst.skillCardCutInPicSmallSize)])
+                                      for img1, img2 in self.cutInImage]
+        self.cutInImageTrans1      = [pg.image.load('View/Image/Darkviolet_trans1.png').convert_alpha(),
+                                      pg.image.load('View/Image/Royalblue_trans1.png').convert_alpha(), 
+                                      pg.image.load('View/Image/Saddlebrown_trans1.png').convert_alpha()]
+        self.cutInImageTransSmall  = [pg.transform.scale(img, viewConst.skillCardCutInPicSmallSize)
+                                      for img in self.cutInImageTrans1]
+
+        self.cutInImageTrans2      = [pg.image.load('View/Image/Darkviolet_trans2.png').convert_alpha(),
+                                      pg.image.load('View/Image/Royalblue_trans2.png').convert_alpha(),
+                                      pg.image.load('View/Image/Saddlebrown_trans2.png').convert_alpha()]
+        self.cutInImageTransLarge = [pg.transform.scale(img, viewConst.skillCardCutInPicLargeSize)
+                                      for img in self.cutInImageTrans2]
 
         self.is_initialized = True
 
@@ -182,11 +206,12 @@ class GraphicalView(object):
             self.blit_at_center(teamLength, pos[i])
 
     def drawGrav(self):
+        color = (*self.model.player_list[self.model.grav_index].color, 32) if self.model.grav_index != -1 else viewConst.gravColor
         for g in modelConst.grav:
             pos = tuple(map(int, g[0]))
             radius = int(g[1] + modelConst.head_radius * 0.5)
             gfxdraw.filled_circle(self.screen, *pos,
-                                  radius, viewConst.gravColor)
+                                  radius, color)
             gfxdraw.filled_circle(self.screen, *pos,
                                   int(radius * 0.07), viewConst.bgColor)
 
@@ -312,12 +337,70 @@ class GraphicalView(object):
         pos = (movingscore.pos[0] + viewConst.GameSize[0] // 16 * (1 - timeRatio), movingscore.pos[1])
         self.blit_at_center(movingScoreSurface, pos)
 
+    def drawSkillCardCutIn(self, cutin):
+        print('draw skill card')
+        cutInSurface = pg.Surface((viewConst.GameSize[0], viewConst.GameSize[1] // 2), pg.SRCALPHA)
+        cutInSurface.fill(viewConst.Color_Silver)
+        sizeSurface = cutInSurface.get_size()
+        
+        if viewConst.skillCardCutInTime >= cutin.time >= viewConst.skillCardCutInTimesteps[3]:
+            # draw phrase 1
+            timeRatioSlow = min((viewConst.skillCardCutInTime - cutin.time) / viewConst.skillCardCutInTimePhrases[0], 1)
+            timeRatioFast = min(1, timeRatioSlow + 0.20)
+            pg.draw.rect(cutInSurface, viewConst.Color_Black, (0, 10, int(timeRatioSlow * sizeSurface[0]), 10), 0)
+            pg.draw.rect(cutInSurface, viewConst.Color_Black, (0, sizeSurface[1]-20, int(timeRatioFast * sizeSurface[0]), 10), 0)
+            
+            # draw phrase 2
+            timeRatioSlow = min((viewConst.skillCardCutInTimesteps[1] - cutin.time) / viewConst.skillCardCutInTimePhrases[1], 1)
+            timeRatioFast = min(1, timeRatioSlow + 0.20)
+            pg.draw.rect(cutInSurface, viewConst.Color_Black, (sizeSurface[0] - int(timeRatioSlow * sizeSurface[0]), 5, int(timeRatioSlow * sizeSurface[0]), 20), 0)
+            pg.draw.rect(cutInSurface, viewConst.Color_Black, (sizeSurface[0] - int(timeRatioFast * sizeSurface[0]), sizeSurface[1]-25, int(timeRatioFast * sizeSurface[0]), 20), 0)
+        else:
+            # draw phrase 4 / 5 white lines
+            pg.draw.rect(cutInSurface, viewConst.Color_White + (80, ), (0, 5, sizeSurface[0], 20), 0)
+            pg.draw.rect(cutInSurface, viewConst.Color_White + (80, ), (0, sizeSurface[1]-25, sizeSurface[0], 20), 0)
+
+
+        if viewConst.skillCardCutInTimesteps[2] >= cutin.time >= viewConst.skillCardCutInTimesteps[3]:
+            # draw phrase 3
+            timeRatio = 1 - ((viewConst.skillCardCutInTimesteps[2] - cutin.time) / viewConst.skillCardCutInTimePhrases[2])
+            cutInSurface.blit(self.cutInImageSmall[cutin.index][1],
+                              (int(sizeSurface[0] * (3 / 32 + timeRatio / 2)), viewConst.GameSize[1] // 2 - viewConst.skillCardCutInPicSmallSize[1] - 25))
+        
+        elif viewConst.skillCardCutInTimesteps[3] >= cutin.time:
+            # draw phrase 4
+            if cutin.time >= viewConst.skillCardCutInTimesteps[4]:
+                timeRatio = 1 - ((viewConst.skillCardCutInTimesteps[3] - cutin.time) / viewConst.skillCardCutInTimePhrases[3])
+                cutInSurface.fill(viewConst.Color_White + (int(timeRatio * 255),))
+
+            # draw phrase 5
+            if cutin.time >= viewConst.skillCardCutInTimesteps[5]:
+                timeRatio = ((viewConst.skillCardCutInTimesteps[3] - cutin.time) / (viewConst.skillCardCutInTimesteps[3] - viewConst.skillCardCutInTimesteps[5]))
+                cutInSurface.blit(self.cutInImageTransSmall[cutin.index],
+                                  (int(sizeSurface[0] * (3 / 32 + timeRatio / 64)), viewConst.GameSize[1] // 2 - viewConst.skillCardCutInPicSmallSize[1] - 25))            
+                cutInSurface.blit(self.cutInImageTransLarge[cutin.index],
+                                  (int(sizeSurface[0] * (16 / 32 - timeRatio / 32)), viewConst.GameSize[1] // 2 - viewConst.skillCardCutInPicLargeSize[1] - 25))
+
+            elif viewConst.skillCardCutInTimesteps[5] >= cutin.time:
+                timeRatio = ((viewConst.skillCardCutInTimesteps[5] - cutin.time) / viewConst.skillCardCutInTimePhrases[5])
+                cutInSurface.blit(self.cutInImageTransSmall[cutin.index],
+                                  (int(sizeSurface[0] * (7 / 64 + timeRatio * 4)), viewConst.GameSize[1] // 2 - viewConst.skillCardCutInPicSmallSize[1] - 25))            
+                cutInSurface.blit(self.cutInImageTransLarge[cutin.index],
+                                  (int(sizeSurface[0] * (15 / 32 - timeRatio * 4)), viewConst.GameSize[1] // 2 - viewConst.skillCardCutInPicLargeSize[1] - 25))
+
+
+            # draw phrase 6
+            # timeRatio = 
+
+
+        self.blit_at_center(cutInSurface, cutin.pos)
+
     def drawThermometer(self, thermometer):
         # draw the bar
             lengthFactor = 1 - max(thermometer.time / thermometer.totaltime, 0)
             length = 600 * thermometer.value / 15 * lengthFactor
             pos = (thermometer.pos[0] - viewConst.thermometerBarWidth // 2, int(thermometer.pos[1] - length))
-            self.screen.fill(thermometer.color, (*pos, viewConst.thermometerBarWidth, int(length)))
+            self.screen.fill(thermometer.color, (pos[0], pos[1] - viewConst.thermometerBallSize, viewConst.thermometerBarWidth, int(length)))
 
         # draw the base (ball)
             gfxdraw.filled_circle(self.screen, *thermometer.pos,
@@ -341,6 +424,8 @@ class GraphicalView(object):
                 self.drawCountDown(instance)
             elif isinstance(instance, renderObject.MovingScore):
                 self.drawMovingScore(instance)
+            elif isinstance(instance, renderObject.SkillCardCutIn):
+                self.drawSkillCardCutIn(instance)
             elif isinstance(instance, renderObject.Thermometer):
                 self.drawThermometer(instance)
             instance.update()

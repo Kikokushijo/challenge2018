@@ -148,8 +148,8 @@ freq = 7
 PROP_TYPE_EXPLOSIVE = 0
 PROP_TYPE_MULTIBULLET = 1
 PROP_TYPE_BIGBULLET = 2
-item_max = 4
-item_born_period = 5#second
+item_max = 7
+item_born_period = 3#second
 item_init_num = 1
 item_radius = 12
 
