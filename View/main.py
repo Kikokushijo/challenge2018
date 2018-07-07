@@ -317,7 +317,7 @@ class GraphicalView(object):
             lengthFactor = 1 - max(thermometer.time / thermometer.totaltime, 0)
             length = 600 * thermometer.value / 15 * lengthFactor
             pos = (thermometer.pos[0] - viewConst.thermometerBarWidth // 2, int(thermometer.pos[1] - length))
-            self.screen.fill(thermometer.color, (*pos, viewConst.thermometerBarWidth, int(length)))
+            self.screen.fill(thermometer.color, (pos[0], pos[1] - viewConst.thermometerBallSize, viewConst.thermometerBarWidth, int(length)))
 
         # draw the base (ball)
             gfxdraw.filled_circle(self.screen, *thermometer.pos,
