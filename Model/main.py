@@ -38,10 +38,15 @@ class GameEngine(object):
         self.ticks = 0
         self.score_list = [0, 0, 0, 0]
         self.endgame_ticks = 0
+        self.have_scoreboard = [True] * 4
 
         self.gamenumber = 1
+        self.special_scoreboard = [False] * 4
+
         
     def initialize(self):
+        self.grav_index = -1
+        self.bombtimer = [-1] * 4
         self.ticks = 0
         self.tmp_score_list = [0, 0, 0, 0]
         self.endgame_ticks = 0
@@ -145,7 +150,14 @@ class GameEngine(object):
         for i in range(len(self.bullet_list)-1,-1,-1):
             item = self.bullet_list[i]
             #update failed means the bullet should become a white ball
-            if not item.update():
+            upd = item.update()
+            if upd == None:
+                for j in range(modelConst.bomb_amount):
+                    theta = 2 * pi / modelConst.bomb_amount * j
+                    self.bullet_list.append( Bullet(item.pos, Vec(cos(theta),sin(theta)), item.index, modelConst.bullet_radius,\
+                                                    modelConst.suddendeath_speed , 0 ) )
+                self.bullet_list.pop(i)
+            elif not upd:
                 self.wb_list.append(White_Ball(item.pos))
                 self.bullet_list.pop(i)
         #update white balls
@@ -184,7 +196,23 @@ class GameEngine(object):
                     self.evManager.Post(Event_StateChange(STATE_ENDGAME))
                 self.gamenumber += 1
         self.ticks += 1
+        for i in range(4):
+            if self.bombtimer[i] == 0:
+                self.bomb(i)
+                self.bombtimer[i] = -1
+            elif self.bombtimer[i] > 0:
+                self.bombtimer[i] -= 1
 
+
+    def bomb(self,index):
+        i = index + 1
+        pos = (viewConst.GameSize[0] + viewConst.GameSize[1] // (modelConst.PlayerNum * 2), viewConst.GameSize[1] // (modelConst.PlayerNum * 2) * i)
+        radius = int(viewConst.GameSize[1] // (modelConst.PlayerNum * 2) * 0.7)
+        self.bullet_list.append(Bullet(pos, (self.player_list[index].pos - pos).normalize(), index, radius,modelConst.bomb_speed, modelConst.bomb_a) )
+        self.have_scoreboard[index] = False
+    def can_use_skill(self, index):
+        player = self.player_list[index]
+        return self.ticks > 200 and player.is_alive and self.endgame_ticks == 0
     def notify(self, event):
         """
         Called by an event in the message queue. 
@@ -206,11 +234,19 @@ class GameEngine(object):
             if number == 1:
                 self.item_list.append(Explosive(self.evManager, player.pos))
             elif number == 2:
-                self.item_list.append(Multibullet(player.pos))
+                player.always_bigbullet = False
+                player.always_multibullet = True
             elif number == 3:
-                self.item_list.append(Bigbullet(player.pos))
+                player.always_bigbullet = True
+                player.always_multibullet = False
             elif number == 4:
                 player.blast(self.bullet_list)
+            elif number == 5:
+                self.bombtimer[player.index] = modelConst.bombtime
+            elif number == 6:
+                player.rainbow_mode()
+            elif number == 7:
+                self.grav_index = player.index
             
         elif isinstance(event, Event_StateChange):
             # if event.state is None >> pop state.
@@ -239,6 +275,8 @@ class GameEngine(object):
         elif isinstance(event, Event_Restart):
             self.initialize()
             self.score_list = [0, 0, 0, 0]
+            self.have_scoreboard = [True, True, True, True]
+            self.gamenumber = 1
 
 
     def run(self):

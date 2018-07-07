@@ -39,6 +39,8 @@ class Head(object):
         self.init_timer = 200
         self.have_multibullet = False
         self.have_bigbullet = False
+        self.always_multibullet = False
+        self.always_bigbullet = False
         #if in grav
         self.grav_center = Vec( 0, 0 )
         self.pos_log = [Vec(self.pos)]
@@ -190,12 +192,12 @@ class Head(object):
                 #self.speed = modelconst.dash_speed
                 if len(self.body_list)>1 :
                     self.body_list.pop(-1)
-                    if self.have_multibullet:
+                    if self.always_multibullet or self.have_multibullet:
                         bullet_list.append(Bullet(self.pos,self.direction,self.index))
                         bullet_list.append(Bullet(self.pos,self.direction.rotate(30),self.index))
                         bullet_list.append(Bullet(self.pos,self.direction.rotate(-30),self.index))
                         self.have_multibullet = False
-                    if self.have_bigbullet:
+                    elif self.always_bigbullet or self.have_bigbullet:
                         bullet_list.append(Bullet(self.pos,self.direction,self.index,modelconst.bigbullet_r))
                         self.have_bigbullet = False
                     else:
@@ -217,8 +219,9 @@ class Head(object):
             bullet_list.append(Bullet(cb.pos, Vec(cos(rndtheta), sin(rndtheta)), self.index, 2 * modelconst.bullet_radius))
             self.body_list.pop()
 
-
-
+    def rainbow_mode(self):
+        for i in self.body_list[1:]:
+            i.color = ( random.randint(0,255), random.randint(0,255), random.randint(0,255))
 
 
 

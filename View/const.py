@@ -56,12 +56,18 @@ playerColor       = [Color_Darkviolet,     Color_Royalblue, Color_Saddlebrown,
 # Durations
 magicCircleGenerationTime = 120
 timeLimitExceedStampTime  = 30
+scoreFlagEmergeTime       = 60
+thermometerEmergeTime     = 120
 explosionTime             = 30
 killedExplosionRadius     = 200
 killedExplosionTime       = 90
 bulletFlickerCycle        = 15
 whiteBallGenerationTime   = 30
 itemGenerationTime        = 60
+
+# Size
+thermometerBallSize = 80
+thermometerBarWidth = 40
 
 # Font
 teamNameFont       = 'View/Font/Noto/NotoSansCJK-Black.ttc'
