@@ -109,24 +109,35 @@ class GraphicalView(object):
         self.renderObjects = []
 
         self.magicCircleImage = pg.image.load('View/Image/magicCircle.png').convert_alpha()
-        self.cutInImage       = [(pg.image.load('View/Image/Darkviolet.png').convert_alpha(),
-                                  pg.image.load('View/Image/Darkviolet_bw.png').convert_alpha()),
-                                 (pg.image.load('View/Image/Royalblue.png').convert_alpha(),
-                                  pg.image.load('View/Image/Royalblue_bw.png').convert_alpha()),
-                                 (pg.image.load('View/Image/Saddlebrown.png').convert_alpha(),
-                                  pg.image.load('View/Image/Saddlebrown_bw.png').convert_alpha())]
+
+        self.cutInImageNames  = ['Darkviolet', 'Royalblue', 'Saddlebrown', 'Darkolivegreen']
+
+        # self.cutInImage       = [(pg.image.load('View/Image/Darkviolet.png').convert_alpha(),
+        #                           pg.image.load('View/Image/Darkviolet_bw.png').convert_alpha()),
+        #                          (pg.image.load('View/Image/Royalblue.png').convert_alpha(),
+        #                           pg.image.load('View/Image/Royalblue_bw.png').convert_alpha()),
+        #                          (pg.image.load('View/Image/Saddlebrown.png').convert_alpha(),
+        #                           pg.image.load('View/Image/Saddlebrown_bw.png').convert_alpha())]
+
+        self.cutInImage       = [(pg.image.load('View/Image/CutInImages/%s/%s.png' % (name, name)).convert_alpha(),
+                                  pg.image.load('View/Image/CutInImages/%s/%s_bw.png' % (name, name))) for name in self.cutInImageNames]
         self.cutInImageSmall = [tuple([pg.transform.scale(img1, viewConst.skillCardCutInPicSmallSize),
                                        pg.transform.scale(img2, viewConst.skillCardCutInPicSmallSize)])
                                       for img1, img2 in self.cutInImage]
-        self.cutInImageTrans1      = [pg.image.load('View/Image/Darkviolet_trans1.png').convert_alpha(),
-                                      pg.image.load('View/Image/Royalblue_trans1.png').convert_alpha(), 
-                                      pg.image.load('View/Image/Saddlebrown_trans1.png').convert_alpha()]
+        # self.cutInImageTrans1      = [pg.image.load('View/Image/Darkviolet_trans1.png').convert_alpha(),
+        #                               pg.image.load('View/Image/Royalblue_trans1.png').convert_alpha(), 
+        #                               pg.image.load('View/Image/Saddlebrown_trans1.png').convert_alpha()]
+        self.cutInImageTrans1      = [pg.image.load('View/Image/CutInImages/%s/%s_trans1.png' % (name, name)).convert_alpha()
+                                      for name in self.cutInImageNames]
         self.cutInImageTransSmall  = [pg.transform.scale(img, viewConst.skillCardCutInPicSmallSize)
                                       for img in self.cutInImageTrans1]
 
-        self.cutInImageTrans2      = [pg.image.load('View/Image/Darkviolet_trans2.png').convert_alpha(),
-                                      pg.image.load('View/Image/Royalblue_trans2.png').convert_alpha(),
-                                      pg.image.load('View/Image/Saddlebrown_trans2.png').convert_alpha()]
+        # self.cutInImageTrans2      = [pg.image.load('View/Image/Darkviolet_trans2.png').convert_alpha(),
+        #                               pg.image.load('View/Image/Royalblue_trans2.png').convert_alpha(),
+        #                               pg.image.load('View/Image/Saddlebrown_trans2.png').convert_alpha()]
+        self.cutInImageTrans2      = [pg.image.load('View/Image/CutInImages/%s/%s_trans2.png' % (name, name)).convert_alpha()
+                                      for name in self.cutInImageNames]
+
         self.cutInImageTransLarge = [pg.transform.scale(img, viewConst.skillCardCutInPicLargeSize)
                                       for img in self.cutInImageTrans2]
 
