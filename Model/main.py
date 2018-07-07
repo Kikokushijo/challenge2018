@@ -149,9 +149,9 @@ class GameEngine(object):
             #update failed means the bullet should become a white ball
             upd = item.update()
             if upd == None:
-                for j in range(20):
-                    rndtheta = random.random() * 2 * pi
-                    self.bullet_list.append( Bullet(item.pos, Vec(cos(rndtheta),sin(rndtheta)), item.index, modelConst.bullet_radius,\
+                for j in range(modelConst.bomb_amount):
+                    theta = 2 * pi / modelConst.bomb_amount * j
+                    self.bullet_list.append( Bullet(item.pos, Vec(cos(theta),sin(theta)), item.index, modelConst.bullet_radius,\
                                                     modelConst.suddendeath_speed , 0 ) )
                 self.bullet_list.pop(i)
             elif not upd:
@@ -207,6 +207,9 @@ class GameEngine(object):
         radius = int(viewConst.GameSize[1] // (modelConst.PlayerNum * 2) * 0.7)
         self.bullet_list.append(Bullet(pos, (self.player_list[index].pos - pos).normalize(), index, radius,modelConst.bomb_speed, modelConst.bomb_a) )
         self.have_scoreboard[index] = False
+    def can_use_skill(self, index):
+        player = self.player_list[index]
+        return self.ticks > 200 and player.is_alive
     def notify(self, event):
         """
         Called by an event in the message queue. 

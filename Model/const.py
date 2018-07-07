@@ -166,5 +166,5 @@ wb_fast_speed = dash_speed * 1.5
 bombtime = 60
 bomb_speed = bullet_speed0
 bomb_a = bullet_a 
-
+bomb_amount = 20
 
