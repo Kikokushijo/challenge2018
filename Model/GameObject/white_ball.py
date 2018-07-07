@@ -10,7 +10,7 @@ class White_Ball(object):
         self.following = following
         self.target = target
         self.index = index
-        if target == -1:
+        if target != -1:
             self.age = viewConst.whiteBallGenerationTime + 1
         else:
             self.age = 0
