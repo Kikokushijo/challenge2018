@@ -182,11 +182,12 @@ class GraphicalView(object):
             self.blit_at_center(teamLength, pos[i])
 
     def drawGrav(self):
+        color = (*self.model.player_list[self.model.grav_index].color, 32) if self.model.grav_index != -1 else viewConst.gravColor
         for g in modelConst.grav:
             pos = tuple(map(int, g[0]))
             radius = int(g[1] + modelConst.head_radius * 0.5)
             gfxdraw.filled_circle(self.screen, *pos,
-                                  radius, viewConst.gravColor)
+                                  radius, color)
             gfxdraw.filled_circle(self.screen, *pos,
                                   int(radius * 0.07), viewConst.bgColor)
 
