@@ -44,14 +44,13 @@ class Interface(object):
     def API_play(self):
         # for player in self.model.player_list:
         for idx, player in enumerate(self.model.player_list):
-            # print(idx, player.is_AI)
             if player.is_AI:
                 AI_Dir = self.playerAI[player.index].decide()
-                # self.evManager.Post(Event_Move(player.index, AI_Dir))
                 if AI_Dir == AI.AI_MoveWayChange:
                     self.evManager.Post(Event_MoveWayChange(player.index))
-                elif AI_Dir == AI.AI_Skill:
-                    self.evManager.Post(Event_SkillCard(player.index, 'test'))
+                elif 2 <= AI_Dir <= 8:
+                    if self.model.can_use_skill(idx) and self.playerAI[player.index].skill[AI_Dir-2] > 0:
+                        self.evManager.Post(Event_Skill(player.index, AI_Dir-1))
 
     def API_play_linux(self):
         # for player in self.model.player_list:

@@ -49,7 +49,7 @@ class GraphicalView(object):
             cur_state = self.model.state.peek()
             if cur_state == model.STATE_MENU:
                 self.render_menu()
-            elif cur_state == model.STATE_PLAY:
+            elif cur_state == model.STATE_PLAY or cur_state == model.STATE_CUTIN:
                 self.render_play()
             elif cur_state == model.STATE_STOP:
                 self.render_stop()
@@ -71,8 +71,8 @@ class GraphicalView(object):
         elif isinstance(event, Event_SuddenDeath):
             pos = tuple([x // 2 for x in viewConst.GameSize])
             self.renderObjects.append(renderObject.MagicCircle(pos, viewConst.magicCircleGenerationTime))
-        elif isinstance(event, Event_Skill):
-            print(event)
+        elif isinstance(event, Event_CutIn):
+            # print(event)
             pos = tuple([x // 2 for x in viewConst.GameSize])
             self.renderObjects.append(renderObject.SkillCardCutIn(event.PlayerIndex, pos, viewConst.skillCardCutInTime, event.number))
         elif isinstance(event, Event_Quit):
@@ -207,9 +207,11 @@ class GraphicalView(object):
 
     def drawGrav(self):
         color = (*self.model.player_list[self.model.grav_index].color, 32) if self.model.grav_index != -1 else viewConst.gravColor
+        #print(color)
         for g in modelConst.grav:
             pos = tuple(map(int, g[0]))
             radius = int(g[1] + modelConst.head_radius * 0.5)
+            #print(color)
             gfxdraw.filled_circle(self.screen, *pos,
                                   radius, color)
             gfxdraw.filled_circle(self.screen, *pos,
@@ -338,7 +340,7 @@ class GraphicalView(object):
         self.blit_at_center(movingScoreSurface, pos)
 
     def drawSkillCardCutIn(self, cutin):
-        print('draw skill card')
+        # print('draw skill card')
         cutInSurface = pg.Surface((viewConst.GameSize[0], viewConst.GameSize[1] // 2), pg.SRCALPHA)
         cutInSurface.fill(viewConst.Color_Silver)
         sizeSurface = cutInSurface.get_size()
@@ -371,7 +373,7 @@ class GraphicalView(object):
             # draw phrase 4
             if cutin.time >= viewConst.skillCardCutInTimesteps[4]:
                 timeRatio = 1 - ((viewConst.skillCardCutInTimesteps[3] - cutin.time) / viewConst.skillCardCutInTimePhrases[3])
-                cutInSurface.fill(viewConst.Color_White + (int(timeRatio * 255),))
+                cutInSurface.fill(viewConst.Color_White + (int(timeRatio * 255),), special_flags=pg.BLEND_RGBA_ADD)
 
             # draw phrase 5
             if cutin.time >= viewConst.skillCardCutInTimesteps[5]:
@@ -429,6 +431,10 @@ class GraphicalView(object):
             elif isinstance(instance, renderObject.Thermometer):
                 self.drawThermometer(instance)
             instance.update()
+
+            if isinstance(instance, renderObject.SkillCardCutIn) and instance.time == 0:
+                self.evManager.Post(Event_Skill(instance.index, instance.skill))
+
         self.renderObjects[:] = [x for x in self.renderObjects if x.immortal or x.time > 0]
 
     def render_play(self):

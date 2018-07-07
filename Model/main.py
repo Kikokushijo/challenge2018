@@ -205,14 +205,14 @@ class GameEngine(object):
 
 
     def bomb(self,index):
-        i = index + 1
+        i = index*2 + 1
         pos = (viewConst.GameSize[0] + viewConst.GameSize[1] // (modelConst.PlayerNum * 2), viewConst.GameSize[1] // (modelConst.PlayerNum * 2) * i)
         radius = int(viewConst.GameSize[1] // (modelConst.PlayerNum * 2) * 0.7)
         self.bullet_list.append(Bullet(pos, (self.player_list[index].pos - pos).normalize(), index, radius,modelConst.bomb_speed, modelConst.bomb_a) )
         self.have_scoreboard[index] = False
     def can_use_skill(self, index):
         player = self.player_list[index]
-        return self.ticks > 200 and player.is_alive and self.endgame_ticks == 0
+        return (self.ticks > 200) and player.is_alive and (self.endgame_ticks == 0)
     def notify(self, event):
         """
         Called by an event in the message queue. 
@@ -229,24 +229,30 @@ class GameEngine(object):
         elif isinstance(event, Event_Skill):
             number = event.number
             player = self.player_list[event.PlayerIndex]
-            if self.state.peek() != STATE_PLAY:
+            cur_state = self.state.peek()
+            if (cur_state not in [STATE_PLAY, STATE_CUTIN]) or not self.can_use_skill(player.index):
                 return
-            if number == 1:
-                self.item_list.append(Explosive(self.evManager, player.pos))
-            elif number == 2:
-                player.always_bigbullet = False
-                player.always_multibullet = True
-            elif number == 3:
-                player.always_bigbullet = True
-                player.always_multibullet = False
-            elif number == 4:
-                player.blast(self.bullet_list)
-            elif number == 5:
-                self.bombtimer[player.index] = modelConst.bombtime
-            elif number == 6:
-                player.rainbow_mode()
-            elif number == 7:
-                self.grav_index = player.index
+            if cur_state == STATE_PLAY:
+                self.evManager.Post(Event_CutIn(player.index,number))
+                self.state.push(STATE_CUTIN)
+            else:
+                self.state.pop()
+                if number == 1:
+                    self.item_list.append(Explosive(self.evManager, player.pos))
+                elif number == 2:
+                    player.always_bigbullet = False
+                    player.always_multibullet = True
+                elif number == 3:
+                    player.always_bigbullet = True
+                    player.always_multibullet = False
+                elif number == 4:
+                    player.blast(self.bullet_list)
+                elif number == 5:
+                    self.bombtimer[player.index] = modelConst.bombtime
+                elif number == 6:
+                    player.rainbow_mode()
+                elif number == 7:
+                    self.grav_index = player.index
             
         elif isinstance(event, Event_StateChange):
             # if event.state is None >> pop state.

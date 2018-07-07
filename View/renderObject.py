@@ -56,6 +56,9 @@ class MovingScore(RenderObject):
 
 
 class SkillCardCutIn(RenderObject):
+    """
+    Class for displaying cut in animation when using skill cards.
+    """
     def __init__(self, index, pos, time, skill):
         super().__init__(pos, time, False)
         self.index = index
