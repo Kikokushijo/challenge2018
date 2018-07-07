@@ -239,7 +239,8 @@ class GraphicalView(object):
         # Team Player Lengths
         for i, player in enumerate(self.model.player_list):
             length = str(len(player.body_list)) if player.is_alive else '0'
-            teamLength = self.teamLengthFont.render(length, True, viewConst.teamLengthColor)
+            color = viewConst.teamLengthColor if self.model.have_scoreboard[i] else viewConst.Color_Black
+            teamLength = self.teamLengthFont.render(length, True, color)
             self.blit_at_center(teamLength, pos[i])
 
     def drawGrav(self):

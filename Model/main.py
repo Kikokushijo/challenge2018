@@ -147,7 +147,14 @@ class GameEngine(object):
         for i in range(len(self.bullet_list)-1,-1,-1):
             item = self.bullet_list[i]
             #update failed means the bullet should become a white ball
-            if not item.update():
+            upd = item.update()
+            if upd == None:
+                for j in range(20):
+                    rndtheta = random.random() * 2 * pi
+                    self.bullet_list.append( Bullet(item.pos, Vec(cos(rndtheta),sin(rndtheta)), item.index, modelConst.bullet_radius,\
+                                                    modelConst.suddendeath_speed , 0 ) )
+                self.bullet_list.pop(i)
+            elif not upd:
                 self.wb_list.append(White_Ball(item.pos))
                 self.bullet_list.pop(i)
         #update white balls
@@ -221,9 +228,11 @@ class GameEngine(object):
             if number == 1:
                 self.item_list.append(Explosive(self.evManager, player.pos))
             elif number == 2:
-                self.item_list.append(Multibullet(player.pos))
+                player.always_bigbullet = False
+                player.always_multibullet = True
             elif number == 3:
-                self.item_list.append(Bigbullet(player.pos))
+                player.always_bigbullet = True
+                player.always_multibullet = False
             elif number == 4:
                 player.blast(self.bullet_list)
             elif number == 5:
