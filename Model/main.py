@@ -42,8 +42,10 @@ class GameEngine(object):
 
         self.gamenumber = 1
         self.special_scoreboard = [False] * 4
+
         
     def initialize(self):
+        self.grav_index = -1
         self.bombtimer = [-1] * 4
         self.ticks = 0
         self.tmp_score_list = [0, 0, 0, 0]
@@ -244,7 +246,7 @@ class GameEngine(object):
             elif number == 6:
                 player.rainbow_mode()
             elif number == 7:
-                self.special_scoreboard[player.index] = True
+                self.grav_index = player.index
             
         elif isinstance(event, Event_StateChange):
             # if event.state is None >> pop state.
@@ -275,7 +277,6 @@ class GameEngine(object):
             self.score_list = [0, 0, 0, 0]
             self.have_scoreboard = [True, True, True, True]
             self.gamenumber = 1
-            self.special_scoreboard = [False] * 4
 
 
     def run(self):
