@@ -35,10 +35,7 @@ class Interface(object):
         if isinstance(event, Event_EveryTick):
             cur_state = self.model.state.peek()
             if cur_state == model.STATE_PLAY:
-                if sys.platform in ['linux', 'darwin']:
-                    self.API_play_linux()
-                else:
-                    self.API_play()
+                self.API_play()
         elif isinstance(event, Event_Quit):
             pass
         elif isinstance(event, Event_Initialize):

@@ -219,8 +219,9 @@ class Head(object):
             bullet_list.append(Bullet(cb.pos, Vec(cos(rndtheta), sin(rndtheta)), self.index, 2 * modelconst.bullet_radius))
             self.body_list.pop()
 
-
-
+    def rainbow_mode(self):
+        for i in self.body_list[1:]:
+            i.color = ( random.randint(0,255), random.randint(0,255), random.randint(0,255))
 
 
 

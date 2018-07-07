@@ -240,6 +240,8 @@ class GameEngine(object):
                 player.blast(self.bullet_list)
             elif number == 5:
                 self.bombtimer[player.index] = modelConst.bombtime
+            elif number == 6:
+                player.rainbow_mode()
             
         elif isinstance(event, Event_StateChange):
             # if event.state is None >> pop state.
