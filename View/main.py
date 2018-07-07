@@ -142,16 +142,7 @@ class GraphicalView(object):
 
             # draw backgound
             s = pg.Surface(viewConst.ScreenSize, pg.SRCALPHA)
-            s.fill((0, 0, 0, 128)); self.screen.blit(s, (0,0))
-
-            # write some word
-            somewords = self.smallfont.render(
-                        'stop the game. space, escape to return the game.', 
-                        True, (0, 255, 0))
-            (SurfaceX, SurfaceY) = somewords.get_size()
-            pos_x = (viewConst.ScreenSize[0] - SurfaceX)/2
-            pos_y = (viewConst.ScreenSize[1] - SurfaceY)/2
-            self.screen.blit(somewords, (pos_x, pos_y))
+            s.fill((0, 0, 0, 128), (0, 0, *viewConst.GameSize)); self.screen.blit(s, (0,0))
 
             # update surface
             pg.display.flip()
