@@ -163,5 +163,8 @@ bigbullet_r = bullet_radius * 4
 wb_speed = normal_speed * 1.5
 wb_fast_speed = dash_speed * 1.5
 
-
+bombtime = 60
+bomb_speed = bullet_speed0
+bomb_a = bullet_a 
+bomb_amount = 20
 

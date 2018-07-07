@@ -57,6 +57,7 @@ playerColor       = [Color_Darkviolet,     Color_Royalblue, Color_Saddlebrown,
 magicCircleGenerationTime = 120
 timeLimitExceedStampTime  = 30
 scoreFlagEmergeTime       = 60
+thermometerEmergeTime     = 120
 explosionTime             = 30
 killedExplosionRadius     = 200
 killedExplosionTime       = 90
@@ -83,6 +84,10 @@ skillCardSmallScaleRate    = 1.0
 skillCardCutInPicSmallSize = tuple([int(x * skillCardSmallScaleRate) for x in skillCardCutInPicSize])
 skillCardLargeScaleRate    = 1.5
 skillCardCutInPicLargeSize = tuple([int(x * skillCardLargeScaleRate) for x in skillCardCutInPicSize])
+
+# Size
+thermometerBallSize = 80
+thermometerBarWidth = 40
 
 # Font
 teamNameFont       = 'View/Font/Noto/NotoSansCJK-Black.ttc'

@@ -47,12 +47,26 @@ class CountDown(RenderObject):
         super().__init__(pos, time, False)
 
 class MovingScore(RenderObject):
+    """
+    Class for showing scores in the end-game scenes.
+    """
     def __init__(self, index, pos, time):
         super().__init__(pos, time)
         self.index = index
+
 
 class SkillCardCutIn(RenderObject):
     def __init__(self, index, pos, time, skill):
         super().__init__(pos, time, False)
         self.index = index
         self.skill = skill
+
+class Thermometer(RenderObject):
+    """
+    Class for showing scores in the end-match scene.
+    """
+    def __init__(self, index, pos, time, color, value):
+        super().__init__(pos, time)
+        self.index = index
+        self.color = color
+        self.value = value
