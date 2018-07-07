@@ -432,7 +432,6 @@ class GraphicalView(object):
                     instance.time = 1
                 else:
                     self.drawSkillCardCutIn(instance)
-
             elif isinstance(instance, renderObject.Thermometer):
                 self.drawThermometer(instance)
             instance.update()
