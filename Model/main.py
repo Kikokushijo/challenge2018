@@ -38,11 +38,14 @@ class GameEngine(object):
         self.ticks = 0
         self.score_list = [0, 0, 0, 0]
         self.endgame_ticks = 0
-        self.have_scoreboard = [True, True, True, True]
+        self.have_scoreboard = [True] * 4
 
         self.gamenumber = 1
+        self.special_scoreboard = [False] * 4
+
         
     def initialize(self):
+        self.grav_index = -1
         self.bombtimer = [-1] * 4
         self.ticks = 0
         self.tmp_score_list = [0, 0, 0, 0]
@@ -209,7 +212,7 @@ class GameEngine(object):
         self.have_scoreboard[index] = False
     def can_use_skill(self, index):
         player = self.player_list[index]
-        return self.ticks > 200 and player.is_alive
+        return self.ticks > 200 and player.is_alive and self.endgame_ticks == 0
     def notify(self, event):
         """
         Called by an event in the message queue. 
@@ -240,6 +243,10 @@ class GameEngine(object):
                 player.blast(self.bullet_list)
             elif number == 5:
                 self.bombtimer[player.index] = modelConst.bombtime
+            elif number == 6:
+                player.rainbow_mode()
+            elif number == 7:
+                self.grav_index = player.index
             
         elif isinstance(event, Event_StateChange):
             # if event.state is None >> pop state.
@@ -268,6 +275,8 @@ class GameEngine(object):
         elif isinstance(event, Event_Restart):
             self.initialize()
             self.score_list = [0, 0, 0, 0]
+            self.have_scoreboard = [True, True, True, True]
+            self.gamenumber = 1
 
 
     def run(self):

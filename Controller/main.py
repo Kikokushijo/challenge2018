@@ -102,6 +102,8 @@ class Control(object):
                 self.evManager.Post(Event_Skill(0,4))
             elif event.key == pg.K_q and (not self.model.player_list[0].is_AI) :
                 self.evManager.Post(Event_Skill(0,5))
+            elif event.key == pg.K_w and (not self.model.player_list[0].is_AI) :
+                self.evManager.Post(Event_Skill(0,6))
 
                 # DirKeys = self.ControlKeys[player.index][0:4]
                 # if event.key in DirKeys:

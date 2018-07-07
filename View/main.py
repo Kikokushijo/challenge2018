@@ -223,7 +223,7 @@ class GraphicalView(object):
             for body in player.body_list[1:]:
                 pos = tuple(map(int, body.pos))
                 gfxdraw.filled_circle(self.screen, *pos,
-                                      int(body.radius), player.color)
+                                      int(body.radius), body.color)
 
     def drawHead(self):
         for player in self.model.player_list:
