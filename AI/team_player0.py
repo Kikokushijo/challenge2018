@@ -24,6 +24,7 @@ class TeamAI( BaseAI ):
                 return AI_MoveWayChange
             if not helper.checkMeCircling() and helper.canGetBySpin() > 0:
                 return AI_MoveWayChange
+        return AI_NothingToDo
         # hPos = helper.getMyHeadPos()
         # hDir = helper.getMyDir()
         # wb_radius = helper.getWhiteballRadius()
