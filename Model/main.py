@@ -38,10 +38,12 @@ class GameEngine(object):
         self.ticks = 0
         self.score_list = [0, 0, 0, 0]
         self.endgame_ticks = 0
+        self.have_scoreboard = [True, True, True, True]
 
         self.gamenumber = 1
         
     def initialize(self):
+        self.bombtimer = [-1] * 4
         self.ticks = 0
         self.tmp_score_list = [0, 0, 0, 0]
         self.endgame_ticks = 0
@@ -184,7 +186,20 @@ class GameEngine(object):
                     self.evManager.Post(Event_StateChange(STATE_ENDGAME))
                 self.gamenumber += 1
         self.ticks += 1
+        for i in range(4):
+            if self.bombtimer[i] == 0:
+                self.bomb(i)
+                self.bombtimer[i] = -1
+            elif self.bombtimer[i] > 0:
+                self.bombtimer[i] -= 1
 
+
+    def bomb(self,index):
+        i = index + 1
+        pos = (viewConst.GameSize[0] + viewConst.GameSize[1] // (modelConst.PlayerNum * 2), viewConst.GameSize[1] // (modelConst.PlayerNum * 2) * i)
+        radius = int(viewConst.GameSize[1] // (modelConst.PlayerNum * 2) * 0.7)
+        self.bullet_list.append(Bullet(pos, (self.player_list[index].pos - pos).normalize(), index, radius,modelConst.bomb_speed, modelConst.bomb_a) )
+        self.have_scoreboard[index] = False
     def notify(self, event):
         """
         Called by an event in the message queue. 
@@ -211,6 +226,8 @@ class GameEngine(object):
                 self.item_list.append(Bigbullet(player.pos))
             elif number == 4:
                 player.blast(self.bullet_list)
+            elif number == 5:
+                self.bombtimer[player.index] = modelConst.bombtime
             
         elif isinstance(event, Event_StateChange):
             # if event.state is None >> pop state.
