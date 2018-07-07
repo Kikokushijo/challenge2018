@@ -92,16 +92,6 @@ class Event_PlayerKilled(BaseEvent):
     def __str__(self):
         return "{0} => Playerindex={1} , Killed at {2}".format(self.name, self.PlayerIndex, self.pos)
 
-class Event_SkillCard(BaseEvent):
-
-    def __init__(self, player, skill):
-        self.name = "SkillCard event"
-        self.PlayerIndex = player
-        self.skill = skill
-
-    def __str__(self):
-        return "{0} => Playerindex={1} , Use Skill {2}".format(self.name, self.PlayerIndex, self.skill)
-
 class Event_GameOver(BaseEvent):
     def __init__ (self):
         self.name = "GameOver event"
