@@ -181,12 +181,13 @@ class GraphicalView(object):
         pos = [(viewConst.GameSize[0] + viewConst.GameSize[1] // (modelConst.PlayerNum * 2), viewConst.GameSize[1] // (modelConst.PlayerNum * 2) * i) for i in range(1, modelConst.PlayerNum * 2, 2)]
         radius = int(viewConst.GameSize[1] // (modelConst.PlayerNum * 2) * 0.7)
         for i, player in enumerate(self.model.player_list):
-            gfxdraw.filled_circle(self.screen, *(pos[i]),
-                                  radius, player.color)
+            if self.model.have_scoreboard[i]:
+                gfxdraw.filled_circle(self.screen, *(pos[i]), radius, player.color)
         # Team Player Lengths
         for i, player in enumerate(self.model.player_list):
             length = str(len(player.body_list)) if player.is_alive else '0'
-            teamLength = self.teamLengthFont.render(length, True, viewConst.teamLengthColor)
+            color = viewConst.teamLengthColor if self.model.have_scoreboard[i] else viewConst.Color_Black
+            teamLength = self.teamLengthFont.render(length, True, color)
             self.blit_at_center(teamLength, pos[i])
 
     def drawGrav(self):

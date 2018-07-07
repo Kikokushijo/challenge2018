@@ -39,6 +39,8 @@ class Head(object):
         self.init_timer = 200
         self.have_multibullet = False
         self.have_bigbullet = False
+        self.always_multibullet = False
+        self.always_bigbullet = False
         #if in grav
         self.grav_center = Vec( 0, 0 )
         self.pos_log = [Vec(self.pos)]
@@ -107,7 +109,7 @@ class Head(object):
                     continue
                 break
             for bullet in bullet_list :
-                if (bullet.index != self.index) and (bullet.index == -1 or player_list[bullet.index].is_alive) and \
+                if (bullet.index != self.index) and \
                    (self.pos - bullet.pos).length_squared() < (self.radius + bullet.radius)**2 :
                     killer = bullet.index
                     self.is_alive = False
@@ -117,7 +119,7 @@ class Head(object):
         if not self.is_alive:
             self.is_dash = True
             while len(self.body_list) > 1:
-                if killer != -1:
+                if killer != -1 and player_list[killer].is_alive:
                     wb_list.append(White_Ball(Vec(self.body_list[-1].pos),True,killer))
                     #player_list[killer].body_list.append(Body(player_list[killer].body_list[-1]))
                 self.body_list.pop(-1)
@@ -190,12 +192,12 @@ class Head(object):
                 #self.speed = modelconst.dash_speed
                 if len(self.body_list)>1 :
                     self.body_list.pop(-1)
-                    if self.have_multibullet:
+                    if self.always_multibullet or self.have_multibullet:
                         bullet_list.append(Bullet(self.pos,self.direction,self.index))
                         bullet_list.append(Bullet(self.pos,self.direction.rotate(30),self.index))
                         bullet_list.append(Bullet(self.pos,self.direction.rotate(-30),self.index))
                         self.have_multibullet = False
-                    if self.have_bigbullet:
+                    elif self.always_bigbullet or self.have_bigbullet:
                         bullet_list.append(Bullet(self.pos,self.direction,self.index,modelconst.bigbullet_r))
                         self.have_bigbullet = False
                     else:
@@ -210,7 +212,12 @@ class Head(object):
                     score_list[enemy.index] += 1
                     tmp_score_list[enemy.index] += 1
 
-
+    def blast(self, bullet_list):
+        for i in range(len(self.body_list)-1,0,-1):
+            cb = self.body_list[i]
+            rndtheta = random.random() * 2 * pi
+            bullet_list.append(Bullet(cb.pos, Vec(cos(rndtheta), sin(rndtheta)), self.index, 2 * modelconst.bullet_radius))
+            self.body_list.pop()
 
 
 

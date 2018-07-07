@@ -15,6 +15,10 @@ class Bullet(object):
         self.speed = speed
         self.age = viewConst.bulletFlickerCycle
         self.acc = acc
+        if self.acc == 0:
+            self.is_flash = False
+        else:
+            self.is_flash = True
     def update(self):
         '''
         return:
@@ -34,6 +38,8 @@ class Bullet(object):
         self.speed -= self.acc
         if self.index != -1:
             self.age += 1
-        
+        if self.speed <= 0 and self.radius > modelConst.bigbullet_r * 1.1:
+            return None
         return self.speed > 0
+
     

@@ -47,7 +47,9 @@ class White_Ball(object):
                 return False
             else:
                 direction = (targetpos - self.pos).normalize()
-                self.pos += direction * self.speed
+                steps = (targetpos - self.pos).length() / self.speed
+                multiplier = 3 if player_list[self.target].is_dash else 1
+                self.pos += direction * self.speed * (1 + steps/2/30) * multiplier
                 return True
 
 
