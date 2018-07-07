@@ -72,7 +72,7 @@ class GraphicalView(object):
             pos = tuple([x // 2 for x in viewConst.GameSize])
             self.renderObjects.append(renderObject.MagicCircle(pos, viewConst.magicCircleGenerationTime))
         elif isinstance(event, Event_CutIn):
-            print(event)
+            # print(event)
             pos = tuple([x // 2 for x in viewConst.GameSize])
             self.renderObjects.append(renderObject.SkillCardCutIn(event.PlayerIndex, pos, viewConst.skillCardCutInTime, event.number))
         elif isinstance(event, Event_Quit):
@@ -338,7 +338,7 @@ class GraphicalView(object):
         self.blit_at_center(movingScoreSurface, pos)
 
     def drawSkillCardCutIn(self, cutin):
-        print('draw skill card')
+        # print('draw skill card')
         cutInSurface = pg.Surface((viewConst.GameSize[0], viewConst.GameSize[1] // 2), pg.SRCALPHA)
         cutInSurface.fill(viewConst.Color_Silver)
         sizeSurface = cutInSurface.get_size()
@@ -371,7 +371,7 @@ class GraphicalView(object):
             # draw phrase 4
             if cutin.time >= viewConst.skillCardCutInTimesteps[4]:
                 timeRatio = 1 - ((viewConst.skillCardCutInTimesteps[3] - cutin.time) / viewConst.skillCardCutInTimePhrases[3])
-                cutInSurface.fill(viewConst.Color_White + (int(timeRatio * 255),))
+                cutInSurface.fill(viewConst.Color_White + (int(timeRatio * 255),), special_flags=pg.BLEND_RGBA_ADD)
 
             # draw phrase 5
             if cutin.time >= viewConst.skillCardCutInTimesteps[5]:
