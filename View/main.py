@@ -1,6 +1,7 @@
 import pygame as pg
 import pygame.gfxdraw as gfxdraw
 import math
+import sys
 
 import Model.main as model
 from Events.Manager import *
@@ -427,7 +428,11 @@ class GraphicalView(object):
             elif isinstance(instance, renderObject.MovingScore):
                 self.drawMovingScore(instance)
             elif isinstance(instance, renderObject.SkillCardCutIn):
-                self.drawSkillCardCutIn(instance)
+                if sys.argv[-1] == '--no-cutin':
+                    instance.time = 1
+                else:
+                    self.drawSkillCardCutIn(instance)
+
             elif isinstance(instance, renderObject.Thermometer):
                 self.drawThermometer(instance)
             instance.update()
