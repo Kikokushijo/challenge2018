@@ -90,7 +90,7 @@ class GraphicalView(object):
         """
         Set up the pygame graphical display and loads graphical resources.
         """
-        pg.init(); pg.font.init()
+        pg.init();
         pg.display.set_caption(viewConst.GameCaption)
         self.screen = pg.display.set_mode(viewConst.ScreenSize)
         self.clock = pg.time.Clock()
@@ -262,7 +262,7 @@ class GraphicalView(object):
     def drawBullet(self):
         for bullet in self.model.bullet_list:
             color = bullet.color
-            if (bullet.age // viewConst.bulletFlickerCycle) % 2 == 0:
+            if bullet.is_flash and (bullet.age // viewConst.bulletFlickerCycle) % 2 == 0:
                 color = tuple([int(i * 127 / 255 + 128) for i in color])
             pos = tuple(map(int, bullet.pos))
             gfxdraw.filled_circle(self.screen, *pos,
@@ -321,6 +321,23 @@ class GraphicalView(object):
         pos = (movingscore.pos[0] + viewConst.GameSize[0] // 16 * (1 - timeRatio), movingscore.pos[1])
         self.blit_at_center(movingScoreSurface, pos)
 
+    def drawThermometer(self, thermometer):
+        # draw the bar
+            lengthFactor = 1 - max(thermometer.time / thermometer.totaltime, 0)
+            length = 600 * thermometer.value / 15 * lengthFactor
+            pos = (thermometer.pos[0] - viewConst.thermometerBarWidth // 2, int(thermometer.pos[1] - length))
+            self.screen.fill(thermometer.color, (*pos, viewConst.thermometerBarWidth, int(length)))
+
+        # draw the base (ball)
+            gfxdraw.filled_circle(self.screen, *thermometer.pos,
+                                  int(viewConst.thermometerBallSize * 1.05), viewConst.bgColor)
+            gfxdraw.filled_circle(self.screen, *thermometer.pos,
+                                  viewConst.thermometerBallSize, thermometer.color)
+        # draw the score
+            color = viewConst.Color_Snow
+            teamScore = self.teamScoreFont.render(str(thermometer.value), True, color)
+            self.blit_at_center(teamScore, thermometer.pos)
+
     def drawRenderObject(self):
         for instance in self.renderObjects:
             if isinstance(instance, renderObject.Explosion):
@@ -333,6 +350,8 @@ class GraphicalView(object):
                 self.drawCountDown(instance)
             elif isinstance(instance, renderObject.MovingScore):
                 self.drawMovingScore(instance)
+            elif isinstance(instance, renderObject.Thermometer):
+                self.drawThermometer(instance)
             instance.update()
         self.renderObjects[:] = [x for x in self.renderObjects if x.immortal or x.time > 0]
 
@@ -375,8 +394,12 @@ class GraphicalView(object):
         if self.last_update != model.STATE_ENDMATCH:
             self.last_update = model.STATE_ENDMATCH
             self.renderObjects[:] = []
-            movingScores = [renderObject.MovingScore(i, (viewConst.GameSize[0] // 8, viewConst.GameSize[1] // 8 * (2 * i + 1)), viewConst.scoreFlagEmergeTime) for i in range(modelConst.PlayerNum)]
-            self.renderObjects.extend(movingScores)
+            scores = []
+            for i in range(modelConst.PlayerNum):
+                scores.append((i, self.model.score_list[i]))
+            scores.sort(key=lambda x:x[1], reverse=True)
+            thermometers = [renderObject.Thermometer(score[0], (viewConst.GameSize[0] // 8 * (2 * i + 1), viewConst.GameSize[1] // 8 * 7), viewConst.thermometerEmergeTime, self.model.player_list[score[0]].color, score[1]) for i, score in enumerate(scores)]
+            self.renderObjects.extend(thermometers)
 
         self.screen.fill(viewConst.bgColor, pg.Rect((0, 0), viewConst.GameSize))
         self.drawRenderObject()
