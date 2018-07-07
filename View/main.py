@@ -49,7 +49,7 @@ class GraphicalView(object):
             cur_state = self.model.state.peek()
             if cur_state == model.STATE_MENU:
                 self.render_menu()
-            elif cur_state == model.STATE_PLAY:
+            elif cur_state == model.STATE_PLAY or cur_state == model.STATE_CUTIN:
                 self.render_play()
             elif cur_state == model.STATE_STOP:
                 self.render_stop()
@@ -71,7 +71,7 @@ class GraphicalView(object):
         elif isinstance(event, Event_SuddenDeath):
             pos = tuple([x // 2 for x in viewConst.GameSize])
             self.renderObjects.append(renderObject.MagicCircle(pos, viewConst.magicCircleGenerationTime))
-        elif isinstance(event, Event_Skill):
+        elif isinstance(event, Event_SkillCutIn):
             print(event)
             pos = tuple([x // 2 for x in viewConst.GameSize])
             self.renderObjects.append(renderObject.SkillCardCutIn(event.PlayerIndex, pos, viewConst.skillCardCutInTime, event.number))
@@ -429,6 +429,10 @@ class GraphicalView(object):
             elif isinstance(instance, renderObject.Thermometer):
                 self.drawThermometer(instance)
             instance.update()
+
+            if isinstance(instance, renderObject.SkillCardCutIn) and instance.time == 0:
+                self.evManager.Post(Event_Skill(instance.index, instance.skill))
+
         self.renderObjects[:] = [x for x in self.renderObjects if x.immortal or x.time > 0]
 
     def render_play(self):
