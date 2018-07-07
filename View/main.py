@@ -462,7 +462,8 @@ class GraphicalView(object):
             movingScores = [renderObject.MovingScore(i, (viewConst.GameSize[0] // 8, viewConst.GameSize[1] // 8 * (2 * i + 1)), viewConst.scoreFlagEmergeTime) for i in range(modelConst.PlayerNum)]
             self.renderObjects.extend(movingScores)
 
-        self.screen.fill(viewConst.bgColor, pg.Rect((0, 0), viewConst.GameSize))
+        self.screen.fill(viewConst.bgColor)
+        self.drawScoreboard()
         self.drawRenderObject()
         pg.display.flip()
 
@@ -477,6 +478,7 @@ class GraphicalView(object):
             thermometers = [renderObject.Thermometer(score[0], (viewConst.GameSize[0] // 8 * (2 * i + 1), viewConst.GameSize[1] // 8 * 7), viewConst.thermometerEmergeTime, self.model.player_list[score[0]].color, score[1]) for i, score in enumerate(scores)]
             self.renderObjects.extend(thermometers)
 
-        self.screen.fill(viewConst.bgColor, pg.Rect((0, 0), viewConst.GameSize))
+        self.screen.fill(viewConst.bgColor)
+        self.drawScoreboard()
         self.drawRenderObject()
         pg.display.flip()
