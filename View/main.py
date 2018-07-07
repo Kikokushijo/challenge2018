@@ -109,15 +109,23 @@ class GraphicalView(object):
 
         self.magicCircleImage = pg.image.load('View/Image/magicCircle.png').convert_alpha()
         self.cutInImage       = [(pg.image.load('View/Image/Darkviolet.png').convert_alpha(),
-                                  pg.image.load('View/Image/Darkviolet_bw.png').convert_alpha())]
+                                  pg.image.load('View/Image/Darkviolet_bw.png').convert_alpha()),
+                                 (pg.image.load('View/Image/Royalblue.png').convert_alpha(),
+                                  pg.image.load('View/Image/Royalblue_bw.png').convert_alpha()),
+                                 (pg.image.load('View/Image/Saddlebrown.png').convert_alpha(),
+                                  pg.image.load('View/Image/Saddlebrown_bw.png').convert_alpha())]
         self.cutInImageSmall = [tuple([pg.transform.scale(img1, viewConst.skillCardCutInPicSmallSize),
-                                        pg.transform.scale(img2, viewConst.skillCardCutInPicSmallSize)])
-                                 for img1, img2 in self.cutInImage]
-        self.cutInImageTrans1      = [pg.image.load('View/Image/Darkviolet_trans1.png').convert_alpha()]
-        self.cutInImageTransSmall = [pg.transform.scale(img, viewConst.skillCardCutInPicSmallSize)
+                                       pg.transform.scale(img2, viewConst.skillCardCutInPicSmallSize)])
+                                      for img1, img2 in self.cutInImage]
+        self.cutInImageTrans1      = [pg.image.load('View/Image/Darkviolet_trans1.png').convert_alpha(),
+                                      pg.image.load('View/Image/Royalblue_trans1.png').convert_alpha(), 
+                                      pg.image.load('View/Image/Saddlebrown_trans1.png').convert_alpha()]
+        self.cutInImageTransSmall  = [pg.transform.scale(img, viewConst.skillCardCutInPicSmallSize)
                                       for img in self.cutInImageTrans1]
 
-        self.cutInImageTrans2      = [pg.image.load('View/Image/Darkviolet_trans2.png').convert_alpha()]
+        self.cutInImageTrans2      = [pg.image.load('View/Image/Darkviolet_trans2.png').convert_alpha(),
+                                      pg.image.load('View/Image/Royalblue_trans2.png').convert_alpha(),
+                                      pg.image.load('View/Image/Saddlebrown_trans2.png').convert_alpha()]
         self.cutInImageTransLarge = [pg.transform.scale(img, viewConst.skillCardCutInPicLargeSize)
                                       for img in self.cutInImageTrans2]
 
@@ -342,15 +350,15 @@ class GraphicalView(object):
         cutInSurface.fill(viewConst.Color_Silver)
         sizeSurface = cutInSurface.get_size()
         
-        if viewConst.skillCardCutInTime >= cutin.time >= viewConst.skillCardCutInTimestep3:
+        if viewConst.skillCardCutInTime >= cutin.time >= viewConst.skillCardCutInTimesteps[3]:
             # draw phrase 1
-            timeRatioSlow = min((viewConst.skillCardCutInTime - cutin.time) / viewConst.skillCardCutInTimePhrase1, 1)
+            timeRatioSlow = min((viewConst.skillCardCutInTime - cutin.time) / viewConst.skillCardCutInTimePhrases[0], 1)
             timeRatioFast = min(1, timeRatioSlow + 0.20)
             pg.draw.rect(cutInSurface, viewConst.Color_Black, (0, 10, int(timeRatioSlow * sizeSurface[0]), 10), 0)
             pg.draw.rect(cutInSurface, viewConst.Color_Black, (0, sizeSurface[1]-20, int(timeRatioFast * sizeSurface[0]), 10), 0)
             
             # draw phrase 2
-            timeRatioSlow = min((viewConst.skillCardCutInTimestep1 - cutin.time) / viewConst.skillCardCutInTimePhrase2, 1)
+            timeRatioSlow = min((viewConst.skillCardCutInTimesteps[1] - cutin.time) / viewConst.skillCardCutInTimePhrases[1], 1)
             timeRatioFast = min(1, timeRatioSlow + 0.20)
             pg.draw.rect(cutInSurface, viewConst.Color_Black, (sizeSurface[0] - int(timeRatioSlow * sizeSurface[0]), 5, int(timeRatioSlow * sizeSurface[0]), 20), 0)
             pg.draw.rect(cutInSurface, viewConst.Color_Black, (sizeSurface[0] - int(timeRatioFast * sizeSurface[0]), sizeSurface[1]-25, int(timeRatioFast * sizeSurface[0]), 20), 0)
@@ -360,23 +368,36 @@ class GraphicalView(object):
             pg.draw.rect(cutInSurface, viewConst.Color_White + (80, ), (0, sizeSurface[1]-25, sizeSurface[0], 20), 0)
 
 
-        if viewConst.skillCardCutInTimestep2 >= cutin.time >= viewConst.skillCardCutInTimestep3:
+        if viewConst.skillCardCutInTimesteps[2] >= cutin.time >= viewConst.skillCardCutInTimesteps[3]:
             # draw phrase 3
-            timeRatio = 1 - ((viewConst.skillCardCutInTimestep2 - cutin.time) / viewConst.skillCardCutInTimePhrase3)
+            timeRatio = 1 - ((viewConst.skillCardCutInTimesteps[2] - cutin.time) / viewConst.skillCardCutInTimePhrases[2])
             cutInSurface.blit(self.cutInImageSmall[cutin.index][1],
                               (int(sizeSurface[0] * (3 / 32 + timeRatio / 2)), viewConst.GameSize[1] // 2 - viewConst.skillCardCutInPicSmallSize[1] - 25))
         
-        elif viewConst.skillCardCutInTimestep3 >= cutin.time:
+        elif viewConst.skillCardCutInTimesteps[3] >= cutin.time:
             # draw phrase 4
-            if cutin.time >= viewConst.skillCardCutInTimestep4:
-                timeRatio = 1 - ((viewConst.skillCardCutInTimestep3 - cutin.time) / viewConst.skillCardCutInTimePhrase4)
+            if cutin.time >= viewConst.skillCardCutInTimesteps[4]:
+                timeRatio = 1 - ((viewConst.skillCardCutInTimesteps[3] - cutin.time) / viewConst.skillCardCutInTimePhrases[3])
                 cutInSurface.fill(viewConst.Color_White + (int(timeRatio * 255),))
 
-            timeRatio = ((viewConst.skillCardCutInTimestep3 - cutin.time) / (viewConst.skillCardCutInTimestep3 - viewConst.skillCardCutInTimestep5))
-            cutInSurface.blit(self.cutInImageTransSmall[cutin.index],
-                              (int(sizeSurface[0] * (3 / 32 + timeRatio / 64)), viewConst.GameSize[1] // 2 - viewConst.skillCardCutInPicSmallSize[1] - 25))            
-            cutInSurface.blit(self.cutInImageTransLarge[cutin.index],
-                              (int(sizeSurface[0] * (16 / 32 - timeRatio / 32)), viewConst.GameSize[1] // 2 - viewConst.skillCardCutInPicLargeSize[1] - 25))
+            # draw phrase 5
+            if cutin.time >= viewConst.skillCardCutInTimesteps[5]:
+                timeRatio = ((viewConst.skillCardCutInTimesteps[3] - cutin.time) / (viewConst.skillCardCutInTimesteps[3] - viewConst.skillCardCutInTimesteps[5]))
+                cutInSurface.blit(self.cutInImageTransSmall[cutin.index],
+                                  (int(sizeSurface[0] * (3 / 32 + timeRatio / 64)), viewConst.GameSize[1] // 2 - viewConst.skillCardCutInPicSmallSize[1] - 25))            
+                cutInSurface.blit(self.cutInImageTransLarge[cutin.index],
+                                  (int(sizeSurface[0] * (16 / 32 - timeRatio / 32)), viewConst.GameSize[1] // 2 - viewConst.skillCardCutInPicLargeSize[1] - 25))
+
+            elif viewConst.skillCardCutInTimesteps[5] >= cutin.time:
+                timeRatio = ((viewConst.skillCardCutInTimesteps[5] - cutin.time) / viewConst.skillCardCutInTimePhrases[5])
+                cutInSurface.blit(self.cutInImageTransSmall[cutin.index],
+                                  (int(sizeSurface[0] * (7 / 64 + timeRatio * 4)), viewConst.GameSize[1] // 2 - viewConst.skillCardCutInPicSmallSize[1] - 25))            
+                cutInSurface.blit(self.cutInImageTransLarge[cutin.index],
+                                  (int(sizeSurface[0] * (15 / 32 - timeRatio * 4)), viewConst.GameSize[1] // 2 - viewConst.skillCardCutInPicLargeSize[1] - 25))
+
+
+            # draw phrase 6
+            # timeRatio = 
 
 
         self.blit_at_center(cutInSurface, cutin.pos)
