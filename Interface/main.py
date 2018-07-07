@@ -53,6 +53,8 @@ class Interface(object):
                 # self.evManager.Post(Event_Move(player.index, AI_Dir))
                 if AI_Dir == AI.AI_MoveWayChange:
                     self.evManager.Post(Event_MoveWayChange(player.index))
+                elif AI_Dir == AI.AI_Skill:
+                    self.evManager.Post(Event_SkillCard(player.index, 'test'))
 
     def API_play_linux(self):
         # for player in self.model.player_list:
@@ -66,6 +68,8 @@ class Interface(object):
                     # print('player:', idx, time() - start_time)
                     if AI_Dir == AI.AI_MoveWayChange:
                         self.evManager.Post(Event_MoveWayChange(player.index))
+                    elif AI_Dir == AI.AI_Skill:
+                        self.evManager.Post(Evenet_SkillCard(player.index, 'test'))
                 except signal.ItimerError:
                     # print('TimeOut: %s' % player.name)
                     self.evManager.Post(Event_TimeLimitExceed(player.index))

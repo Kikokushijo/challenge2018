@@ -71,6 +71,10 @@ class GraphicalView(object):
         elif isinstance(event, Event_SuddenDeath):
             pos = tuple([x // 2 for x in viewConst.GameSize])
             self.renderObjects.append(renderObject.MagicCircle(pos, viewConst.magicCircleGenerationTime))
+        elif isinstance(event, Event_SkillCard):
+            print(event)
+            pos = tuple([x // 2 for x in viewConst.GameSize])
+            self.renderObjects.append(renderObject.SkillCardCutIn(event.PlayerIndex, pos, viewConst.skillCardCutInTime, event.skill))
         elif isinstance(event, Event_Quit):
             # shut down the pygame graphics
             self.is_initialized = False
@@ -104,6 +108,11 @@ class GraphicalView(object):
         self.renderObjects = []
 
         self.magicCircleImage = pg.image.load('View/Image/magicCircle.png').convert_alpha()
+        self.cutInImage       = [(pg.image.load('View/Image/Darkviolet.png').convert_alpha(),
+                                  pg.image.load('View/Image/Darkviolet_bw.png').convert_alpha())]
+        self.cutInImageScaled = [tuple([pg.transform.scale(img1, viewConst.skillCardCutInPicScaledSize),
+                                        pg.transform.scale(img2, viewConst.skillCardCutInPicScaledSize)])
+                                 for img1, img2 in self.cutInImage]
 
         self.is_initialized = True
 
@@ -320,6 +329,60 @@ class GraphicalView(object):
         pos = (movingscore.pos[0] + viewConst.GameSize[0] // 16 * (1 - timeRatio), movingscore.pos[1])
         self.blit_at_center(movingScoreSurface, pos)
 
+    def drawSkillCardCutIn(self, cutin):
+        print('draw skill card')
+        cutInSurface = pg.Surface((viewConst.GameSize[0], viewConst.GameSize[1] // 2), pg.SRCALPHA)
+        # cutInSurface.fill(viewConst.Color_Silver)
+        sizeSurface = cutInSurface.get_size()
+        
+        if viewConst.skillCardCutInTime >= cutin.time >= viewConst.skillCardCutInTimestep3:
+            # draw phrase 1
+            timeRatioSlow = min((viewConst.skillCardCutInTime - cutin.time) / viewConst.skillCardCutInTimePhrase1, 1)
+            timeRatioFast = min(1, timeRatioSlow + 0.20)
+            pg.draw.rect(cutInSurface, viewConst.Color_Black, (0, 10, int(timeRatioSlow * sizeSurface[0]), 10), 0)
+            pg.draw.rect(cutInSurface, viewConst.Color_Black, (0, sizeSurface[1]-20, int(timeRatioFast * sizeSurface[0]), 10), 0)
+            
+            # draw phrase 2
+            timeRatioSlow = min((viewConst.skillCardCutInTimestep1 - cutin.time) / viewConst.skillCardCutInTimePhrase2, 1)
+            timeRatioFast = min(1, timeRatioSlow + 0.20)
+            pg.draw.rect(cutInSurface, viewConst.Color_Black, (sizeSurface[0] - int(timeRatioSlow * sizeSurface[0]), 5, int(timeRatioSlow * sizeSurface[0]), 20), 0)
+            pg.draw.rect(cutInSurface, viewConst.Color_Black, (sizeSurface[0] - int(timeRatioFast * sizeSurface[0]), sizeSurface[1]-25, int(timeRatioFast * sizeSurface[0]), 20), 0)
+        else:
+            # draw phrase 4 / 5 white lines
+            pg.draw.rect(cutInSurface, viewConst.Color_White + (80, ), (0, 5, sizeSurface[0], 20), 0)
+            pg.draw.rect(cutInSurface, viewConst.Color_White + (80, ), (0, sizeSurface[1]-25, sizeSurface[0], 20), 0)
+
+
+        if viewConst.skillCardCutInTimestep2 >= cutin.time >= viewConst.skillCardCutInTimestep3:
+            # draw phrase 3
+            timeRatio = 1 - ((viewConst.skillCardCutInTimestep2 - cutin.time) / viewConst.skillCardCutInTimePhrase3)
+            cutInSurface.blit(self.cutInImageScaled[cutin.index][1],
+                              (int(sizeSurface[0] * (3 / 32 + timeRatio / 2)), viewConst.GameSize[1] // 2 - viewConst.skillCardCutInPicScaledSize[1] - 25))
+        
+        elif viewConst.skillCardCutInTimestep3 >= cutin.time:
+            # draw phrase 4
+            if cutin.time >= viewConst.skillCardCutInTimestep4:
+                timeRatio = 1 - ((viewConst.skillCardCutInTimestep3 - cutin.time) / viewConst.skillCardCutInTimePhrase4)
+                cutInSurface.fill(viewConst.Color_White + (int(timeRatio * 255),))
+
+            timeRatio = ((viewConst.skillCardCutInTimestep3 - cutin.time) / viewConst.skillCardCutInTimestep3)
+            # self.cutInImageScaled[cutin.index][0].set_alpha(120 - int(40 * timeRatio))
+            # print(isinstance(self.cutInImageScaled[cutin.index][0], pg.Surface))
+            self.cutInImageScaled[cutin.index][0].set_alpha(None)
+            self.cutInImageScaled[cutin.index][0].set_alpha(20)
+            print(self.cutInImageScaled[cutin.index][0].get_alpha())
+            # print(self.cutInImageScaled[cutin.index][0][:5, :5])
+            cutInSurface.blit(self.cutInImageScaled[cutin.index][0],
+                              (int(sizeSurface[0] * (3 / 32 + timeRatio / 32)), viewConst.GameSize[1] // 2 - viewConst.skillCardCutInPicScaledSize[1] - 25))            
+
+
+
+        self.blit_at_center(cutInSurface, cutin.pos)
+
+            
+
+
+
     def drawRenderObject(self):
         for instance in self.renderObjects:
             if isinstance(instance, renderObject.Explosion):
@@ -332,6 +395,8 @@ class GraphicalView(object):
                 self.drawCountDown(instance)
             elif isinstance(instance, renderObject.MovingScore):
                 self.drawMovingScore(instance)
+            elif isinstance(instance, renderObject.SkillCardCutIn):
+                self.drawSkillCardCutIn(instance)
             instance.update()
         self.renderObjects[:] = [x for x in self.renderObjects if x.immortal or x.time > 0]
 

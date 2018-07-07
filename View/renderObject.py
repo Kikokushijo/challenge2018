@@ -50,3 +50,9 @@ class MovingScore(RenderObject):
     def __init__(self, index, pos, time):
         super().__init__(pos, time)
         self.index = index
+
+class SkillCardCutIn(RenderObject):
+    def __init__(self, index, pos, time, skill):
+        super().__init__(pos, time, False)
+        self.index = index
+        self.skill = skill

@@ -5,6 +5,7 @@ const of AI code use.
 
 AI_NothingToDo = 0
 AI_MoveWayChange = 1
+AI_Skill = 2
 
 """
 a base of AI.
