@@ -64,11 +64,6 @@ class SkillCardCutIn(RenderObject):
         self.index = index
         self.skill = skill
 
-    def update(self, ):
-        super().update()
-        if self.time == 0:
-
-
 class Thermometer(RenderObject):
     """
     Class for showing scores in the end-match scene.

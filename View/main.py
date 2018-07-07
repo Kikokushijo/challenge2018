@@ -71,7 +71,7 @@ class GraphicalView(object):
         elif isinstance(event, Event_SuddenDeath):
             pos = tuple([x // 2 for x in viewConst.GameSize])
             self.renderObjects.append(renderObject.MagicCircle(pos, viewConst.magicCircleGenerationTime))
-        elif isinstance(event, Event_SkillCutIn):
+        elif isinstance(event, Event_CutIn):
             print(event)
             pos = tuple([x // 2 for x in viewConst.GameSize])
             self.renderObjects.append(renderObject.SkillCardCutIn(event.PlayerIndex, pos, viewConst.skillCardCutInTime, event.number))
