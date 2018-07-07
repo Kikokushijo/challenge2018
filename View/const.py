@@ -65,6 +65,26 @@ bulletFlickerCycle        = 15
 whiteBallGenerationTime   = 30
 itemGenerationTime        = 60
 
+# skill card phrases
+# phrase1 : two thin  lines run right
+# phrase2 : two thick lines run left
+# phrase3 : silouette runs left
+# phrase4 : flash
+# phrase5 : silouette becomes picture, and big picture appears
+# phrase6 : silouette and big picture accelerates and disappears
+
+skillCardCutInTimePhrases  = [20, 20, 40, 20, 40, 30]
+skillCardCutInTime         = sum(skillCardCutInTimePhrases)
+
+skillCardCutInTimesteps    = [skillCardCutInTime - sum(skillCardCutInTimePhrases[:idx])
+                              for idx in range(len(skillCardCutInTimePhrases))]
+
+skillCardCutInPicSize      = (229, 232)
+skillCardSmallScaleRate    = 1.0
+skillCardCutInPicSmallSize = tuple([int(x * skillCardSmallScaleRate) for x in skillCardCutInPicSize])
+skillCardLargeScaleRate    = 1.5
+skillCardCutInPicLargeSize = tuple([int(x * skillCardLargeScaleRate) for x in skillCardCutInPicSize])
+
 # Size
 thermometerBallSize = 80
 thermometerBarWidth = 40
