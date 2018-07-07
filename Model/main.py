@@ -229,24 +229,30 @@ class GameEngine(object):
         elif isinstance(event, Event_Skill):
             number = event.number
             player = self.player_list[event.PlayerIndex]
-            if self.state.peek() != STATE_PLAY:
+            cur_state = self.state.peek()
+            if cur_state not in [STATE_PLAY, STATE_CUTIN]:
                 return
-            if number == 1:
-                self.item_list.append(Explosive(self.evManager, player.pos))
-            elif number == 2:
-                player.always_bigbullet = False
-                player.always_multibullet = True
-            elif number == 3:
-                player.always_bigbullet = True
-                player.always_multibullet = False
-            elif number == 4:
-                player.blast(self.bullet_list)
-            elif number == 5:
-                self.bombtimer[player.index] = modelConst.bombtime
-            elif number == 6:
-                player.rainbow_mode()
-            elif number == 7:
-                self.grav_index = player.index
+            if cur_state == STATE_PLAY:
+                self.evManager.Post(Event_CutIn(player.index,number))
+                self.state.push(STATE_CUTIN)
+            else:
+                self.state.pop()
+                if number == 1:
+                    self.item_list.append(Explosive(self.evManager, player.pos))
+                elif number == 2:
+                    player.always_bigbullet = False
+                    player.always_multibullet = True
+                elif number == 3:
+                    player.always_bigbullet = True
+                    player.always_multibullet = False
+                elif number == 4:
+                    player.blast(self.bullet_list)
+                elif number == 5:
+                    self.bombtimer[player.index] = modelConst.bombtime
+                elif number == 6:
+                    player.rainbow_mode()
+                elif number == 7:
+                    self.grav_index = player.index
             
         elif isinstance(event, Event_StateChange):
             # if event.state is None >> pop state.
