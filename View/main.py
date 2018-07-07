@@ -413,7 +413,6 @@ class GraphicalView(object):
             self.blit_at_center(teamScore, thermometer.pos)
 
     def drawRenderObject(self):
-<<<<<<< HEAD
         renderOrder = ['Explosion',
                        'TimeLimitExceedStamp',
                        'MagicCircle',
