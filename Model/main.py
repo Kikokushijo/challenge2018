@@ -205,14 +205,14 @@ class GameEngine(object):
 
 
     def bomb(self,index):
-        i = index + 1
+        i = index*2 + 1
         pos = (viewConst.GameSize[0] + viewConst.GameSize[1] // (modelConst.PlayerNum * 2), viewConst.GameSize[1] // (modelConst.PlayerNum * 2) * i)
         radius = int(viewConst.GameSize[1] // (modelConst.PlayerNum * 2) * 0.7)
         self.bullet_list.append(Bullet(pos, (self.player_list[index].pos - pos).normalize(), index, radius,modelConst.bomb_speed, modelConst.bomb_a) )
         self.have_scoreboard[index] = False
     def can_use_skill(self, index):
         player = self.player_list[index]
-        return self.ticks > 200 and player.is_alive and self.endgame_ticks == 0
+        return (self.ticks > 200) and player.is_alive and (self.endgame_ticks == 0)
     def notify(self, event):
         """
         Called by an event in the message queue. 
@@ -230,7 +230,7 @@ class GameEngine(object):
             number = event.number
             player = self.player_list[event.PlayerIndex]
             cur_state = self.state.peek()
-            if cur_state not in [STATE_PLAY, STATE_CUTIN]:
+            if (cur_state not in [STATE_PLAY, STATE_CUTIN]) or not self.can_use_skill(player.index):
                 return
             if cur_state == STATE_PLAY:
                 self.evManager.Post(Event_CutIn(player.index,number))

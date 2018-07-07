@@ -207,9 +207,11 @@ class GraphicalView(object):
 
     def drawGrav(self):
         color = (*self.model.player_list[self.model.grav_index].color, 32) if self.model.grav_index != -1 else viewConst.gravColor
+        #print(color)
         for g in modelConst.grav:
             pos = tuple(map(int, g[0]))
             radius = int(g[1] + modelConst.head_radius * 0.5)
+            #print(color)
             gfxdraw.filled_circle(self.screen, *pos,
                                   radius, color)
             gfxdraw.filled_circle(self.screen, *pos,
