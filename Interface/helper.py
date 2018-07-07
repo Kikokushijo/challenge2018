@@ -49,7 +49,7 @@ class Helper(object):
     def getBallNumInRange(self, center, radius):
         count = 0
         for wb in self.model.wb_list:
-            if (wb.pos - center).length_squared() <= radius ** 2:
+            if wb.target == -1 and (wb.pos - center).length_squared() <= radius ** 2:
                 count += 1
         return count
 
@@ -63,14 +63,22 @@ class Helper(object):
         return count
 
     def getAllBallsPos(self):
-        return [Vec(wb.pos) for wb in self.model.wb_list]
+        return [Vec(wb.pos) for wb in self.model.wb_list if wb.target == -1]
 
-    def getExplosionPos(self):
-        return [Vec(item.pos) for item in self.model.Item_list]
+    def getExplosivePos(self):
+        return [Vec(item.pos) for item in self.model.Item_list if item.type == PROP_TYPE_EXPLOSIVE]
+
+    def getMultibulletPos(self):
+        return [Vec(item.pos) for item in self.model.Item_list if item.type == PROP_TYPE_MULTIBULLET]
+
+    def getBigbulletPos(self):
+        return [Vec(item.pos) for item in self.model.Item_list if item.type == PROP_TYPE_BIGBULLET]
     
     def canGetByExplosion(Epos):
         count = 0
         for wb in self.model.wb_list:
+            if wb.target != -1:
+                continue 
             if (wb.pos - Epos).length_squared() < (modelConst.explosion_radius + modelConst.wb_radius) ** 2:
                 count += 1
         return count
@@ -83,6 +91,8 @@ class Helper(object):
         outRadius = self.model.player_list[self.index].circling_radius + modelConst.dash_radius
         count = 0
         for wb in self.model.wb_list:
+            if wb.target != -1:
+                continue 
             if (wb.pos - gPos).length_squared() > inRadius ** 2 and (wb.pos - gPos).length_squared() < outRadius ** 2:
                 count += 1
         return count
@@ -92,6 +102,8 @@ class Helper(object):
         hDir = self.getMyDir()
         count  = 0
         for wb in self.model.wb_list:
+            if wb.target != -1:
+                continue 
             inner_product = (wb.pos - hPos).dot(hDir) 
             outer_product = abs((wb.pos - hPos).cross(hDir))
             if inner_product > 0 and outer_product > 0 and outer_product < modelConst.dash_radius:
@@ -104,6 +116,8 @@ class Helper(object):
         min_pos = Vec(0, 0)
         min_dist = float('inf')
         for wb in self.model.wb_list:
+            if wb.target != -1:
+                continue 
             inner_product = (wb.pos - hPos).dot(hDir) 
             outer_product = abs((wb.pos - hPos).cross(hDir))
             if inner_product > 0 and outer_product > 0 and outer_product < modelConst.dash_radius:
@@ -120,7 +134,7 @@ class Helper(object):
         hDir = self.getMyDir()
         pos_list = []
         for index, player in enumerate(self.model.player_list):
-            if index == self.index:
+            if index == self.index or (not player.is_alive):
                 continue
             inner_product = (player.pos - hPos).dot(hDir) 
             outer_product = abs((player.pos - hPos).cross(hDir))
@@ -142,7 +156,7 @@ class Helper(object):
                     pos_list.append(Vec(body.pos))
         return pos_list
 
-    def dashOnRoute(self, pos, radius):
+    def collisionOnRoute(self, pos, radius):
         hPos = self.getMyHeadPos()
         hDir = self.getMyDir()
         inner_product = (pos - hPos).dot(hDir)
@@ -187,25 +201,43 @@ class Helper(object):
     def checkInvisible(self):
         return self.model.player_list[self.index].is_dash
 
-    def getMyShotPos(self):
-        return [Vec(bullet.pos) for bullet in self.model.bullet_list if bullet.index == self.index]
+    def getMyBulletPos(self):
+        return [(Vec(bullet.pos), bullet.radius) for bullet in self.model.bullet_list if bullet.index == self.index]
+
+    def getMyScore(self):
+        return self.model.score_list[self.index]
 
 
     #player info
     def getPlayerHeadPos(self, player_id):
+        if not self.model.player_list[player_id].is_alive:
+            return None
         return Vec(self.model.player_list[player_id].pos)
 
     def getPlayerBodyPos(self, player_id):
+        if not self.model.player_list[player_id].is_alive:
+            return None
         return [Vec(body.pos) for index, body in enumerate(model.player_list[player_id].body_list) if index > 0]
 
     def getPlayerDir(self, player_id):
+        if not self.model.player_list[player_id].is_alive:
+            return None
         return Vec(self.model.player_list[player_id].direction)
 
     def checkPlayerInGrav(self, player_id):
+        if not self.model.player_list[player_id].is_alive:
+            return None
         return self.model.player_list[player_id].is_ingrav
 
     def checktPlayerInvisible(self, player_id):
+        if not self.model.player_list[player_id].is_alive:
+            return None
         return self.model.player_list[player_id].is_dash
 
-    def getPlayerShotPos(self, player_id):
-        return [Vec(bullet.pos) for bullet in self.model.bullet_list if bullet.index == player_id]
+    def getAllPlayerBulletPos(self):
+        return [(bullet.index, Vec(bullet.pos), bullet.radius) for bullet in self.model.bullet_list if bullet.index != self.index]
+
+    def getPlayerScore(self, player_id):
+        if not self.model.player_list[player_id].is_alive:
+            return None
+        return self.model.score_list[player_id]
