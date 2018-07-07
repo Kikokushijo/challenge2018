@@ -70,19 +70,23 @@ itemGenerationTime        = 60
 # phrase3 : silouette runs left
 # phrase4 : flash
 # phrase5 : silouette becomes picture, and big picture appears
-skillCardCutInTime        = 140
-skillCardCutInTimePhrase1 = 20
-skillCardCutInTimePhrase2 = 20
-skillCardCutInTimePhrase3 = 40
-skillCardCutInTimePhrase4 = 20
-skillCardCutInTimePhrase5 = 40
-skillCardCutInTimestep1   = 120
-skillCardCutInTimestep2   = 100
-skillCardCutInTimestep3   = 60
-skillCardCutInTimestep4   = 40
-skillCardCutInPicSize     = (229, 232)
-skillCardScaleRate        = 0.75
-skillCardCutInPicScaledSize = tuple([int(x * skillCardScaleRate) for x in skillCardCutInPicSize])
+skillCardCutInTime         = 140
+skillCardCutInTimePhrase1  = 20
+skillCardCutInTimePhrase2  = 20
+skillCardCutInTimePhrase3  = 40
+skillCardCutInTimePhrase4  = 20
+skillCardCutInTimePhrase5  = 40
+
+skillCardCutInTimestep1    = skillCardCutInTime - skillCardCutInTimePhrase1
+skillCardCutInTimestep2    = skillCardCutInTimestep1 - skillCardCutInTimePhrase2
+skillCardCutInTimestep3    = skillCardCutInTimestep2 - skillCardCutInTimePhrase3
+skillCardCutInTimestep4    = skillCardCutInTimestep3 - skillCardCutInTimePhrase4
+skillCardCutInTimestep5    = skillCardCutInTimestep4 - skillCardCutInTimePhrase5
+skillCardCutInPicSize      = (229, 232)
+skillCardSmallScaleRate    = 1.0
+skillCardCutInPicSmallSize = tuple([int(x * skillCardSmallScaleRate) for x in skillCardCutInPicSize])
+skillCardLargeScaleRate    = 1.5
+skillCardCutInPicLargeSize = tuple([int(x * skillCardLargeScaleRate) for x in skillCardCutInPicSize])
 
 # Font
 teamNameFont       = 'View/Font/Noto/NotoSansCJK-Black.ttc'

@@ -65,16 +65,16 @@ class Interface(object):
                     signal.setitimer(signal.ITIMER_REAL, 0.001)
                     start_time = time()
                     AI_Dir = self.playerAI[player.index].decide()
-                    # print('player:', idx, time() - start_time)
+                    print('player:', idx, time() - start_time)
                     if AI_Dir == AI.AI_MoveWayChange:
                         self.evManager.Post(Event_MoveWayChange(player.index))
                     elif AI_Dir == AI.AI_Skill:
-                        self.evManager.Post(Evenet_SkillCard(player.index, 'test'))
+                        self.evManager.Post(Event_Skill(player.index, 0))
+                    signal.setitimer(signal.ITIMER_REAL, 0)
                 except signal.ItimerError:
                     # print('TimeOut: %s' % player.name)
                     self.evManager.Post(Event_TimeLimitExceed(player.index))
                 finally:
-                    signal.setitimer(signal.ITIMER_REAL, 0)
                     signal.signal(signal.SIGALRM, signal.SIG_DFL)
 
 
