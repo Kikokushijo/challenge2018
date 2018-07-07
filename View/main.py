@@ -331,20 +331,21 @@ class GraphicalView(object):
             self.blit_at_center(teamScore, thermometer.pos)
 
     def drawRenderObject(self):
-        for instance in self.renderObjects:
-            if isinstance(instance, renderObject.Explosion):
-                self.drawExplosion(instance)
-            elif isinstance(instance, renderObject.TimeLimitExceedStamp):
-                self.drawTimeLimitExceedStamp(instance)
-            elif isinstance(instance, renderObject.MagicCircle):
-                self.drawMagicCircle(instance)
-            elif isinstance(instance, renderObject.CountDown):
-                self.drawCountDown(instance)
-            elif isinstance(instance, renderObject.MovingScore):
-                self.drawMovingScore(instance)
-            elif isinstance(instance, renderObject.Thermometer):
-                self.drawThermometer(instance)
-            instance.update()
+        renderOrder = ['Explosion',
+                       'TimeLimitExceedStamp',
+                       'MagicCircle',
+                       'CountDown',
+                       'MovingScore',
+                       'Thermometer']
+        renderOrderMap = {name : i for i, name in enumerate(renderOrder)}
+        sortedRenderObjects = [[] for i in range(len(renderOrder))]
+        for x in self.renderObjects:
+            sortedRenderObjects[renderOrderMap[type(x).__name__]].append(x)
+        for i, renderObjects in enumerate(sortedRenderObjects):
+            drawMethod = getattr(self, 'draw' + renderOrder[i])
+            for instance in renderObjects:
+                drawMethod(instance)
+                instance.update()
         self.renderObjects[:] = [x for x in self.renderObjects if x.immortal or x.time > 0]
 
     def render_play(self):
