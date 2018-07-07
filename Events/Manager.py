@@ -101,6 +101,14 @@ class Event_Skill(BaseEvent):
     def __str__(self):
         return "{0} => Playerindex={1}".format(self.name, self.PlayerIndex)
 
+class Event_CutIn(BaseEvent):
+    
+    def __init__(self, player, number):
+        self.name = "CutIn Event"
+        self.PlayerIndex = player
+        self.number = number
+    def __str__(self):
+        return "{0} => Playerindex={1}".format(self.name, self.PlayerIndex)
 
 class Event_EveryTick(BaseEvent):
     """
