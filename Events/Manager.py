@@ -92,11 +92,16 @@ class Event_PlayerKilled(BaseEvent):
     def __str__(self):
         return "{0} => Playerindex={1} , Killed at {2}".format(self.name, self.PlayerIndex, self.pos)
 
-class Event_GameOver(BaseEvent):
-    def __init__ (self):
-        self.name = "GameOver event"
+class Event_Skill(BaseEvent):
+    
+    def __init__(self, player, number):
+        self.name = "Skill Event"
+        self.PlayerIndex = player
+        self.number = number
     def __str__(self):
-        return self.name
+        return "{0} => Playerindex={1}".format(self.name, self.PlayerIndex)
+
+
 class Event_EveryTick(BaseEvent):
     """
     Tick event.

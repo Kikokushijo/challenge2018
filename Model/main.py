@@ -198,6 +198,20 @@ class GameEngine(object):
             cur_state = self.state.peek()
             if cur_state == STATE_PLAY:
                 self.player_list[event.PlayerIndex].click(self.bullet_list,self.wb_list)
+        elif isinstance(event, Event_Skill):
+            number = event.number
+            player = self.player_list[event.PlayerIndex]
+            if self.state.peek() != STATE_PLAY:
+                return
+            if number == 1:
+                self.item_list.append(Explosive(self.evManager, player.pos))
+            elif number == 2:
+                self.item_list.append(Multibullet(player.pos))
+            elif number == 3:
+                self.item_list.append(Bigbullet(player.pos))
+            elif number == 4:
+                player.blast(self.bullet_list)
+            
         elif isinstance(event, Event_StateChange):
             # if event.state is None >> pop state.
             if event.state is None:

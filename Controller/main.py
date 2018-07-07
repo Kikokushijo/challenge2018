@@ -92,6 +92,14 @@ class Control(object):
                 self.evManager.Post(Event_MoveWayChange(2))
             elif event.key == pg.K_l and (not self.model.player_list[3].is_AI) :
                 self.evManager.Post(Event_MoveWayChange(3))
+            elif event.key == pg.K_s and (not self.model.player_list[0].is_AI) :
+                self.evManager.Post(Event_Skill(0,1))
+            elif event.key == pg.K_d and (not self.model.player_list[0].is_AI) :
+                self.evManager.Post(Event_Skill(0,2))
+            elif event.key == pg.K_f and (not self.model.player_list[0].is_AI) :
+                self.evManager.Post(Event_Skill(0,3))
+            elif event.key == pg.K_g and (not self.model.player_list[0].is_AI) :
+                self.evManager.Post(Event_Skill(0,4))
 
                 # DirKeys = self.ControlKeys[player.index][0:4]
                 # if event.key in DirKeys:
