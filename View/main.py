@@ -98,6 +98,7 @@ class GraphicalView(object):
         pg.init();
         pg.display.set_caption(viewConst.GameCaption)
         self.screen = pg.display.set_mode(viewConst.ScreenSize)
+        self.screen.convert_alpha()
         self.clock = pg.time.Clock()
         self.smallfont = pg.font.Font(None, 40)
         self.teamNameFont = pg.font.Font(viewConst.teamNameFont, viewConst.teamNameFontSize)
@@ -228,6 +229,8 @@ class GraphicalView(object):
                                   radius, color)
             gfxdraw.filled_circle(self.screen, *pos,
                                   int(radius * 0.07), viewConst.bgColor)
+            # gfxdraw.filled_circle(self.screen, *pos,
+            #                      radius, (85,107,47,111))
 
     def drawWhiteBall(self):
         for wb in self.model.wb_list:
