@@ -449,9 +449,9 @@ class GraphicalView(object):
         xblocks = range(0, 800, 40)
         yblocks = range(0, 800, 40)
         for x in xblocks:
-            xpos = (x + (math.sin(self.anim + x * .01) * 15)) + 40
+            xpos = (x + (math.sin(self.anim + x * .01) * 15)) + 15
             for y in yblocks:
-                ypos = (y + (math.sin(self.anim + y * .01) * 15)) + 40
+                ypos = (y + (math.sin(self.anim + y * .01) * 15)) + 15
                 self.renderSurface.blit(self.gameSurface, (x, y), (xpos, ypos, 40, 40))
 
     def drawNyanCat(self):
