@@ -463,6 +463,36 @@ class GraphicalView(object):
             pos = (pos[0] - tail.get_size()[0], pos[1])
             self.blit_at_center(self.renderSurface, tail, pos)
 
+    def drawExplosionLen(self):
+        self.anim += 0.02
+        radius = self.anim * 60
+        pos = (400, 400)
+        def wave(p, r):
+            r1 = pg.math.Vector2(400, 400)
+            r2 = pg.math.Vector2(p)
+            r3 = r2 - r1
+            # if r3.length() < r and r > 0:
+            #     r3 *= math.sin(r3.length() / r * math.pi / 2)
+            #     newPos = r1 + r3
+            #     return tuple(map(int, newPos))
+            if 0 < r - r3.length() < 40 and r3.length() > 0:
+                r4 = r3
+                r4.scale_to_length(r)
+                r3 += 0.9 * (r4 - r3) * math.sin((r - r3.length()) / 40 * math.pi / 2)
+                newPos = r1 + r3
+                return tuple(map(int, newPos))
+            else:
+                return p
+        color = (*viewConst.Color_Darkolivegreen, 48)
+        gfxdraw.filled_circle(self.gameSurface, *pos, int(radius), color)
+
+        xblocks = range(0, 800, 10)
+        yblocks = range(0, 800, 10)
+        for x in xblocks:
+            for y in yblocks:
+                pos2 = wave((x, y), radius)
+                self.renderSurface.blit(self.gameSurface, (x, y), (*pos2, 10, 10))
+
     def render_play(self):
         """
         Render the game play.
@@ -486,13 +516,18 @@ class GraphicalView(object):
         self.drawBullet()
         self.drawRenderObject()
 
-        self.rainbowGameSurface()
-        self.undulateGameSurface()
-        self.drawNyanCat()
+        # self.rainbowGameSurface()
+        # self.undulateGameSurface()
+        # self.drawNyanCat()
+        if self.anim * 60 > 400 * 1.5 and int(self.anim * 60 / 5) % 24 == 0:
+            tmpGameSurface = pg.transform.laplacian(self.gameSurface)
+            self.gameSurface = tmpGameSurface
+        self.drawExplosionLen()
         
         #tempGameSurface = pg.transform.scale(self.gameSurface, (400, 800))
         
         #self.renderSurface.blit(tempGameSurface, (0, 0))
+        #self.renderSurface.blit(self.gameSurface, (0, 0))
         self.screen.blit(self.renderSurface, (0, 0))
         # To be decided: update merely the game window or the whole screen?
         pg.display.flip()
