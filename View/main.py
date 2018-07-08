@@ -98,7 +98,6 @@ class GraphicalView(object):
         Set up the pygame graphical display and loads graphical resources.
         """
         pg.init();
-        pg.mixer.quit(); # should be removed if sound or music is required
         pg.display.set_caption(viewConst.GameCaption)
         self.screen = pg.display.set_mode(viewConst.ScreenSize)
         self.renderSurface = pg.Surface(viewConst.ScreenSize)
