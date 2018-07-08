@@ -454,6 +454,15 @@ class GraphicalView(object):
                 ypos = (y + (math.sin(self.anim + y * .01) * 15)) + 40
                 self.renderSurface.blit(self.gameSurface, (x, y), (xpos, ypos, 40, 40))
 
+    def drawNyanCat(self):
+        cat = pg.transform.rotozoom(pg.image.load('View/Image/nyancat.png').convert_alpha(), 0, 0.5)
+        tail = pg.transform.rotozoom(pg.image.load('View/Image/nyancattail.png').convert_alpha(), 0, 0.5)
+        pos = (int(self.anim * 30), 400)
+        self.blit_at_center(self.renderSurface, cat, pos)
+        while pos[0] > 0:
+            pos = (pos[0] - tail.get_size()[0], pos[1])
+            self.blit_at_center(self.renderSurface, tail, pos)
+
     def render_play(self):
         """
         Render the game play.
@@ -479,6 +488,7 @@ class GraphicalView(object):
 
         self.rainbowGameSurface()
         self.undulateGameSurface()
+        self.drawNyanCat()
         
         #tempGameSurface = pg.transform.scale(self.gameSurface, (400, 800))
         
