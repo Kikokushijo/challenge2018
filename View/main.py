@@ -1,6 +1,6 @@
 import pygame as pg
 import pygame.gfxdraw as gfxdraw
-import math
+import math, random
 
 import Model.main as model
 from Events.Manager import *
@@ -488,10 +488,13 @@ class GraphicalView(object):
 
         xblocks = range(0, 800, 10)
         yblocks = range(0, 800, 10)
+        tempGameSurface = pg.Surface(viewConst.GameSize)
+        tempGameSurface.fill(viewConst.bgColor)
         for x in xblocks:
             for y in yblocks:
                 pos2 = wave((x, y), radius)
-                self.renderSurface.blit(self.gameSurface, (x, y), (*pos2, 10, 10))
+                tempGameSurface.blit(self.gameSurface, (x, y), (*pos2, 10, 10))
+        return tempGameSurface
 
     def render_play(self):
         """
@@ -520,14 +523,19 @@ class GraphicalView(object):
         # self.undulateGameSurface()
         # self.drawNyanCat()
         if self.anim * 60 > 400 * 1.5 and int(self.anim * 60 / 5) % 24 == 0:
-            tmpGameSurface = pg.transform.laplacian(self.gameSurface)
-            self.gameSurface = tmpGameSurface
-        self.drawExplosionLen()
+            tempGameSurface = pg.transform.laplacian(self.gameSurface)
+            self.gameSurface = tempGameSurface
+        tempGameSurface = self.drawExplosionLen()
         
         #tempGameSurface = pg.transform.scale(self.gameSurface, (400, 800))
         
         #self.renderSurface.blit(tempGameSurface, (0, 0))
         #self.renderSurface.blit(self.gameSurface, (0, 0))
+        if self.anim * 60 < 400 * 1.4:
+            shift = tuple([random.randint(-10, 10) for i in range(2)])
+            self.renderSurface.blit(tempGameSurface, shift)
+        else:
+            self.renderSurface.blit(tempGameSurface, (0, 0))
         self.screen.blit(self.renderSurface, (0, 0))
         # To be decided: update merely the game window or the whole screen?
         pg.display.flip()
