@@ -109,3 +109,12 @@ class Nyancat(RenderObject):
     """
     def __init__(self, pos, time):
         super().__init__(pos, time, False)
+
+class HyperdimensionalExplosion(RenderObject):
+    """
+    ???????????????????????????????????
+    """
+    def __init__(self, index, pos, time, isdisplay):
+        super().__init__(pos, time, False)
+        self.index = index
+        self.isdisplay = isdisplay
