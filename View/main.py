@@ -101,7 +101,7 @@ class GraphicalView(object):
         pg.display.set_caption(viewConst.GameCaption)
         self.screen = pg.display.set_mode(viewConst.ScreenSize)
         self.renderSurface = pg.Surface(viewConst.ScreenSize)
-        self.gameSurface = pg.Surface(viewConst.ScreenSize)
+        self.gameSurface = pg.Surface(viewConst.GameSize)
         self.anim = 0.0
 
         self.clock = pg.time.Clock()
