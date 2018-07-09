@@ -80,7 +80,7 @@ class GraphicalView(object):
             if self.has_cutin:
                 self.renderObjects.append(renderObject.SkillCardCutIn(event.PlayerIndex, pos, viewConst.skillCardCutInTime, event.number, isdisplay=True))
             else:
-                self.renderObjects.append(renderObject.SkillCardCutIn(event.PlayerIndex, pos, 0, event.number, isdisplay=False))
+                self.renderObjects.append(renderObject.SkillCardCutIn(event.PlayerIndex, pos, 1, event.number, isdisplay=False))
         elif isinstance(event, Event_Quit):
             # shut down the pygame graphics
             self.is_initialized = False
