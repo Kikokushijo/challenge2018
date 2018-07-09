@@ -33,6 +33,7 @@ class GraphicalView(object):
         self.smallfont = None
         self.renderObjects = None
 
+        self.titleFont = None
         self.teamNameFont = None
         self.teamLengthFont = None
         self.teamScoreFont = None
@@ -118,6 +119,7 @@ class GraphicalView(object):
 
         self.clock = pg.time.Clock()
         self.smallfont = pg.font.Font(None, 40)
+        self.titleFont = pg.font.Font(viewConst.titleFont, viewConst.titleFontSize)
         self.teamNameFont = pg.font.Font(viewConst.teamNameFont, viewConst.teamNameFontSize)
         self.teamLengthFont = pg.font.Font(viewConst.teamLengthFont, viewConst.teamLengthFontSize)
         self.teamScoreFont = pg.font.Font(viewConst.teamScoreFont, viewConst.teamScoreFontSize)
@@ -181,9 +183,9 @@ class GraphicalView(object):
             # draw backgound
             self.screen.fill(viewConst.Color_Black)
             # write some word
-            somewords = self.smallfont.render(
-                        'You are in the Menu. Space to play. Esc exits.', 
-                        True, (0, 255, 0))
+            somewords = self.titleFont.render(
+                        'Quantum\nVortex', 
+                        True, (255, 255, 255))
             (SurfaceX, SurfaceY) = somewords.get_size()
             pos_x = (viewConst.ScreenSize[0] - SurfaceX)/2
             pos_y = (viewConst.ScreenSize[1] - SurfaceY)/2

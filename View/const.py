@@ -90,6 +90,9 @@ thermometerBallSize = 80
 thermometerBarWidth = 40
 
 # Font
+titleFont          = 'View/Font/makinas_scrap/Makinas-Scrap-5.otf'
+titleFontSize      = 200
+
 teamNameFont       = 'View/Font/Noto/NotoSansCJK-Black.ttc'
 teamNameFontSize   = 20
 
