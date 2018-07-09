@@ -47,6 +47,7 @@ class GraphicalView(object):
         self.last_update = 0
 
         self.has_cutin = cutin
+        self.vibration = None
         print('Init', cutin)
     
     def notify(self, event):
@@ -86,6 +87,8 @@ class GraphicalView(object):
                 self.renderObjects.append(renderObject.SkillCardCutIn(event.PlayerIndex, pos, viewConst.skillCardCutInTime, event.number, isdisplay=True))
                 if event.number == 6:
                     self.renderObjects.append(renderObject.Rainbow(event.PlayerIndex, (0, 0), 510, True))
+                elif event.number == 7:
+                    self.renderObjects.append(renderObject.HyperdimensionalExplosion(event.PlayerIndex, self.model.player_list[event.PlayerIndex].pos, 450, True))
             else:
                 self.renderObjects.append(renderObject.SkillCardCutIn(event.PlayerIndex, pos, 0, event.number, isdisplay=False))
         elif isinstance(event, Event_Quit):
@@ -122,6 +125,8 @@ class GraphicalView(object):
         self.tmpScoreFont = pg.font.Font(viewConst.tmpScoreFont, viewConst.tmpScoreFontSize)
 
         self.renderObjects = []
+
+        self.vibration = False
 
         self.magicCircleImage = pg.image.load('View/Image/magicCircle.png').convert_alpha()
         self.rainbowImage = pg.transform.scale(pg.image.load('View/Image/rainbow.jpg').convert(), viewConst.GameSize)
@@ -481,8 +486,8 @@ class GraphicalView(object):
             self.blit_at_center(self.gameSurface, self.nyanCatTailImage, pos)
 
     def drawRainbow(self, rainbow):
-        # phase 0
         time = rainbow.totaltime - rainbow.time
+        # phase 0
         if time == 120:
             ypos = random.sample([i for i in range(100, 700 + 1, 100)], 5)
             for i in range(5):
@@ -497,6 +502,50 @@ class GraphicalView(object):
             self.renderObjects.append(renderObject.Iridescence((0, 0), 60, True))
             self.renderObjects.append(renderObject.Undulation((0, 0), 60, 20, 0.25, 1, True))
 
+    def drawHyperdimensionalExplosion(self, hyperdimensionalExplosion):
+        time = hyperdimensionalExplosion.totaltime - hyperdimensionalExplosion.time
+        radius = min((time - 120) / 240 * 800 * 1.45, 800 * 1.45)
+        pos = tuple(map(int, hyperdimensionalExplosion.pos))
+        color = (*self.model.player_list[hyperdimensionalExplosion.index].color, 48)
+        def waveFunc(p, r):
+            r1 = pg.math.Vector2(pos)
+            r2 = pg.math.Vector2(p)
+            r3 = r2 - r1
+            # if r3.length() < r and r > 0:
+            #     r3 *= math.sin(r3.length() / r * math.pi / 2)
+            #     newPos = r1 + r3
+            #     return tuple(map(int, newPos))
+            if 0 < r - r3.length() < 40 and r3.length() > 0:
+                r4 = r3
+                r4.scale_to_length(r)
+                r3 += 0.9 * (r4 - r3) * math.sin((r - r3.length()) / 40 * math.pi / 2)
+                newPos = r1 + r3
+                return tuple(map(int, newPos))
+            else:
+                return p
+        # phase 1
+        if 120 <= time <= 120 + 240:
+            self.vibration = True
+            gfxdraw.filled_circle(self.gameSurface, *pos, int(radius), color)
+
+            tempGameSurface = pg.Surface(viewConst.GameSize)
+            tempGameSurface.fill(viewConst.bgColor)
+            xblocks = range(0, 800, 10)
+            yblocks = range(0, 800, 10)
+            for x in xblocks:
+                for y in yblocks:
+                    pos2 = waveFunc((x, y), radius)
+                    tempGameSurface.blit(self.gameSurface, (x, y), (*pos2, 10, 10))
+            self.gameSurface = tempGameSurface
+        # phase 2
+        elif 120 + 240 <= time <= 120 + 240 + 30:
+            self.vibration = False
+            gfxdraw.filled_circle(self.gameSurface, *pos, int(radius), color)
+        # phase 3
+        elif 120 + 240 + 30 <= time:
+            color = (color[0], color[1], color[2], int(color[3] * (1 - (time - 120 - 240 - 30) / 60)))
+            gfxdraw.filled_circle(self.gameSurface, *pos, int(radius), color)
+
     def drawRenderObject(self):
 
         renderOrder = ['Explosion',
@@ -509,6 +558,7 @@ class GraphicalView(object):
                        'Undulation',
                        'Nyancat',
                        'Rainbow',
+                       'HyperdimensionalExplosion',
                        'SkillCardCutIn']
         renderOrderMap = {name : i for i, name in enumerate(renderOrder)}
         sortedRenderObjects = [[] for i in range(len(renderOrder))]
@@ -521,10 +571,12 @@ class GraphicalView(object):
                 drawMethod(instance)
                 instance.update()
 
-                if isinstance(instance, renderObject.SkillCardCutIn) and instance.skill not in [6] and instance.time <= 0:
-                        self.evManager.Post(Event_Skill(instance.index, instance.skill))
-                elif isinstance(instance, renderObject.Rainbow) and instance.totaltime - instance.time == 120 + 310:
+                if isinstance(instance, renderObject.SkillCardCutIn) and instance.skill not in [6, 7] and instance.time <= 0:
+                    self.evManager.Post(Event_Skill(instance.index, instance.skill))
+                elif isinstance(instance, renderObject.Rainbow) and instance.totaltime - instance.time == 120 + 320:
                     self.evManager.Post(Event_Skill(instance.index, 6))
+                elif isinstance(instance, renderObject.HyperdimensionalExplosion) and instance.totaltime - instance.time == 120 + 240 + 30:
+                    self.evManager.Post(Event_Skill(instance.index, 7))
 
         self.renderObjects[:] = [x for x in self.renderObjects if x.immortal or x.time > 0]
 
@@ -551,7 +603,11 @@ class GraphicalView(object):
         self.drawBullet()
         self.drawRenderObject()
 
-        self.renderSurface.blit(self.gameSurface, (0, 0))
+        if self.vibration:
+            shift = tuple([random.randint(-10, 10) for i in [127, 127]])
+            self.renderSurface.blit(self.gameSurface, shift)
+        else:
+            self.renderSurface.blit(self.gameSurface, (0, 0))
         self.screen.blit(self.renderSurface, (0, 0))
 
         pg.display.flip()
