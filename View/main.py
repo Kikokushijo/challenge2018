@@ -484,8 +484,9 @@ class GraphicalView(object):
         # phase 0
         time = rainbow.totaltime - rainbow.time
         if time == 120:
-            for i in range(7):
-                pos = (random.randint(-400, 0), random.randint(100, 700))
+            ypos = random.sample([i for i in range(100, 700 + 1, 100)], 5)
+            for i in range(5):
+                pos = (random.randint(-400, 0), ypos[i])
                 self.renderObjects.append(renderObject.Nyancat(pos, 180))
         # phase 1
         if time == 120 + 90:
