@@ -74,3 +74,47 @@ class Thermometer(RenderObject):
         self.index = index
         self.color = color
         self.value = value
+
+class Rainbow(RenderObject):
+    """
+    Rainbow mode visual effect.
+    """
+    def __init__(self, index, pos, time, isdisplay):
+        super().__init__(pos, time, False)
+        self.index = index
+        self.isdisplay = isdisplay
+
+class Iridescence(RenderObject):
+    """
+    Psychodelic visual effect.
+    """
+    def __init__(self, pos, time, reverse=False):
+        super().__init__(pos, time, False)
+        self.reverse = reverse
+
+class Undulation(RenderObject):
+    """
+    Schrodinger's legerdemain.
+    """
+    def __init__(self, pos, time, amplitude, frequency, quantumNumber, reverse=False):
+        super().__init__(pos, time, False)
+        self.amplitude = amplitude
+        self.frequency = frequency
+        self.quantumNumber = quantumNumber
+        self.reverse = reverse
+
+class Nyancat(RenderObject):
+    """
+    Hyperdimensional particle.
+    """
+    def __init__(self, pos, time):
+        super().__init__(pos, time, False)
+
+class HyperdimensionalExplosion(RenderObject):
+    """
+    ???????????????????????????????????
+    """
+    def __init__(self, index, pos, time, isdisplay):
+        super().__init__(pos, time, False)
+        self.index = index
+        self.isdisplay = isdisplay
