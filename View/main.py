@@ -90,7 +90,7 @@ class GraphicalView(object):
                 elif event.number == 7:
                     self.renderObjects.append(renderObject.HyperdimensionalExplosion(event.PlayerIndex, self.model.player_list[event.PlayerIndex].pos, 450, True))
             else:
-                self.renderObjects.append(renderObject.SkillCardCutIn(event.PlayerIndex, pos, 0, event.number, isdisplay=False))
+                self.renderObjects.append(renderObject.SkillCardCutIn(event.PlayerIndex, pos, 1, event.number, isdisplay=False))
         elif isinstance(event, Event_Quit):
             # shut down the pygame graphics
             self.is_initialized = False
