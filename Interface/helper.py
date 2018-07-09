@@ -199,8 +199,11 @@ class Helper(object):
         hDir = self.getMyDir()
         return tuple(Vec(hPos + modelConst.dash_speed * self.model.player_list[self.index].dash_timer * hDir))
 
-    def getDashRemainTime(self):
+    def getMyDashRemainTime(self):
         return self.model.player_list[self.index].dash_timer
+
+    def getMyDashCoolRemainTime(self):
+        return self.model.player_list[self.index].dash_cool
 
     def checkMeInGrav(self):
         return self.model.player_list[self.index].is_ingrav
@@ -214,8 +217,9 @@ class Helper(object):
     def getMyCirclingRadius(self):
         return self.model.player_list[self.index].circling_radius
 
-    def getMyBulletPos(self):
-        return tuple([(Vec(bullet.pos), bullet.radius) for bullet in self.model.bullet_list if bullet.index == self.index])
+    def getMyBullet(self):
+        return tuple([(Vec(bullet.pos), tuple(Vec(bullet.direction)), bullet.radius, bullet.speed) 
+                for bullet in self.model.bullet_list if bullet.index == self.index])
 
     def getMyScore(self):
         return self.model.score_list[self.index]
@@ -237,6 +241,16 @@ class Helper(object):
             return None
         return tuple(Vec(self.model.player_list[player_id].direction))
 
+    def getPlayerDashRemainTime(self, player_id):
+        if not self.model.player_list[player_id].is_alive:
+            return None
+        return self.model.player_list[player_id].dash_timer
+
+    def getPlayerDashCoolRemainTime(self, player_id):
+        if not self.model.player_list[player_id].is_alive:
+            return None
+        return self.model.player_list[player_id].dash_cool
+
     def checkPlayerInGrav(self, player_id):
         if not self.model.player_list[player_id].is_alive:
             return None
@@ -246,14 +260,20 @@ class Helper(object):
         if not self.model.player_list[player_id].is_alive:
             return None
         return self.model.player_list[player_id].is_dash
-
-    def getPlayerCirclingRadius(self, player_id):
-        return model.player_list[player_id].circling_radius
-
-    def getAllPlayerBulletPos(self):
-        return [(bullet.index, tuple(Vec(bullet.pos)), bullet.radius) for bullet in self.model.bullet_list if bullet.index != self.index]
-
-    def getPlayerScore(self, player_id):
+    
+    def checkPlayerCircling(self, player_id):
         if not self.model.player_list[player_id].is_alive:
             return None
+        return self.model.player_list[player_id].is_circling
+
+    def getPlayerCirclingRadius(self, player_id):
+        if not self.model.player_list[player_id].is_alive:
+            return None
+        return model.player_list[player_id].circling_radius
+
+    def getAllPlayerBullet(self):
+        return [(bullet.index, tuple(Vec(bullet.pos)), tuple(Vec(bullet.direction)), bullet.radius, bullet.speed) 
+                for bullet in self.model.bullet_list if bullet.index != self.index]
+
+    def getPlayerScore(self, player_id):
         return self.model.score_list[player_id]
