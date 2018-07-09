@@ -1,6 +1,6 @@
 import pygame as pg
 import pygame.gfxdraw as gfxdraw
-import math
+import math, random
 import sys
 
 import Model.main as model
@@ -40,6 +40,9 @@ class GraphicalView(object):
         self.tmpScoreFont = None
 
         self.magicCircleImage = None
+        self.rainbowImage = None
+        self.nyanCatImage = None
+        self.nyanCatTailImage = None
 
         self.last_update = 0
 
@@ -81,6 +84,8 @@ class GraphicalView(object):
             pos = tuple([x // 2 for x in viewConst.GameSize])
             if self.has_cutin:
                 self.renderObjects.append(renderObject.SkillCardCutIn(event.PlayerIndex, pos, viewConst.skillCardCutInTime, event.number, isdisplay=True))
+                if event.number == 6:
+                    self.renderObjects.append(renderObject.Rainbow(event.PlayerIndex, (0, 0), 510, True))
             else:
                 self.renderObjects.append(renderObject.SkillCardCutIn(event.PlayerIndex, pos, 0, event.number, isdisplay=False))
         elif isinstance(event, Event_Quit):
@@ -119,6 +124,9 @@ class GraphicalView(object):
         self.renderObjects = []
 
         self.magicCircleImage = pg.image.load('View/Image/magicCircle.png').convert_alpha()
+        self.rainbowImage = pg.transform.scale(pg.image.load('View/Image/rainbow.jpg').convert(), viewConst.GameSize)
+        self.nyanCatImage = pg.transform.rotozoom(pg.image.load('View/Image/nyancat.png').convert_alpha(), 0, 0.5)
+        self.nyanCatTailImage = pg.transform.rotozoom(pg.image.load('View/Image/nyancattail.png').convert_alpha(), 0, 0.5)
 
         self.cutInImageNames  = ['Darkviolet', 'Royalblue', 'Saddlebrown', 'Darkolivegreen']
 
@@ -438,6 +446,56 @@ class GraphicalView(object):
             teamScore = self.teamScoreFont.render(str(thermometer.value), True, color)
             self.blit_at_center(self.gameSurface, teamScore, thermometer.pos)
 
+    def drawIridescence(self, iridescence):
+        timeRatio = iridescence.time / iridescence.totaltime
+        if not iridescence.reverse:
+            timeRatio = 1 - timeRatio
+        self.rainbowImage.set_alpha(int(255 * timeRatio))
+        self.gameSurface.blit(self.rainbowImage, (0, 0))
+
+    def drawUndulation(self, undulation):
+        timeRatio = undulation.time / undulation.totaltime
+        if not undulation.reverse:
+            timeRatio = 1 - timeRatio
+        timeRatio *= 2 * math.pi * undulation.frequency
+
+        tempGameSurface = pg.Surface(viewConst.GameSize)
+        tempGameSurface.fill(viewConst.bgColor)
+        xblocks = range(0, 800, 40)
+        yblocks = range(0, 800, 40)
+        for x in xblocks:
+            xpos = x + undulation.amplitude * math.sin(timeRatio) * math.sin(x / 760 * undulation.quantumNumber * 2 * math.pi)
+            for y in yblocks:
+                ypos = y + undulation.amplitude * math.sin(timeRatio) * math.sin(y / 760 * undulation.quantumNumber * 2 * math.pi)
+                tempGameSurface.blit(self.gameSurface, (x, y), (xpos, ypos, 40, 40))
+        self.gameSurface = tempGameSurface
+
+    def drawNyancat(self, nyancat):
+        timeRatio = 1 - nyancat.time / nyancat.totaltime
+        pos = (int(1600 * timeRatio) - 400 + nyancat.pos[0], nyancat.pos[1])
+        self.blit_at_center(self.gameSurface, self.nyanCatImage, pos)
+        for i in range(3):
+            if pos[0] <= 0:
+                break
+            pos = (pos[0] - self.nyanCatTailImage.get_size()[0], pos[1])
+            self.blit_at_center(self.gameSurface, self.nyanCatTailImage, pos)
+
+    def drawRainbow(self, rainbow):
+        # phase 0
+        time = rainbow.totaltime - rainbow.time
+        if time == 120:
+            for i in range(7):
+                pos = (random.randint(-100, 0), random.randint(100, 700))
+                self.renderObjects.append(renderObject.Nyancat(pos, 180))
+        # phase 1
+        if time == 120 + 90:
+            self.renderObjects.append(renderObject.Iridescence((0, 0), 240))
+            self.renderObjects.append(renderObject.Undulation((0, 0), 240, 20, 1, 1))
+        # phase 2
+        if time == 120 + 310:
+            self.renderObjects.append(renderObject.Iridescence((0, 0), 60, True))
+            self.renderObjects.append(renderObject.Undulation((0, 0), 60, 20, 0.25, 1, True))
+
     def drawRenderObject(self):
 
         renderOrder = ['Explosion',
@@ -446,6 +504,10 @@ class GraphicalView(object):
                        'CountDown',
                        'MovingScore',
                        'Thermometer',
+                       'Iridescence',
+                       'Undulation',
+                       'Nyancat',
+                       'Rainbow',
                        'SkillCardCutIn']
         renderOrderMap = {name : i for i, name in enumerate(renderOrder)}
         sortedRenderObjects = [[] for i in range(len(renderOrder))]
@@ -458,8 +520,10 @@ class GraphicalView(object):
                 drawMethod(instance)
                 instance.update()
 
-                if isinstance(instance, renderObject.SkillCardCutIn) and instance.time <= 0:
-                    self.evManager.Post(Event_Skill(instance.index, instance.skill))
+                if isinstance(instance, renderObject.SkillCardCutIn) and instance.skill not in [6] and instance.time <= 0:
+                        self.evManager.Post(Event_Skill(instance.index, instance.skill))
+                elif isinstance(instance, renderObject.Rainbow) and instance.totaltime - instance.time == 120 + 310:
+                    self.evManager.Post(Event_Skill(instance.index, 6))
 
         self.renderObjects[:] = [x for x in self.renderObjects if x.immortal or x.time > 0]
 
