@@ -101,7 +101,7 @@ class GraphicalView(object):
         pg.display.set_caption(viewConst.GameCaption)
         self.screen = pg.display.set_mode(viewConst.ScreenSize)
         self.renderSurface = pg.Surface(viewConst.ScreenSize)
-        self.gameSurface = pg.Surface(viewConst.GameSize)
+        self.gameSurface = pg.Surface(viewConst.ScreenSize)
         self.anim = 0.0
 
         self.clock = pg.time.Clock()
@@ -290,6 +290,8 @@ class GraphicalView(object):
             pos = tuple(map(int, bullet.pos))
             gfxdraw.filled_circle(self.gameSurface, *pos,
                                   int(bullet.radius), color)
+            gfxdraw.filled_circle(self.renderSurface, *pos,
+                                  int(bullet.radius), color)
 
     def drawExplosion(self, explosion):
         color = self.model.player_list[explosion.index].color
@@ -440,7 +442,9 @@ class GraphicalView(object):
 
     def rainbowGameSurface(self):
         rainbow = pg.transform.scale(pg.image.load('View/Image/rainbow.jpg').convert(), viewConst.GameSize)
-        self.gameSurface.blit(rainbow, (0, 0), special_flags=pg.BLEND_MIN)
+        rainbow.set_alpha(int(224 - 10 * self.anim))
+        #self.gameSurface.blit(rainbow, (0, 0), special_flags=pg.BLEND_MIN)
+        self.gameSurface.blit(rainbow, (0, 0))
 
     def undulateGameSurface(self):
         self.anim += 0.02
