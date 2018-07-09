@@ -3,6 +3,13 @@ from pygame.math import Vector2 as Vec
 """
 define Application Programming Interface(API) 
 """
+def Mirroring(pos):
+    Pos = Vec(pos)
+    if (Pos.x < 0) Pos.x = -Pos.x
+    if (Pos.y < 0) Pos.y = -Pos.y
+    if (Pos.x > 800) Pos.x = 1600 - Pos.x
+    if (Pos.y > 800) Pos.y = 1600 - Pos.y 
+    return tuple(Pos)
 
 class Helper(object):
     def __init__(self, model, index):
@@ -197,7 +204,7 @@ class Helper(object):
             return None
         hPos = self.getMyHeadPos()
         hDir = self.getMyDir()
-        return tuple(Vec(hPos + modelConst.dash_speed * self.model.player_list[self.index].dash_timer * hDir))
+        return Mirroring(Vec(hPos + modelConst.dash_speed * self.model.player_list[self.index].dash_timer * hDir))
 
     def getMyDashRemainTime(self):
         return self.model.player_list[self.index].dash_timer
