@@ -16,7 +16,7 @@ class GraphicalView(object):
     """
     Draws the model state onto the screen.
     """
-    def __init__(self, evManager, model):
+    def __init__(self, evManager, model, cutin):
         """
         evManager (EventManager): Allows posting messages to the event queue.
         model (GameEngine): a strong reference to the game Model.
@@ -40,6 +40,9 @@ class GraphicalView(object):
         self.magicCircleImage = None
 
         self.last_update = 0
+
+        self.has_cutin = cutin
+        print('Init', cutin)
     
     def notify(self, event):
         """
@@ -73,9 +76,11 @@ class GraphicalView(object):
             pos = tuple([x // 2 for x in viewConst.GameSize])
             self.renderObjects.append(renderObject.MagicCircle(pos, viewConst.magicCircleGenerationTime))
         elif isinstance(event, Event_CutIn):
-            # print(event)
             pos = tuple([x // 2 for x in viewConst.GameSize])
-            self.renderObjects.append(renderObject.SkillCardCutIn(event.PlayerIndex, pos, viewConst.skillCardCutInTime, event.number))
+            if self.has_cutin:
+                self.renderObjects.append(renderObject.SkillCardCutIn(event.PlayerIndex, pos, viewConst.skillCardCutInTime, event.number, isdisplay=True))
+            else:
+                self.renderObjects.append(renderObject.SkillCardCutIn(event.PlayerIndex, pos, 0, event.number, isdisplay=False))
         elif isinstance(event, Event_Quit):
             # shut down the pygame graphics
             self.is_initialized = False
@@ -109,24 +114,35 @@ class GraphicalView(object):
         self.renderObjects = []
 
         self.magicCircleImage = pg.image.load('View/Image/magicCircle.png').convert_alpha()
-        self.cutInImage       = [(pg.image.load('View/Image/Darkviolet.png').convert_alpha(),
-                                  pg.image.load('View/Image/Darkviolet_bw.png').convert_alpha()),
-                                 (pg.image.load('View/Image/Royalblue.png').convert_alpha(),
-                                  pg.image.load('View/Image/Royalblue_bw.png').convert_alpha()),
-                                 (pg.image.load('View/Image/Saddlebrown.png').convert_alpha(),
-                                  pg.image.load('View/Image/Saddlebrown_bw.png').convert_alpha())]
+
+        self.cutInImageNames  = ['Darkviolet', 'Royalblue', 'Saddlebrown', 'Darkolivegreen']
+
+        # self.cutInImage       = [(pg.image.load('View/Image/Darkviolet.png').convert_alpha(),
+        #                           pg.image.load('View/Image/Darkviolet_bw.png').convert_alpha()),
+        #                          (pg.image.load('View/Image/Royalblue.png').convert_alpha(),
+        #                           pg.image.load('View/Image/Royalblue_bw.png').convert_alpha()),
+        #                          (pg.image.load('View/Image/Saddlebrown.png').convert_alpha(),
+        #                           pg.image.load('View/Image/Saddlebrown_bw.png').convert_alpha())]
+
+        self.cutInImage       = [(pg.image.load('View/Image/CutInImages/%s/%s.png' % (name, name)).convert_alpha(),
+                                  pg.image.load('View/Image/CutInImages/%s/%s_bw.png' % (name, name))) for name in self.cutInImageNames]
         self.cutInImageSmall = [tuple([pg.transform.scale(img1, viewConst.skillCardCutInPicSmallSize),
                                        pg.transform.scale(img2, viewConst.skillCardCutInPicSmallSize)])
                                       for img1, img2 in self.cutInImage]
-        self.cutInImageTrans1      = [pg.image.load('View/Image/Darkviolet_trans1.png').convert_alpha(),
-                                      pg.image.load('View/Image/Royalblue_trans1.png').convert_alpha(), 
-                                      pg.image.load('View/Image/Saddlebrown_trans1.png').convert_alpha()]
+        # self.cutInImageTrans1      = [pg.image.load('View/Image/Darkviolet_trans1.png').convert_alpha(),
+        #                               pg.image.load('View/Image/Royalblue_trans1.png').convert_alpha(), 
+        #                               pg.image.load('View/Image/Saddlebrown_trans1.png').convert_alpha()]
+        self.cutInImageTrans1      = [pg.image.load('View/Image/CutInImages/%s/%s_trans1.png' % (name, name)).convert_alpha()
+                                      for name in self.cutInImageNames]
         self.cutInImageTransSmall  = [pg.transform.scale(img, viewConst.skillCardCutInPicSmallSize)
                                       for img in self.cutInImageTrans1]
 
-        self.cutInImageTrans2      = [pg.image.load('View/Image/Darkviolet_trans2.png').convert_alpha(),
-                                      pg.image.load('View/Image/Royalblue_trans2.png').convert_alpha(),
-                                      pg.image.load('View/Image/Saddlebrown_trans2.png').convert_alpha()]
+        # self.cutInImageTrans2      = [pg.image.load('View/Image/Darkviolet_trans2.png').convert_alpha(),
+        #                               pg.image.load('View/Image/Royalblue_trans2.png').convert_alpha(),
+        #                               pg.image.load('View/Image/Saddlebrown_trans2.png').convert_alpha()]
+        self.cutInImageTrans2      = [pg.image.load('View/Image/CutInImages/%s/%s_trans2.png' % (name, name)).convert_alpha()
+                                      for name in self.cutInImageNames]
+
         self.cutInImageTransLarge = [pg.transform.scale(img, viewConst.skillCardCutInPicLargeSize)
                                       for img in self.cutInImageTrans2]
 
@@ -341,6 +357,11 @@ class GraphicalView(object):
         self.blit_at_center(movingScoreSurface, pos)
 
     def drawSkillCardCutIn(self, cutin):
+
+        # print(cutin.isdisplay)
+        if not cutin.isdisplay:
+            return
+
         # print('draw skill card')
         cutInSurface = pg.Surface((viewConst.GameSize[0], viewConst.GameSize[1] // 2), pg.SRCALPHA)
         cutInSurface.fill(viewConst.Color_Silver)
@@ -391,11 +412,6 @@ class GraphicalView(object):
                 cutInSurface.blit(self.cutInImageTransLarge[cutin.index],
                                   (int(sizeSurface[0] * (15 / 32 - timeRatio * 4)), viewConst.GameSize[1] // 2 - viewConst.skillCardCutInPicLargeSize[1] - 25))
 
-
-            # draw phrase 6
-            # timeRatio = 
-
-
         self.blit_at_center(cutInSurface, cutin.pos)
 
     def drawThermometer(self, thermometer):
@@ -416,29 +432,27 @@ class GraphicalView(object):
             self.blit_at_center(teamScore, thermometer.pos)
 
     def drawRenderObject(self):
-        for instance in self.renderObjects:
-            if isinstance(instance, renderObject.Explosion):
-                self.drawExplosion(instance)
-            elif isinstance(instance, renderObject.TimeLimitExceedStamp):
-                self.drawTimeLimitExceedStamp(instance)
-            elif isinstance(instance, renderObject.MagicCircle):
-                self.drawMagicCircle(instance)
-            elif isinstance(instance, renderObject.CountDown):
-                self.drawCountDown(instance)
-            elif isinstance(instance, renderObject.MovingScore):
-                self.drawMovingScore(instance)
-            elif isinstance(instance, renderObject.SkillCardCutIn):
-                if sys.argv[-1] == '--no-cutin':
-                    instance.time = 1
-                else:
-                    self.drawSkillCardCutIn(instance)
 
-            elif isinstance(instance, renderObject.Thermometer):
-                self.drawThermometer(instance)
-            instance.update()
+        renderOrder = ['Explosion',
+                       'TimeLimitExceedStamp',
+                       'MagicCircle',
+                       'CountDown',
+                       'MovingScore',
+                       'Thermometer',
+                       'SkillCardCutIn']
+        renderOrderMap = {name : i for i, name in enumerate(renderOrder)}
+        sortedRenderObjects = [[] for i in range(len(renderOrder))]
+        for x in self.renderObjects:
+            sortedRenderObjects[renderOrderMap[type(x).__name__]].append(x)
+        for i, renderObjects in enumerate(sortedRenderObjects):
+            drawMethod = getattr(self, 'draw' + renderOrder[i])
+            for instance in renderObjects:
 
-            if isinstance(instance, renderObject.SkillCardCutIn) and instance.time == 0:
-                self.evManager.Post(Event_Skill(instance.index, instance.skill))
+                drawMethod(instance)
+                instance.update()
+
+                if isinstance(instance, renderObject.SkillCardCutIn) and instance.time <= 0:
+                    self.evManager.Post(Event_Skill(instance.index, instance.skill))
 
         self.renderObjects[:] = [x for x in self.renderObjects if x.immortal or x.time > 0]
 
@@ -473,7 +487,8 @@ class GraphicalView(object):
             movingScores = [renderObject.MovingScore(i, (viewConst.GameSize[0] // 8, viewConst.GameSize[1] // 8 * (2 * i + 1)), viewConst.scoreFlagEmergeTime) for i in range(modelConst.PlayerNum)]
             self.renderObjects.extend(movingScores)
 
-        self.screen.fill(viewConst.bgColor, pg.Rect((0, 0), viewConst.GameSize))
+        self.screen.fill(viewConst.bgColor)
+        self.drawScoreboard()
         self.drawRenderObject()
         pg.display.flip()
 
@@ -488,6 +503,7 @@ class GraphicalView(object):
             thermometers = [renderObject.Thermometer(score[0], (viewConst.GameSize[0] // 8 * (2 * i + 1), viewConst.GameSize[1] // 8 * 7), viewConst.thermometerEmergeTime, self.model.player_list[score[0]].color, score[1]) for i, score in enumerate(scores)]
             self.renderObjects.extend(thermometers)
 
-        self.screen.fill(viewConst.bgColor, pg.Rect((0, 0), viewConst.GameSize))
+        self.screen.fill(viewConst.bgColor)
+        self.drawScoreboard()
         self.drawRenderObject()
         pg.display.flip()

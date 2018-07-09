@@ -59,10 +59,11 @@ class SkillCardCutIn(RenderObject):
     """
     Class for displaying cut in animation when using skill cards.
     """
-    def __init__(self, index, pos, time, skill):
+    def __init__(self, index, pos, time, skill, isdisplay):
         super().__init__(pos, time, False)
         self.index = index
         self.skill = skill
+        self.isdisplay = isdisplay
 
 class Thermometer(RenderObject):
     """

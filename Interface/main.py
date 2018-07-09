@@ -27,6 +27,9 @@ class Interface(object):
         self.playerAI = {}
 
         self.is_initAI = False
+
+        self.skill_queue = []
+        self.cutin_isdisplay = False
     
     def notify(self, event):
         """
@@ -40,9 +43,17 @@ class Interface(object):
             pass
         elif isinstance(event, Event_Initialize):
             self.initialize()
+        elif isinstance(event, Event_Skill):
+            if self.cutin_isdisplay and self.skill_queue:
+                self.cutin_isdisplay = not self.cutin_isdisplay
+                self.evManager.Post(self.skill_queue.pop(0))
+            else:
+                self.cutin_isdisplay = not self.cutin_isdisplay
     
     def API_play(self):
         # for player in self.model.player_list:
+        assert self.skill_queue == []
+        assert self.cutin_isdisplay == False
         for idx, player in enumerate(self.model.player_list):
             if player.is_AI:
                 AI_Dir = self.playerAI[player.index].decide()
@@ -50,7 +61,11 @@ class Interface(object):
                     self.evManager.Post(Event_MoveWayChange(player.index))
                 elif 2 <= AI_Dir <= 8:
                     if self.model.can_use_skill(idx) and self.playerAI[player.index].skill[AI_Dir-2] > 0:
-                        self.evManager.Post(Event_Skill(player.index, AI_Dir-1))
+                        self.playerAI[player.index].skill[AI_Dir-2] -= 1
+                        self.skill_queue.append(Event_Skill(player.index, AI_Dir-1))
+
+        if self.skill_queue:
+            self.evManager.Post(self.skill_queue.pop(0))
 
     def API_play_linux(self):
         # for player in self.model.player_list:
