@@ -486,6 +486,8 @@ class GraphicalView(object):
             self.blit_at_center(self.gameSurface, self.nyanCatTailImage, pos)
 
     def drawRainbow(self, rainbow):
+        if not rainbow.isdisplay:
+            return
         time = rainbow.totaltime - rainbow.time
         # phase 0
         if time == 120:
@@ -503,6 +505,8 @@ class GraphicalView(object):
             self.renderObjects.append(renderObject.Undulation((0, 0), 60, 20, 0.25, 1, True))
 
     def drawHyperdimensionalExplosion(self, hyperdimensionalExplosion):
+        if not hyperdimensionalExplosion.isdisplay:
+            return
         time = hyperdimensionalExplosion.totaltime - hyperdimensionalExplosion.time
         radius = min((time - 120) / 240 * 800 * 1.45, 800 * 1.45)
         pos = tuple(map(int, hyperdimensionalExplosion.pos))
@@ -571,7 +575,7 @@ class GraphicalView(object):
                 drawMethod(instance)
                 instance.update()
 
-                if isinstance(instance, renderObject.SkillCardCutIn) and instance.skill not in [6, 7] and instance.time <= 0:
+                if isinstance(instance, renderObject.SkillCardCutIn) and (instance.skill not in [6, 7] or not self.has_cutin) and instance.time <= 0:
                     self.evManager.Post(Event_Skill(instance.index, instance.skill))
                 elif isinstance(instance, renderObject.Rainbow) and instance.totaltime - instance.time == 120 + 320:
                     self.evManager.Post(Event_Skill(instance.index, 6))
