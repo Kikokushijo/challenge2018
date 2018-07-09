@@ -232,7 +232,8 @@ class GraphicalView(object):
         radius = int(viewConst.GameSize[1] // (modelConst.PlayerNum * 2) * 0.7)
         for i, player in enumerate(self.model.player_list):
             if self.model.have_scoreboard[i]:
-                gfxdraw.filled_circle(self.renderSurface, *(pos[i]), radius, player.color)
+                ballPos = tuple([x + random.randint(-5, 5) for x in pos[i]]) if self.model.bombtimer[i] != -1 else pos[i]
+                gfxdraw.filled_circle(self.renderSurface, *ballPos, radius, player.color)
         # Team Player Lengths
         for i, player in enumerate(self.model.player_list):
             length = str(len(player.body_list)) if player.is_alive else '0'
