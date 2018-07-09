@@ -472,7 +472,7 @@ class GraphicalView(object):
 
     def drawNyancat(self, nyancat):
         timeRatio = 1 - nyancat.time / nyancat.totaltime
-        pos = (int(1600 * timeRatio) - 400 + nyancat.pos[0], nyancat.pos[1])
+        pos = (int(2400 * timeRatio) - 400 + nyancat.pos[0], nyancat.pos[1])
         self.blit_at_center(self.gameSurface, self.nyanCatImage, pos)
         for i in range(3):
             if pos[0] <= 0:
@@ -485,14 +485,14 @@ class GraphicalView(object):
         time = rainbow.totaltime - rainbow.time
         if time == 120:
             for i in range(7):
-                pos = (random.randint(-100, 0), random.randint(100, 700))
+                pos = (random.randint(-400, 0), random.randint(100, 700))
                 self.renderObjects.append(renderObject.Nyancat(pos, 180))
         # phase 1
         if time == 120 + 90:
             self.renderObjects.append(renderObject.Iridescence((0, 0), 240))
             self.renderObjects.append(renderObject.Undulation((0, 0), 240, 20, 1, 1))
         # phase 2
-        if time == 120 + 310:
+        if time == 120 + 90 + 230:
             self.renderObjects.append(renderObject.Iridescence((0, 0), 60, True))
             self.renderObjects.append(renderObject.Undulation((0, 0), 60, 20, 0.25, 1, True))
 
