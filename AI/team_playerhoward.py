@@ -15,12 +15,13 @@ class TeamAI( BaseAI ):
         bullet_list = helper.getAllBullet()
         body_list = helper.getAllBodyPos()
         nxtpos = Vec(helper.getNextPos())
-        nxt_bullet_list = [(b[1]+b[3], b[2]) for b in bullet_list]
+        nxt_bullet_list = [((b[1][0]+b[3][0],b[1][1]+b[3][1]), b[2]) for b in bullet_list]
         for b in nxt_bullet_list:
-            if (Vec(b[0]) - nxtpos).length() <= (head_radius + b[1] + 1):
+            #print((Vec(b[0]) - nxtpos).length())
+            if (Vec(b[0]) - nxtpos).length() <= (head_radius + b[1] + 1) * 2:
                 return AI_MoveWayChange
         for b in body_list:
-            if (Vec(b) - nxtpos).length() <= (body_radius + head_radius + 1):
+            if (Vec(b) - nxtpos).length() <= (body_radius + head_radius + 1) * 2:
                 return AI_MoveWayChange
         return AI_NothingToDo
 

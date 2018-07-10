@@ -14,6 +14,7 @@ class Helper(object):
     def __init__(self, model, index):
         self.model = model
         self.index = index
+        self.me = self.model.player_list[self.index]
 
     #map info
     def getExplosionRadius(self):
@@ -182,6 +183,12 @@ class Helper(object):
         for gPos, gRadius in modelConst.grav:
             if (hPos - gPos).length_squared() < gRadius ** 2:
                 return Vectotuple1(gPos), gRadius
+    def getNextPos(self):
+        hPos = self.getMyHeadPos()
+        hDir = self.getMyDir()
+        if self.checkInvisible():
+            return Vectotuple1(Vec(hPos) + self.me.speed * modelConst.dash_speed_multiplier * Vec(hDir))
+        return Vectotuple1(Vec(hPos) + self.me.speed * Vec(hDir))
 
     def getDashPos(self):
         if not self.checkInvisible():
@@ -215,7 +222,7 @@ class Helper(object):
     def getPlayerBodyPos(self, player_id):
         if not self.model.player_list[player_id].is_alive:
             return None
-        return Vectotuple2([Vec(body.pos) for index, body in enumerate(model.player_list[player_id].body_list) if index > 0])
+        return Vectotuple2([Vec(body.pos) for index, body in enumerate(self.model.player_list[player_id].body_list) if index > 0])
 
     def getPlayerDir(self, player_id):
         if not self.model.player_list[player_id].is_alive:
@@ -232,10 +239,27 @@ class Helper(object):
             return None
         return self.model.player_list[player_id].is_dash
 
-    def getAllPlayerBulletPos(self):
-        return [(bullet.index, Vectotuple1(Vec(bullet.pos)), bullet.radius) for bullet in self.model.bullet_list if bullet.index != self.index]
+    def getAllBullet(self):
+        return [(bullet.index, Vectotuple1(Vec(bullet.pos)), bullet.radius, Vectotuple1(bullet.speed * bullet.direction)) for bullet in self.model.bullet_list if bullet.index != self.index]
 
+    def getAllBodyPos(self):
+        lst = []
+        for i in range(4):
+            if (not self.model.player_list[i].is_alive) or i == self.index:
+                continue
+            else:
+                lst += self.getPlayerBodyPos(i)
+        return lst
     def getPlayerScore(self, player_id):
         if not self.model.player_list[player_id].is_alive:
             return None
         return self.model.score_list[player_id]
+    def getMyDashCoolTime(self):
+        return self.me.dash_timer + self.me.dash_cool
+    def getDashCoolTime(self):
+        return modelConst.dash_cool
+
+    def getBodyRadius(self):
+        return modelConst.body_radius
+    def getHeadRadius(self):
+        return modelConst.head_radius
