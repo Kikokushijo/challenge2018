@@ -43,8 +43,8 @@ class Helper(object):
         return modelConst.bullet_a
 
     def getNearestGravOnRoute(self):
-        hPos = self.getMyHeadPos()
-        hDir = self.getMyDir()
+        hPos = Vec(self.getMyHeadPos())
+        hDir = Vec(self.getMyDir())
         min_dist = float('inf')
         min_gPos = None
         min_gRadius = None
@@ -53,7 +53,7 @@ class Helper(object):
                 dist = (gPos - hPos).length_squared()
                 if dist < min_dist:
                     min_dist = dist
-                    min_pos = Vec(gPos)
+                    min_gPos = Vec(gPos)
                     min_gRadius = gRadius
         if min_gPos is None:
             return None
@@ -66,8 +66,9 @@ class Helper(object):
         if not self.checkMeInGrav():
             return None
         gPos, gRadius = self.getMyGrav()
-        hPos = self.getMyHeadPos()
-        hDir = self.getMyDir()
+        gPos = Vec(gPos)
+        hPos = Vec(self.getMyHeadPos())
+        hDir = Vec(self.getMyDir())
         inner_product = (gPos - hPos).dot(hDir)
         return tuple(Vec(hPos + inner_product * (hDir)))
 
@@ -112,6 +113,7 @@ class Helper(object):
         if not self.checkMeInGrav():
             return None
         gPos, gRadius = self.getMyGrav()
+        gPos = Vec(gPos)
         inRadius = self.model.player_list[self.index].circling_radius - modelConst.dash_radius
         outRadius = self.model.player_list[self.index].circling_radius + modelConst.dash_radius
         count = 0
@@ -123,8 +125,8 @@ class Helper(object):
         return count
 
     def canGetOnRoute(self):
-        hPos = self.getMyHeadPos()
-        hDir = self.getMyDir()
+        hPos = Vec(self.getMyHeadPos())
+        hDir = Vec(self.getMyDir())
         count  = 0
         for wb in self.model.wb_list:
             if wb.target != -1:
@@ -134,8 +136,8 @@ class Helper(object):
         return count
 
     def getNearestballOnRoute(self):
-        hPos = self.getMyHeadPos()
-        hDir = self.getMyDir()
+        hPos = Vec(self.getMyHeadPos())
+        hDir = Vec(self.getMyDir())
         min_pos = Vec(0, 0)
         min_dist = float('inf')
         for wb in self.model.wb_list:
@@ -151,8 +153,8 @@ class Helper(object):
         return tuple(min_pos)
 
     def headOnRoute(self):
-        hPos = self.getMyHeadPos()
-        hDir = self.getMyDir()
+        hPos = Vec(self.getMyHeadPos())
+        hDir = Vec(self.getMyDir())
         pos_list = []
         for index, player in enumerate(self.model.player_list):
             if index == self.index or (not player.is_alive):
@@ -162,8 +164,8 @@ class Helper(object):
         return pos_list
 
     def bodyOnRoute(self):
-        hPos = self.getMyHeadPos()
-        hDir = self.getMyDir()
+        hPos = Vec(self.getMyHeadPos())
+        hDir = Vec(self.getMyDir())
         pos_list = []
         for index, player in enumerate(self.model.player_list):
             if index == self.index:
@@ -190,7 +192,8 @@ class Helper(object):
         return tuple(Vec(self.model.player_list[self.index].pos))
 
     def getMyBodyPos(self):
-        return [tuple(Vec(body.pos)) for index, body in enumerate(model.player_list[self.index].body_list) if index > 0]
+        return [tuple(Vec(body.pos)) 
+                for index, body in enumerate(self.model.player_list[self.index].body_list) if index > 0]
 
     def getMyDir(self):
         return tuple(Vec(self.model.player_list[self.index].direction))
@@ -198,7 +201,7 @@ class Helper(object):
     def getMyGrav(self):
         if not self.checkMeInGrav():
             return None
-        hPos = self.getMyHeadPos()
+        hPos = Vec(self.getMyHeadPos())
         for gPos, gRadius in modelConst.grav:
             if (hPos - gPos).length_squared() < gRadius ** 2:
                 return tuple(gPos), gRadius
@@ -206,8 +209,8 @@ class Helper(object):
     def getDashPos(self):
         if not self.checkInvisible():
             return None
-        hPos = self.getMyHeadPos()
-        hDir = self.getMyDir()
+        hPos = Vec(self.getMyHeadPos())
+        hDir = Vec(self.getMyDir())
         return Mirroring(Vec(hPos + modelConst.dash_speed * self.model.player_list[self.index].dash_timer * hDir))
 
     def getMyDashRemainTime(self):
@@ -245,7 +248,8 @@ class Helper(object):
     def getPlayerBodyPos(self, player_id):
         if not self.model.player_list[player_id].is_alive:
             return None
-        return [tuple(Vec(body.pos)) for index, body in enumerate(model.player_list[player_id].body_list) if index > 0]
+        return [tuple(Vec(body.pos)) 
+                for index, body in enumerate(self.model.player_list[player_id].body_list) if index > 0]
 
     def getPlayerDir(self, player_id):
         if not self.model.player_list[player_id].is_alive:
@@ -280,7 +284,7 @@ class Helper(object):
     def getPlayerCirclingRadius(self, player_id):
         if not self.model.player_list[player_id].is_alive:
             return None
-        return model.player_list[player_id].circling_radius
+        return self.model.player_list[player_id].circling_radius
 
     def getAllPlayerBullet(self):
         return [(bullet.index, tuple(Vec(bullet.pos)), tuple(Vec(bullet.direction)), bullet.radius, bullet.speed) 
