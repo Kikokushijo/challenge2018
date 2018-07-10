@@ -22,6 +22,7 @@ class Helper(object):
     wb_radius = modelConst.wb_radius
     normal_speed = modelConst.normal_speed
     dash_speed = modelConst.dash_speed
+    dash_cool = modelConst.dash_cool
     bullet_acc = modelConst.bullet_a
     
     def __init__(self, model, index):
