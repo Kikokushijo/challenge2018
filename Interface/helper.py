@@ -3,29 +3,57 @@ from pygame.math import Vector2 as Vec
 """
 define Application Programming Interface(API) 
 """
-
-def Vectotuple1(v):
-    return (v.x, v.y)
-
-def Vectotuple2(v_list):
-    return [(v.x, v.y) for v in v_list]
+def Mirroring(pos):
+    Pos = Vec(pos)
+    if Pos.x < 0:
+        Pos.x = -Pos.x
+    if Pos.y < 0:
+        Pos.y = -Pos.y
+    if Pos.x > 800:
+        Pos.x = 1600 - Pos.x
+    if Pos.y > 800: 
+        Pos.y = 1600 - Pos.y 
+    return tuple(Pos)
 
 class Helper(object):
+    explosive_radius = modelConst.explosive_radius
+    head_radius = modelConst.head_radius
+    body_radius = modelConst.body_radius
+    wb_radius = modelConst.wb_radius
+    normal_speed = modelConst.normal_speed
+    dash_speed = modelConst.dash_speed
+    bullet_acc = modelConst.bullet_a
+    dash_time = modelConst.max_dash_time
+    
     def __init__(self, model, index):
         self.model = model
         self.index = index
-        self.me = self.model.player_list[self.index]
 
     #map info
     def getExplosionRadius(self):
-        return modelConst.explosion_radius
+        return modelConst.explosive_radius
+    
+    def getHeadRadius(self):
+        return modelConst.head_radius
+
+    def getBodyRadius(self):
+        return modelConst.body_radius
 
     def getWhiteballRadius(self):
         return modelConst.wb_radius
 
+    def getNormalSpeed(self):
+        return modelConst.normal_speed
+
+    def getDashSpeed(self):
+        return modelConst.dash_speed
+
+    def getBulleyAcceleration(self):
+        return modelConst.bullet_a
+
     def getNearestGravOnRoute(self):
-        hPos = self.getMyHeadPos()
-        hDir = self.getMyDir()
+        hPos = Vec(self.getMyHeadPos())
+        hDir = Vec(self.getMyDir())
         min_dist = float('inf')
         min_gPos = None
         min_gRadius = None
@@ -34,23 +62,24 @@ class Helper(object):
                 dist = (gPos - hPos).length_squared()
                 if dist < min_dist:
                     min_dist = dist
-                    min_pos = Vec(gPos)
+                    min_gPos = Vec(gPos)
                     min_gRadius = gRadius
         if min_gPos is None:
             return None
-        return Vectotuple1(min_gPos), min_gRadius
+        return tuple(min_gPos), min_gRadius
 
     def getAllGravs(self):
-        return [(Vectotuple1(Vec(gPos)), gRadius) for gPos, gRadius in modelConst.grav]
+        return [(tuple(gPos), gRadius) for gPos, gRadius in modelConst.grav]
 
     def getNearestPosToCenter(self):
         if not self.checkMeInGrav():
             return None
         gPos, gRadius = self.getMyGrav()
-        hPos = self.getMyHeadPos()
-        hDir = self.getMyDir()
+        gPos = Vec(gPos)
+        hPos = Vec(self.getMyHeadPos())
+        hDir = Vec(self.getMyDir())
         inner_product = (gPos - hPos).dot(hDir)
-        return Vectotuple1(Vec(hPos + inner_product * (hDir)))
+        return tuple(hPos + inner_product * hDir)
 
     def getBallNumInRange(self, center, radius):
         count = 0
@@ -69,23 +98,23 @@ class Helper(object):
         return count
 
     def getAllBallsPos(self):
-        return Vectotuple2([Vec(wb.pos) for wb in self.model.wb_list if wb.target == -1])
+        return [tuple(wb.pos) for wb in self.model.wb_list if wb.target == -1]
 
     def getExplosivePos(self):
-        return Vectotuple2([Vec(item.pos) for item in self.model.Item_list if item.type == PROP_TYPE_EXPLOSIVE])
+        return [tuple(item.pos) for item in self.model.Item_list if item.type == modelConst.PROP_TYPE_EXPLOSIVE]
 
     def getMultibulletPos(self):
-        return Vectotuple2([Vec(item.pos) for item in self.model.Item_list if item.type == PROP_TYPE_MULTIBULLET])
+        return [tuple(item.pos) for item in self.model.Item_list if item.type == modelConst.PROP_TYPE_MULTIBULLET]
 
     def getBigbulletPos(self):
-        return Vectotuple2([Vec(item.pos) for item in self.model.Item_list if item.type == PROP_TYPE_BIGBULLET])
+        return [tuple(item.pos) for item in self.model.Item_list if item.type == modelConst.PROP_TYPE_BIGBULLET]
     
-    def canGetByExplosion(Epos):
+    def canGetByExplosion(self, Epos):
         count = 0
         for wb in self.model.wb_list:
             if wb.target != -1:
                 continue 
-            if (wb.pos - Epos).length_squared() < (modelConst.explosion_radius + modelConst.wb_radius) ** 2:
+            if (wb.pos - Epos).length_squared() < (modelConst.explosive_radius + modelConst.wb_radius) ** 2:
                 count += 1
         return count
 
@@ -93,6 +122,7 @@ class Helper(object):
         if not self.checkMeInGrav():
             return None
         gPos, gRadius = self.getMyGrav()
+        gPos = Vec(gPos)
         inRadius = self.model.player_list[self.index].circling_radius - modelConst.dash_radius
         outRadius = self.model.player_list[self.index].circling_radius + modelConst.dash_radius
         count = 0
@@ -104,8 +134,8 @@ class Helper(object):
         return count
 
     def canGetOnRoute(self):
-        hPos = self.getMyHeadPos()
-        hDir = self.getMyDir()
+        hPos = Vec(self.getMyHeadPos())
+        hDir = Vec(self.getMyDir())
         count  = 0
         for wb in self.model.wb_list:
             if wb.target != -1:
@@ -115,8 +145,8 @@ class Helper(object):
         return count
 
     def getNearestballOnRoute(self):
-        hPos = self.getMyHeadPos()
-        hDir = self.getMyDir()
+        hPos = Vec(self.getMyHeadPos())
+        hDir = Vec(self.getMyDir())
         min_pos = Vec(0, 0)
         min_dist = float('inf')
         for wb in self.model.wb_list:
@@ -127,32 +157,32 @@ class Helper(object):
                 if dist < min_dist:
                     min_dist = dist
                     min_pos = Vec(wb.pos)
-        if min_pos == (0, 0):
+        if min_pos == Vec(0, 0):
             return None 
-        return Vectotuple1(min_pos)
+        return tuple(min_pos)
 
     def headOnRoute(self):
-        hPos = self.getMyHeadPos()
-        hDir = self.getMyDir()
+        hPos = Vec(self.getMyHeadPos())
+        hDir = Vec(self.getMyDir())
         pos_list = []
         for index, player in enumerate(self.model.player_list):
             if index == self.index or (not player.is_alive):
                 continue
             if self.collisionOnRoute(hPos, modelConst.head_radius, hDir, player.pos, modelConst.head_radius):
-                pos_list.append(Vec(player.pos))
-        return Vectotuple2(pos_list)
+                pos_list.append(tuple(player.pos))
+        return pos_list
 
     def bodyOnRoute(self):
-        hPos = self.getMyHeadPos()
-        hDir = self.getMyDir()
+        hPos = Vec(self.getMyHeadPos())
+        hDir = Vec(self.getMyDir())
         pos_list = []
         for index, player in enumerate(self.model.player_list):
             if index == self.index:
                 continue
             for body in player.body_list:
                 if self.collisionOnRoute(hPos, modelConst.head_radius, hDir, body.pos, modelConst.body_radius):
-                    pos_list.append(Vec(body.pos))
-        return Vectotuple2(pos_list)
+                    pos_list.append(tuple(body.pos))
+        return pos_list
 
     def collisionOnRoute(self, pos1, radius1, _dir, pos2, radius2):
         Pos1 = Vec(pos1)
@@ -168,34 +198,35 @@ class Helper(object):
         return self.index
 
     def getMyHeadPos(self):
-        return Vectotuple1(Vec(self.model.player_list[self.index].pos))
+        return tuple(self.model.player_list[self.index].pos)
 
     def getMyBodyPos(self):
-        return Vectotuple2([Vec(body.pos) for index, body in enumerate(model.player_list[self.index].body_list) if index > 0])
+        return [tuple(body.pos) 
+                for index, body in enumerate(self.model.player_list[self.index].body_list) if index > 0]
 
     def getMyDir(self):
-        return Vectotuple1(Vec(self.model.player_list[self.index].direction))
+        return tuple(self.model.player_list[self.index].direction)
 
     def getMyGrav(self):
         if not self.checkMeInGrav():
             return None
-        hPos = self.getMyHeadPos()
+        hPos = Vec(self.getMyHeadPos())
         for gPos, gRadius in modelConst.grav:
             if (hPos - gPos).length_squared() < gRadius ** 2:
-                return Vectotuple1(gPos), gRadius
-    def getNextPos(self):
-        hPos = self.getMyHeadPos()
-        hDir = self.getMyDir()
-        if self.checkInvisible():
-            return Vectotuple1(Vec(hPos) + self.me.speed * modelConst.dash_speed_multiplier * Vec(hDir))
-        return Vectotuple1(Vec(hPos) + self.me.speed * Vec(hDir))
+                return tuple(gPos), gRadius
 
     def getDashPos(self):
         if not self.checkInvisible():
             return None
-        hPos = self.getMyHeadPos()
-        hDir = self.getMyDir()
-        return Vectotuple1(Vec(hPos + modelConst.dash_speed * self.model.player_list[self.index].dash_timer * hDir))
+        hPos = Vec(self.getMyHeadPos())
+        hDir = Vec(self.getMyDir())
+        return Mirroring(Vec(hPos + modelConst.dash_speed * self.model.player_list[self.index].dash_timer * hDir))
+
+    def getMyDashRemainTime(self):
+        return self.model.player_list[self.index].dash_timer
+
+    def getMyDashCoolRemainTime(self):
+        return self.model.player_list[self.index].dash_cool
 
     def checkMeInGrav(self):
         return self.model.player_list[self.index].is_ingrav
@@ -206,28 +237,42 @@ class Helper(object):
     def checkInvisible(self):
         return self.model.player_list[self.index].is_dash
 
-    def getMyBulletPos(self):
-        return Vectotuple2([(Vec(bullet.pos), bullet.radius) for bullet in self.model.bullet_list if bullet.index == self.index])
+    def getMyCirclingRadius(self):
+        return self.model.player_list[self.index].circling_radius
+
+    def getMyBullet(self):
+        return [(tuple(bullet.pos), tuple(bullet.direction), bullet.radius, bullet.speed) 
+                for bullet in self.model.bullet_list if bullet.index == self.index]
 
     def getMyScore(self):
         return self.model.score_list[self.index]
-
 
     #player info
     def getPlayerHeadPos(self, player_id):
         if not self.model.player_list[player_id].is_alive:
             return None
-        return Vectotuple1(Vec(self.model.player_list[player_id].pos))
+        return tuple(self.model.player_list[player_id].pos)
 
     def getPlayerBodyPos(self, player_id):
         if not self.model.player_list[player_id].is_alive:
             return None
-        return Vectotuple2([Vec(body.pos) for index, body in enumerate(self.model.player_list[player_id].body_list) if index > 0])
+        return [tuple(body.pos) 
+                for index, body in enumerate(self.model.player_list[player_id].body_list) if index > 0]
 
     def getPlayerDir(self, player_id):
         if not self.model.player_list[player_id].is_alive:
             return None
-        return Vectotuple1(Vec(self.model.player_list[player_id].direction))
+        return tuple(self.model.player_list[player_id].direction)
+
+    def getPlayerDashRemainTime(self, player_id):
+        if not self.model.player_list[player_id].is_alive:
+            return None
+        return self.model.player_list[player_id].dash_timer
+
+    def getPlayerDashCoolRemainTime(self, player_id):
+        if not self.model.player_list[player_id].is_alive:
+            return None
+        return self.model.player_list[player_id].dash_cool
 
     def checkPlayerInGrav(self, player_id):
         if not self.model.player_list[player_id].is_alive:
@@ -238,9 +283,23 @@ class Helper(object):
         if not self.model.player_list[player_id].is_alive:
             return None
         return self.model.player_list[player_id].is_dash
+    
+    def checkPlayerCircling(self, player_id):
+        if not self.model.player_list[player_id].is_alive:
+            return None
+        return self.model.player_list[player_id].is_circling
 
-    def getAllBullet(self):
-        return [(bullet.index, Vectotuple1(Vec(bullet.pos)), bullet.radius, Vectotuple1(bullet.speed * bullet.direction)) for bullet in self.model.bullet_list if bullet.index != self.index]
+    def getPlayerCirclingRadius(self, player_id):
+        if not self.model.player_list[player_id].is_alive:
+            return None
+        return self.model.player_list[player_id].circling_radius
+
+    def getAllPlayerBullet(self):
+        return [(bullet.index, tuple(bullet.pos), tuple(bullet.direction), bullet.radius, bullet.speed) 
+                for bullet in self.model.bullet_list if bullet.index != self.index]
+
+    def getPlayerScore(self, player_id):
+        return self.model.score_list[player_id]
 
     def getAllBodyPos(self):
         lst = []
@@ -250,16 +309,3 @@ class Helper(object):
             else:
                 lst += self.getPlayerBodyPos(i)
         return lst
-    def getPlayerScore(self, player_id):
-        if not self.model.player_list[player_id].is_alive:
-            return None
-        return self.model.score_list[player_id]
-    def getMyDashCoolTime(self):
-        return self.me.dash_timer + self.me.dash_cool
-    def getDashCoolTime(self):
-        return modelConst.dash_cool
-
-    def getBodyRadius(self):
-        return modelConst.body_radius
-    def getHeadRadius(self):
-        return modelConst.head_radius

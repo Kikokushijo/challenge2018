@@ -12,7 +12,7 @@ class TeamAI( BaseAI ):
     def decide( self ):
         if self.counter % 300 == 0:
             self.counter += 1
-            return random.randint(2, 8)
+            return random.randint(2,8)
         else:
             self.counter += 1
             return AI_NothingToDo

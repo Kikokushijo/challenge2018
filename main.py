@@ -8,9 +8,9 @@ import Interface.main   as helper
 
 def main(argv):
     evManager = EventManager.EventManager()
-    gamemodel = model.GameEngine(evManager, argv[1:])
+    gamemodel = model.GameEngine(evManager, argv[1:5])
     Control   = controller.Control(evManager, gamemodel)
-    graphics  = view.GraphicalView(evManager, gamemodel)
+    graphics  = view.GraphicalView(evManager, gamemodel, cutin=(argv[-1] != '--no-cutin'))
     interface = helper.Interface(evManager, gamemodel)
 
     gamemodel.run()

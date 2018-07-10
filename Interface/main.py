@@ -61,6 +61,7 @@ class Interface(object):
                     self.evManager.Post(Event_MoveWayChange(player.index))
                 elif 2 <= AI_Dir <= 8:
                     if self.model.can_use_skill(idx) and self.playerAI[player.index].skill[AI_Dir-2] > 0:
+                        self.playerAI[player.index].skill[AI_Dir-2] -= 1
                         self.skill_queue.append(Event_Skill(player.index, AI_Dir-1))
 
         if self.skill_queue:

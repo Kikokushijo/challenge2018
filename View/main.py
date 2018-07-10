@@ -1,6 +1,6 @@
 import pygame as pg
 import pygame.gfxdraw as gfxdraw
-import math
+import math, random
 import sys
 
 import Model.main as model
@@ -16,7 +16,7 @@ class GraphicalView(object):
     """
     Draws the model state onto the screen.
     """
-    def __init__(self, evManager, model):
+    def __init__(self, evManager, model, cutin):
         """
         evManager (EventManager): Allows posting messages to the event queue.
         model (GameEngine): a strong reference to the game Model.
@@ -27,10 +27,13 @@ class GraphicalView(object):
 
         self.is_initialized = False
         self.screen = None
+        self.renderSurface = None
+        self.gameSurface = None
         self.clock = None
         self.smallfont = None
         self.renderObjects = None
 
+        self.titleFont = None
         self.teamNameFont = None
         self.teamLengthFont = None
         self.teamScoreFont = None
@@ -38,8 +41,15 @@ class GraphicalView(object):
         self.tmpScoreFont = None
 
         self.magicCircleImage = None
+        self.rainbowImage = None
+        self.nyanCatImage = None
+        self.nyanCatTailImage = None
 
         self.last_update = 0
+
+        self.has_cutin = cutin
+        self.vibration = None
+        print('Init', cutin)
     
     def notify(self, event):
         """
@@ -73,9 +83,15 @@ class GraphicalView(object):
             pos = tuple([x // 2 for x in viewConst.GameSize])
             self.renderObjects.append(renderObject.MagicCircle(pos, viewConst.magicCircleGenerationTime))
         elif isinstance(event, Event_CutIn):
-            # print(event)
             pos = tuple([x // 2 for x in viewConst.GameSize])
-            self.renderObjects.append(renderObject.SkillCardCutIn(event.PlayerIndex, pos, viewConst.skillCardCutInTime, event.number))
+            if self.has_cutin:
+                self.renderObjects.append(renderObject.SkillCardCutIn(event.PlayerIndex, pos, viewConst.skillCardCutInTime, event.number, isdisplay=True))
+                if event.number == 6:
+                    self.renderObjects.append(renderObject.Rainbow(event.PlayerIndex, (0, 0), 510, True))
+                elif event.number == 7:
+                    self.renderObjects.append(renderObject.HyperdimensionalExplosion(event.PlayerIndex, self.model.player_list[event.PlayerIndex].pos, 450, True))
+            else:
+                self.renderObjects.append(renderObject.SkillCardCutIn(event.PlayerIndex, pos, 1, event.number, isdisplay=False))
         elif isinstance(event, Event_Quit):
             # shut down the pygame graphics
             self.is_initialized = False
@@ -98,9 +114,11 @@ class GraphicalView(object):
         pg.init();
         pg.display.set_caption(viewConst.GameCaption)
         self.screen = pg.display.set_mode(viewConst.ScreenSize)
-        self.screen.convert_alpha()
+        self.renderSurface = pg.Surface(viewConst.ScreenSize)
+        self.gameSurface = pg.Surface(viewConst.GameSize)
         self.clock = pg.time.Clock()
         self.smallfont = pg.font.Font(None, 40)
+        self.titleFont = pg.font.Font(viewConst.titleFont, viewConst.titleFontSize)
         self.teamNameFont = pg.font.Font(viewConst.teamNameFont, viewConst.teamNameFontSize)
         self.teamLengthFont = pg.font.Font(viewConst.teamLengthFont, viewConst.teamLengthFontSize)
         self.teamScoreFont = pg.font.Font(viewConst.teamScoreFont, viewConst.teamScoreFontSize)
@@ -109,7 +127,12 @@ class GraphicalView(object):
 
         self.renderObjects = []
 
+        self.vibration = False
+
         self.magicCircleImage = pg.image.load('View/Image/magicCircle.png').convert_alpha()
+        self.rainbowImage = pg.transform.scale(pg.image.load('View/Image/rainbow.jpg').convert(), viewConst.GameSize)
+        self.nyanCatImage = pg.transform.rotozoom(pg.image.load('View/Image/nyancat.png').convert_alpha(), 0, 0.5)
+        self.nyanCatTailImage = pg.transform.rotozoom(pg.image.load('View/Image/nyancattail.png').convert_alpha(), 0, 0.5)
 
         self.cutInImageNames  = ['Darkviolet', 'Royalblue', 'Saddlebrown', 'Darkolivegreen']
 
@@ -144,9 +167,9 @@ class GraphicalView(object):
 
         self.is_initialized = True
 
-    def blit_at_center(self, surface, position):
-        center = tuple([int(pos - size // 2) for pos, size in zip(position, surface.get_size())])
-        self.screen.blit(surface, center)
+    def blit_at_center(self, target, source, position):
+        center = tuple([int(pos - size // 2) for pos, size in zip(position, source.get_size())])
+        target.blit(source, center)
 
     # to be modified
     def render_menu(self):
@@ -155,19 +178,33 @@ class GraphicalView(object):
         """
         if self.last_update != model.STATE_MENU:
             self.last_update = model.STATE_MENU
-
-            # draw backgound
-            self.screen.fill(viewConst.Color_Black)
-            # write some word
-            somewords = self.smallfont.render(
-                        'You are in the Menu. Space to play. Esc exits.', 
-                        True, (0, 255, 0))
-            (SurfaceX, SurfaceY) = somewords.get_size()
-            pos_x = (viewConst.ScreenSize[0] - SurfaceX)/2
-            pos_y = (viewConst.ScreenSize[1] - SurfaceY)/2
-            self.screen.blit(somewords, (pos_x, pos_y))
-            # update surface
-            pg.display.flip()
+            self.title_counter = 0
+        else:
+            self.title_counter += 1
+            if self.title_counter % 3 == 0:
+                # draw backgound
+                self.screen.fill(viewConst.Color_Black)
+                # write some word
+                # gray = (random.randint(100, 255),) * 3
+                gray = (min(50 + int(205 * min(1, self.title_counter / 240)) + random.randint(-40, 40), 255), ) * 3
+                # print(gray)
+                words_1 = self.titleFont.render(
+                            'QUANTUM', 
+                            # True, (255, 255, 255))
+                            True, gray)
+                words_2 = self.titleFont.render(
+                            'VORTEX',
+                            True, gray)
+                (size_x_1, size_y_1) = words_1.get_size()
+                (size_x_2, size_y_2) = words_2.get_size()
+                pos_x_1 = (viewConst.ScreenSize[0] - size_x_1)/2
+                pos_y_1 = (viewConst.ScreenSize[1] - size_y_1 - viewConst.titleFontSize)/2
+                pos_x_2 = (viewConst.ScreenSize[0] - size_x_2)/2
+                pos_y_2 = (viewConst.ScreenSize[1] - size_y_2 + viewConst.titleFontSize)/2
+                self.screen.blit(words_1, (pos_x_1, pos_y_1))
+                self.screen.blit(words_2, (pos_x_2, pos_y_2))
+                # update surface
+                pg.display.flip()
         
     # to be modified
     def render_stop(self):
@@ -186,11 +223,11 @@ class GraphicalView(object):
 
     def drawScoreboard(self):
         # Frame
-        gfxdraw.vline(self.screen, viewConst.GameSize[0], 0,
+        gfxdraw.vline(self.renderSurface, viewConst.GameSize[0], 0,
                       viewConst.GameSize[1], viewConst.sbColor)
 
         for i in range(1, modelConst.PlayerNum):
-            gfxdraw.hline(self.screen, viewConst.GameSize[0],
+            gfxdraw.hline(self.renderSurface, viewConst.GameSize[0],
                           viewConst.ScreenSize[0],
                           viewConst.GameSize[1] // modelConst.PlayerNum * i, viewConst.sbColor)
         # Team Names
@@ -198,25 +235,26 @@ class GraphicalView(object):
         for i, player in enumerate(self.model.player_list):
             color = viewConst.aliveTeamColor if player.is_alive else viewConst.deadTeamColor
             teamName = self.teamNameFont.render(player.name, True, color)
-            self.screen.blit(teamName, pos[i])
+            self.renderSurface.blit(teamName, pos[i])
         # Team Scores
         pos = [(x, y + viewConst.GameSize[1] // 32) for x, y in pos]
         for i, player in enumerate(self.model.player_list):
             color = viewConst.Color_Black
             teamScore = self.teamScoreFont.render(str(self.model.score_list[player.index]), True, color)
-            self.screen.blit(teamScore, pos[i])
+            self.renderSurface.blit(teamScore, pos[i])
         # Team Balls
         pos = [(viewConst.GameSize[0] + viewConst.GameSize[1] // (modelConst.PlayerNum * 2), viewConst.GameSize[1] // (modelConst.PlayerNum * 2) * i) for i in range(1, modelConst.PlayerNum * 2, 2)]
         radius = int(viewConst.GameSize[1] // (modelConst.PlayerNum * 2) * 0.7)
         for i, player in enumerate(self.model.player_list):
             if self.model.have_scoreboard[i]:
-                gfxdraw.filled_circle(self.screen, *(pos[i]), radius, player.color)
+                ballPos = tuple([x + random.randint(-5, 5) for x in pos[i]]) if self.model.bombtimer[i] != -1 else pos[i]
+                gfxdraw.filled_circle(self.renderSurface, *ballPos, radius, player.color)
         # Team Player Lengths
         for i, player in enumerate(self.model.player_list):
             length = str(len(player.body_list)) if player.is_alive else '0'
             color = viewConst.teamLengthColor if self.model.have_scoreboard[i] else viewConst.Color_Black
             teamLength = self.teamLengthFont.render(length, True, color)
-            self.blit_at_center(teamLength, pos[i])
+            self.blit_at_center(self.renderSurface, teamLength, pos[i])
 
     def drawGrav(self):
         color = (*self.model.player_list[self.model.grav_index].color, 32) if self.model.grav_index != -1 else viewConst.gravColor
@@ -225,9 +263,9 @@ class GraphicalView(object):
             pos = tuple(map(int, g[0]))
             radius = int(g[1] + modelConst.head_radius * 0.5)
             #print(color)
-            gfxdraw.filled_circle(self.screen, *pos,
+            gfxdraw.filled_circle(self.gameSurface, *pos,
                                   radius, color)
-            gfxdraw.filled_circle(self.screen, *pos,
+            gfxdraw.filled_circle(self.gameSurface, *pos,
                                   int(radius * 0.07), viewConst.bgColor)
             # gfxdraw.filled_circle(self.screen, *pos,
             #                      radius, (85,107,47,111))
@@ -242,7 +280,7 @@ class GraphicalView(object):
                     radius *= timeRatio * 2
                 else:
                     radius *= -2 * timeRatio + 3
-            gfxdraw.filled_circle(self.screen, *pos,
+            gfxdraw.filled_circle(self.gameSurface, *pos,
                                   int(radius), wb.color)
 
     def drawItem(self):
@@ -258,13 +296,13 @@ class GraphicalView(object):
                                   int(item.radius), color)
             gfxdraw.filled_circle(itemSurface, *center,
                                   int(item.radius * 0.7), (0, 0, 0, 0))
-            self.blit_at_center(itemSurface, pos)
+            self.blit_at_center(self.gameSurface, itemSurface, pos)
 
     def drawBody(self):
         for player in self.model.player_list:
             for body in player.body_list[1:]:
                 pos = tuple(map(int, body.pos))
-                gfxdraw.filled_circle(self.screen, *pos,
+                gfxdraw.filled_circle(self.gameSurface, *pos,
                                       int(body.radius), body.color)
 
     def drawHead(self):
@@ -274,7 +312,7 @@ class GraphicalView(object):
                 color = player.color
                 if player.is_dash:
                     color = tuple([int(i * 127 / 255 + 128) for i in color])
-                gfxdraw.filled_circle(self.screen, *pos,
+                gfxdraw.filled_circle(self.gameSurface, *pos,
                                       int(player.radius), color)
                 # draw triangle
                 triRadius = player.radius * 0.7
@@ -285,12 +323,12 @@ class GraphicalView(object):
 
                 vertices = [player.pos + vertex for vertex in relativeVertices]
                 intVertices = [int(x) for vertex in vertices for x in vertex]
-                gfxdraw.filled_trigon(self.screen, *intVertices, viewConst.Color_Snow)
+                gfxdraw.filled_trigon(self.gameSurface, *intVertices, viewConst.Color_Snow)
 
                 if player.is_circling:
                     innerVertices = [player.pos + 0.6 * vertex for vertex in relativeVertices]
                     intInnerVertices = [int(x) for vertex in innerVertices for x in vertex]
-                    gfxdraw.filled_trigon(self.screen, *intInnerVertices, color)
+                    gfxdraw.filled_trigon(self.gameSurface, *intInnerVertices, color)
 
     def drawBullet(self):
         for bullet in self.model.bullet_list:
@@ -298,7 +336,9 @@ class GraphicalView(object):
             if bullet.is_flash and (bullet.age // viewConst.bulletFlickerCycle) % 2 == 0:
                 color = tuple([int(i * 127 / 255 + 128) for i in color])
             pos = tuple(map(int, bullet.pos))
-            gfxdraw.filled_circle(self.screen, *pos,
+            gfxdraw.filled_circle(self.gameSurface, *pos,
+                                  int(bullet.radius), color)
+            gfxdraw.filled_circle(self.renderSurface, *pos,
                                   int(bullet.radius), color)
 
     def drawExplosion(self, explosion):
@@ -311,7 +351,7 @@ class GraphicalView(object):
         center = tuple([x // 2 for x in explosionEffect.get_size()])
         gfxdraw.filled_circle(explosionEffect, *center,
                               int(1.1 * radius * (1 - timeRatio)), pg.Color(*color, int(192 * timeRatio)))
-        self.blit_at_center(explosionEffect, pos)
+        self.blit_at_center(self.gameSurface, explosionEffect, pos)
 
     def drawTimeLimitExceedStamp(self, tle):
         pass
@@ -320,7 +360,7 @@ class GraphicalView(object):
         scaleFactor = 0.3
         scaleFactor *= 1 - max(magicCircle.time / magicCircle.totaltime, 0)
         magicCircleEffect = pg.transform.rotozoom(self.magicCircleImage, magicCircle.theta, scaleFactor)
-        self.blit_at_center(magicCircleEffect, magicCircle.pos)
+        self.blit_at_center(self.gameSurface, magicCircleEffect, magicCircle.pos)
 
     def drawCountDown(self, countdown):
         if countdown.time / countdown.totaltime > 2/3:
@@ -333,7 +373,7 @@ class GraphicalView(object):
             color = viewConst.Color_Darkolivegreen
             figure = 1
         countDownFigure = self.countDownFont.render(str(figure), True, color)
-        self.blit_at_center(countDownFigure, countdown.pos)
+        self.blit_at_center(self.gameSurface, countDownFigure, countdown.pos)
 
     def drawMovingScore(self, movingscore):
         movingScoreSurface = pg.Surface((viewConst.GameSize[0] * 3 // 16 * 2, viewConst.GameSize[1] * 3 // 16))
@@ -352,9 +392,14 @@ class GraphicalView(object):
 
         movingScoreSurface.set_alpha(int(255 * (1 - timeRatio)))
         pos = (movingscore.pos[0] + viewConst.GameSize[0] // 16 * (1 - timeRatio), movingscore.pos[1])
-        self.blit_at_center(movingScoreSurface, pos)
+        self.blit_at_center(self.gameSurface, movingScoreSurface, pos)
 
     def drawSkillCardCutIn(self, cutin):
+
+        # print(cutin.isdisplay)
+        if not cutin.isdisplay:
+            return
+
         # print('draw skill card')
         cutInSurface = pg.Surface((viewConst.GameSize[0], viewConst.GameSize[1] // 2), pg.SRCALPHA)
         cutInSurface.fill(viewConst.Color_Silver)
@@ -405,53 +450,155 @@ class GraphicalView(object):
                 cutInSurface.blit(self.cutInImageTransLarge[cutin.index],
                                   (int(sizeSurface[0] * (15 / 32 - timeRatio * 4)), viewConst.GameSize[1] // 2 - viewConst.skillCardCutInPicLargeSize[1] - 25))
 
-
-            # draw phrase 6
-            # timeRatio = 
-
-
-        self.blit_at_center(cutInSurface, cutin.pos)
+        self.blit_at_center(self.gameSurface, cutInSurface, cutin.pos)
 
     def drawThermometer(self, thermometer):
         # draw the bar
             lengthFactor = 1 - max(thermometer.time / thermometer.totaltime, 0)
             length = 600 * thermometer.value / 15 * lengthFactor
             pos = (thermometer.pos[0] - viewConst.thermometerBarWidth // 2, int(thermometer.pos[1] - length))
-            self.screen.fill(thermometer.color, (pos[0], pos[1] - viewConst.thermometerBallSize, viewConst.thermometerBarWidth, int(length)))
+            self.gameSurface.fill(thermometer.color, (pos[0], pos[1] - viewConst.thermometerBallSize, viewConst.thermometerBarWidth, int(length)))
 
         # draw the base (ball)
-            gfxdraw.filled_circle(self.screen, *thermometer.pos,
+            gfxdraw.filled_circle(self.gameSurface, *thermometer.pos,
                                   int(viewConst.thermometerBallSize * 1.05), viewConst.bgColor)
-            gfxdraw.filled_circle(self.screen, *thermometer.pos,
+            gfxdraw.filled_circle(self.gameSurface, *thermometer.pos,
                                   viewConst.thermometerBallSize, thermometer.color)
         # draw the score
             color = viewConst.Color_Snow
             teamScore = self.teamScoreFont.render(str(thermometer.value), True, color)
-            self.blit_at_center(teamScore, thermometer.pos)
+            self.blit_at_center(self.gameSurface, teamScore, thermometer.pos)
+
+    def drawIridescence(self, iridescence):
+        timeRatio = iridescence.time / iridescence.totaltime
+        if not iridescence.reverse:
+            timeRatio = 1 - timeRatio
+        self.rainbowImage.set_alpha(int(255 * timeRatio))
+        self.gameSurface.blit(self.rainbowImage, (0, 0))
+
+    def drawUndulation(self, undulation):
+        timeRatio = undulation.time / undulation.totaltime
+        if not undulation.reverse:
+            timeRatio = 1 - timeRatio
+        timeRatio *= 2 * math.pi * undulation.frequency
+
+        tempGameSurface = pg.Surface(viewConst.GameSize)
+        tempGameSurface.fill(viewConst.bgColor)
+        xblocks = range(0, 800, 40)
+        yblocks = range(0, 800, 40)
+        for x in xblocks:
+            xpos = x + undulation.amplitude * math.sin(timeRatio) * math.sin(x / 760 * undulation.quantumNumber * 2 * math.pi)
+            for y in yblocks:
+                ypos = y + undulation.amplitude * math.sin(timeRatio) * math.sin(y / 760 * undulation.quantumNumber * 2 * math.pi)
+                tempGameSurface.blit(self.gameSurface, (x, y), (xpos, ypos, 40, 40))
+        self.gameSurface = tempGameSurface
+
+    def drawNyancat(self, nyancat):
+        timeRatio = 1 - nyancat.time / nyancat.totaltime
+        pos = (int(2400 * timeRatio) - 400 + nyancat.pos[0], nyancat.pos[1])
+        self.blit_at_center(self.gameSurface, self.nyanCatImage, pos)
+        for i in range(3):
+            if pos[0] <= 0:
+                break
+            pos = (pos[0] - self.nyanCatTailImage.get_size()[0], pos[1])
+            self.blit_at_center(self.gameSurface, self.nyanCatTailImage, pos)
+
+    def drawRainbow(self, rainbow):
+        if not rainbow.isdisplay:
+            return
+        time = rainbow.totaltime - rainbow.time
+        # phase 0
+        if time == 120:
+            ypos = random.sample([i for i in range(100, 700 + 1, 100)], 5)
+            for i in range(5):
+                pos = (random.randint(-400, 0), ypos[i])
+                self.renderObjects.append(renderObject.Nyancat(pos, 180))
+        # phase 1
+        if time == 120 + 90:
+            self.renderObjects.append(renderObject.Iridescence((0, 0), 240))
+            self.renderObjects.append(renderObject.Undulation((0, 0), 240, 20, 1, 1))
+        # phase 2
+        if time == 120 + 90 + 230:
+            self.renderObjects.append(renderObject.Iridescence((0, 0), 60, True))
+            self.renderObjects.append(renderObject.Undulation((0, 0), 60, 20, 0.25, 1, True))
+
+    def drawHyperdimensionalExplosion(self, hyperdimensionalExplosion):
+        if not hyperdimensionalExplosion.isdisplay:
+            return
+        time = hyperdimensionalExplosion.totaltime - hyperdimensionalExplosion.time
+        radius = min((time - 120) / 240 * 800 * 1.45, 800 * 1.45)
+        pos = tuple(map(int, hyperdimensionalExplosion.pos))
+        color = (*self.model.player_list[hyperdimensionalExplosion.index].color, 48)
+        def waveFunc(p, r):
+            r1 = pg.math.Vector2(pos)
+            r2 = pg.math.Vector2(p)
+            r3 = r2 - r1
+            # if r3.length() < r and r > 0:
+            #     r3 *= math.sin(r3.length() / r * math.pi / 2)
+            #     newPos = r1 + r3
+            #     return tuple(map(int, newPos))
+            if 0 < r - r3.length() < 40 and r3.length() > 0:
+                r4 = r3
+                r4.scale_to_length(r)
+                r3 += 0.9 * (r4 - r3) * math.sin((r - r3.length()) / 40 * math.pi / 2)
+                newPos = r1 + r3
+                return tuple(map(int, newPos))
+            else:
+                return p
+        # phase 1
+        if 120 <= time <= 120 + 240:
+            self.vibration = True
+            gfxdraw.filled_circle(self.gameSurface, *pos, int(radius), color)
+
+            tempGameSurface = pg.Surface(viewConst.GameSize)
+            tempGameSurface.fill(viewConst.bgColor)
+            xblocks = range(0, 800, 10)
+            yblocks = range(0, 800, 10)
+            for x in xblocks:
+                for y in yblocks:
+                    pos2 = waveFunc((x, y), radius)
+                    tempGameSurface.blit(self.gameSurface, (x, y), (*pos2, 10, 10))
+            self.gameSurface = tempGameSurface
+        # phase 2
+        elif 120 + 240 <= time <= 120 + 240 + 30:
+            self.vibration = False
+            gfxdraw.filled_circle(self.gameSurface, *pos, int(radius), color)
+        # phase 3
+        elif 120 + 240 + 30 <= time:
+            color = (color[0], color[1], color[2], int(color[3] * (1 - (time - 120 - 240 - 30) / 60)))
+            gfxdraw.filled_circle(self.gameSurface, *pos, int(radius), color)
 
     def drawRenderObject(self):
-        for instance in self.renderObjects:
-            if isinstance(instance, renderObject.Explosion):
-                self.drawExplosion(instance)
-            elif isinstance(instance, renderObject.TimeLimitExceedStamp):
-                self.drawTimeLimitExceedStamp(instance)
-            elif isinstance(instance, renderObject.MagicCircle):
-                self.drawMagicCircle(instance)
-            elif isinstance(instance, renderObject.CountDown):
-                self.drawCountDown(instance)
-            elif isinstance(instance, renderObject.MovingScore):
-                self.drawMovingScore(instance)
-            elif isinstance(instance, renderObject.SkillCardCutIn):
-                if sys.argv[-1] == '--no-cutin':
-                    instance.time = 1
-                else:
-                    self.drawSkillCardCutIn(instance)
-            elif isinstance(instance, renderObject.Thermometer):
-                self.drawThermometer(instance)
-            instance.update()
 
-            if isinstance(instance, renderObject.SkillCardCutIn) and instance.time == 0:
-                self.evManager.Post(Event_Skill(instance.index, instance.skill))
+        renderOrder = ['Explosion',
+                       'TimeLimitExceedStamp',
+                       'MagicCircle',
+                       'CountDown',
+                       'MovingScore',
+                       'Thermometer',
+                       'Iridescence',
+                       'Undulation',
+                       'Nyancat',
+                       'Rainbow',
+                       'HyperdimensionalExplosion',
+                       'SkillCardCutIn']
+        renderOrderMap = {name : i for i, name in enumerate(renderOrder)}
+        sortedRenderObjects = [[] for i in range(len(renderOrder))]
+        for x in self.renderObjects:
+            sortedRenderObjects[renderOrderMap[type(x).__name__]].append(x)
+        for i, renderObjects in enumerate(sortedRenderObjects):
+            drawMethod = getattr(self, 'draw' + renderOrder[i])
+            for instance in renderObjects:
+
+                drawMethod(instance)
+                instance.update()
+
+                if isinstance(instance, renderObject.SkillCardCutIn) and (instance.skill not in [6, 7] or not self.has_cutin) and instance.time <= 0:
+                    self.evManager.Post(Event_Skill(instance.index, instance.skill))
+                elif isinstance(instance, renderObject.Rainbow) and instance.totaltime - instance.time == 120 + 320:
+                    self.evManager.Post(Event_Skill(instance.index, 6))
+                elif isinstance(instance, renderObject.HyperdimensionalExplosion) and instance.totaltime - instance.time == 120 + 240 + 30:
+                    self.evManager.Post(Event_Skill(instance.index, 7))
 
         self.renderObjects[:] = [x for x in self.renderObjects if x.immortal or x.time > 0]
 
@@ -465,7 +612,9 @@ class GraphicalView(object):
             self.renderObjects.append(renderObject.CountDown(pos, 180))
         self.last_update = model.STATE_PLAY
 
-        self.screen.fill(viewConst.bgColor)
+        self.screen.fill(viewConst.Color_Black)
+        self.renderSurface.fill(viewConst.bgColor)
+        self.gameSurface.fill(viewConst.bgColor)
 
         self.drawScoreboard()
         self.drawGrav()
@@ -476,7 +625,13 @@ class GraphicalView(object):
         self.drawBullet()
         self.drawRenderObject()
 
-        # To be decided: update merely the game window or the whole screen?
+        if self.vibration:
+            shift = tuple([random.randint(-10, 10) for i in [127, 127]])
+            self.renderSurface.blit(self.gameSurface, shift)
+        else:
+            self.renderSurface.blit(self.gameSurface, (0, 0))
+        self.screen.blit(self.renderSurface, (0, 0))
+
         pg.display.flip()
 
     def render_endgame(self):
@@ -486,8 +641,15 @@ class GraphicalView(object):
             movingScores = [renderObject.MovingScore(i, (viewConst.GameSize[0] // 8, viewConst.GameSize[1] // 8 * (2 * i + 1)), viewConst.scoreFlagEmergeTime) for i in range(modelConst.PlayerNum)]
             self.renderObjects.extend(movingScores)
 
-        self.screen.fill(viewConst.bgColor, pg.Rect((0, 0), viewConst.GameSize))
+        self.screen.fill(viewConst.Color_Black)
+        self.renderSurface.fill(viewConst.bgColor)
+        self.gameSurface.fill(viewConst.bgColor)
+
+        self.drawScoreboard()
         self.drawRenderObject()
+
+        self.renderSurface.blit(self.gameSurface, (0, 0))
+        self.screen.blit(self.renderSurface, (0, 0))
         pg.display.flip()
 
     def render_endmatch(self):
@@ -501,6 +663,13 @@ class GraphicalView(object):
             thermometers = [renderObject.Thermometer(score[0], (viewConst.GameSize[0] // 8 * (2 * i + 1), viewConst.GameSize[1] // 8 * 7), viewConst.thermometerEmergeTime, self.model.player_list[score[0]].color, score[1]) for i, score in enumerate(scores)]
             self.renderObjects.extend(thermometers)
 
-        self.screen.fill(viewConst.bgColor, pg.Rect((0, 0), viewConst.GameSize))
+        self.screen.fill(viewConst.Color_Black)
+        self.renderSurface.fill(viewConst.bgColor)
+        self.gameSurface.fill(viewConst.bgColor)
+
+        self.drawScoreboard()
         self.drawRenderObject()
+
+        self.renderSurface.blit(self.gameSurface, (0, 0))
+        self.screen.blit(self.renderSurface, (0, 0))
         pg.display.flip()
