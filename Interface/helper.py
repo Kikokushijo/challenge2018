@@ -148,7 +148,7 @@ class Helper(object):
                 if dist < min_dist:
                     min_dist = dist
                     min_pos = Vec(wb.pos)
-        if min_pos == (0, 0):
+        if min_pos == Vec(0, 0):
             return None 
         return tuple(min_pos)
 
