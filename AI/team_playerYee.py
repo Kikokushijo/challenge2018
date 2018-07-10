@@ -18,6 +18,7 @@ class TeamAI( BaseAI ):
         v2x, v2y = bullet.direction * bullet.speed
         s2=bullet.speed
         
+        '''
         delta = -v1x * v2y + v2x * v1y
         if abs(delta) <= eps:
             return False
@@ -33,7 +34,7 @@ class TeamAI( BaseAI ):
         D = 4 * ((a * s1 + b * s2)** 2 - (a ** 2 - 2 * a * b * v1_dot_v2 + b ** 2 - (self.me.radius + bullet.radius)** 2) * (s1 ** 2 - 2 * s1 * s2 * v1_dot_v2 + s2 ** 2))
         if D < 0:
             return False
-
+        '''
         
     def decide( self ):
         for bullet in self.helper.getAllPlayerBullet():
