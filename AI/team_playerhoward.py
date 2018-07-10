@@ -30,6 +30,14 @@ class TeamAI( BaseAI ):
         body_radius = helper.body_radius
         normal_speed = helper.normal_speed
         bullet_list = helper.getAllPlayerBullet()
+        for i in range(4):
+            if i == helper.index:
+                continue
+            pos = helper.getPlayerHeadPos(i)
+            if pos == None:
+                continue
+            dir = helper.getPlayerDir(i)
+            bullet_list.append((i, pos, dir, helper.bullet_radius, helper.bullet_speed))
         body_list = helper.getAllBodyPos()
         circling = helper.checkMeCircling()
         dash_time = helper.dash_time
@@ -71,9 +79,30 @@ class TeamAI( BaseAI ):
             dotval = head_dir.dot(gcenter - hPos)
             if not circling and dotval > 0.1:
                 return AI_MoveWayChange
+            elif not circling:
+                return AI_NothingToDo
             elif circling:
                 return AI_MoveWayChange
             return None
+    def attack(self):
+        helper = self.helper
+        hPos = Vec(helper.getMyHeadPos())
+        head_radius = helper.head_radius
+        head_dir = Vec(helper.getMyDir())
+        circling = helper.checkMeCircling()
+        if helper.checkMeInGrav() or circling:
+            return AI_NothingToDo
+        for i in range(4):
+            if i == helper.index:
+                continue
+            pos = helper.getPlayerHeadPos(i)
+            if pos == None:
+                continue
+            if (helper.checkPlayerInGrav(i) or helper.getPlayerDashCoolRemainTime(i)>0)\
+                and (pos - hPos).length_squared() < 20 ** 2:
+                    print("attack")
+                    return AI_MoveWayChange
+        return AI_NothingToDo
 
     def decide( self ):
         helper = self.helper

@@ -25,7 +25,8 @@ class Helper(object):
     dash_cool = modelConst.dash_cool
     bullet_acc = modelConst.bullet_a
     dash_time = modelConst.max_dash_time
-    
+    bullet_speed = modelConst.bullet_speed0
+    bullet_radius = modelConst.bullet_radius
     def __init__(self, model, index):
         self.model = model
         self.index = index
