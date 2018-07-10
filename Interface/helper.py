@@ -22,7 +22,7 @@ class Helper(object):
 
     #map info
     def getExplosionRadius(self):
-        return modelConst.explosion_radius
+        return modelConst.explosive_radius
     
     def getHeadRadius(self):
         return modelConst.head_radius
@@ -92,20 +92,20 @@ class Helper(object):
         return [tuple(Vec(wb.pos)) for wb in self.model.wb_list if wb.target == -1]
 
     def getExplosivePos(self):
-        return [tuple(Vec(item.pos)) for item in self.model.Item_list if item.type == PROP_TYPE_EXPLOSIVE]
+        return [tuple(Vec(item.pos)) for item in self.model.Item_list if item.type == modelConst.PROP_TYPE_EXPLOSIVE]
 
     def getMultibulletPos(self):
-        return [tuple(Vec(item.pos)) for item in self.model.Item_list if item.type == PROP_TYPE_MULTIBULLET]
+        return [tuple(Vec(item.pos)) for item in self.model.Item_list if item.type == modelConst.PROP_TYPE_MULTIBULLET]
 
     def getBigbulletPos(self):
-        return [tuple(Vec(item.pos)) for item in self.model.Item_list if item.type == PROP_TYPE_BIGBULLET]
+        return [tuple(Vec(item.pos)) for item in self.model.Item_list if item.type == modelConst.PROP_TYPE_BIGBULLET]
     
-    def canGetByExplosion(Epos):
+    def canGetByExplosion(self, Epos):
         count = 0
         for wb in self.model.wb_list:
             if wb.target != -1:
                 continue 
-            if (wb.pos - Epos).length_squared() < (modelConst.explosion_radius + modelConst.wb_radius) ** 2:
+            if (wb.pos - Epos).length_squared() < (modelConst.explosive_radius + modelConst.wb_radius) ** 2:
                 count += 1
         return count
 
