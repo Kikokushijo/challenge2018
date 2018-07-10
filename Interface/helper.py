@@ -16,6 +16,14 @@ def Mirroring(pos):
     return tuple(Pos)
 
 class Helper(object):
+    explosive_radius = modelConst.explosive_radius
+    head_radius = modelConst.head_radius
+    body_radius = modelConst.body_radius
+    wb_radius = modelConst.wb_radius
+    normal_speed = modelConst.normal_speed
+    dash_speed = modelConst.dash_speed
+    bullet_acc = modelConst.bullet_a
+    
     def __init__(self, model, index):
         self.model = model
         self.index = index
