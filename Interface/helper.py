@@ -167,8 +167,8 @@ class Helper(object):
         hPos = Vec(self.getMyHeadPos())
         hDir = Vec(self.getMyDir())
         pos_list = []
-        for index, player in enumerate(self.model.player_list):
-            if index == self.index or (not player.is_alive):
+        for player in self.model.player_list:
+            if player.index == self.index or (not player.is_alive):
                 continue
             if self.collisionOnRoute(hPos, modelConst.head_radius, hDir, player.pos, modelConst.head_radius):
                 pos_list.append(tuple(player.pos))
@@ -178,8 +178,8 @@ class Helper(object):
         hPos = Vec(self.getMyHeadPos())
         hDir = Vec(self.getMyDir())
         pos_list = []
-        for index, player in enumerate(self.model.player_list):
-            if index == self.index:
+        for player in self.model.player_list:
+            if player.index == self.index or (not player.is_alive):
                 continue
             for body in player.body_list:
                 if self.collisionOnRoute(hPos, modelConst.head_radius, hDir, body.pos, modelConst.body_radius):
@@ -204,7 +204,7 @@ class Helper(object):
 
     def getMyBodyPos(self):
         return [tuple(body.pos) 
-                for index, body in enumerate(self.model.player_list[self.index].body_list) if index > 0]
+                for body in self.model.player_list[self.index].body_list[1:]]
 
     def getMyDir(self):
         return tuple(self.model.player_list[self.index].direction)
@@ -259,7 +259,7 @@ class Helper(object):
         if not self.model.player_list[player_id].is_alive:
             return None
         return [tuple(body.pos) 
-                for index, body in enumerate(self.model.player_list[player_id].body_list) if index > 0]
+                for body in self.model.player_list[player_id].body_list[1:]]
 
     def getPlayerDir(self, player_id):
         if not self.model.player_list[player_id].is_alive:
