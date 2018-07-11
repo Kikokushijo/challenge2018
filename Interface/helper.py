@@ -290,6 +290,9 @@ class Helper(object):
         if not self.model.player_list[player_id].is_alive:
             return None
         return self.model.player_list[player_id].is_circling
+    
+    def checkPlayerAlive(self, player_id):
+        return self.model.player_list[player_id].is_alive
 
     def getPlayerCirclingRadius(self, player_id):
         if not self.model.player_list[player_id].is_alive:
