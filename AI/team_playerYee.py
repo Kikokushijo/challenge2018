@@ -1,7 +1,8 @@
 from AI.base import *
 from pygame.math import Vector2 as Vec
 from Model.GameObject.head import Head
-from math import sin,cos
+from math import sin, cos
+from copy import deepcopy
 
 eps = 1e-5
 game_size = 800
@@ -15,7 +16,7 @@ class Stimulate_Obj(object):
             self.direction=Vec(obj[0].direction)
             self.speed=obj[0].speed
             self.radius=obj[0].radius
-            if isinstance(obj[0], Head):
+            if hasattr(obj[0],'is_circling'):
                 self.is_circling = obj[0].is_circling
                 self.circling_radius = obj[0].circling_radius
                 self.ori = obj[0].ori
@@ -98,7 +99,19 @@ class TeamAI( BaseAI ):
             if obj1.is_circling and not is_too_close:
                 return False
         return False
-        
+    
+    def body_escaping(self):
+        pass
+    
+    def body_threat(self):
+        pass
+    
+    def bullet_escaping(self):
+        pass
+
+    def bullet_threat(self):
+        pass
+
     def decide(self):
         helper = self.helper
         self.me = helper.model.player_list[helper.index]
@@ -108,6 +121,30 @@ class TeamAI( BaseAI ):
         is_ingrav=helper.checkMeInGrav()
         
         if is_ingrav:
+            pass
+            '''
+            if self.danger:
+                if self.danger[-1] == 0:
+                    if self.body_escaping():
+                        self.escaping = False
+                        self.danger.pop()
+                    if self.bullet_threat():
+                        self.escaping = True
+                        self.danger.append(1)
+                elif self.danger[-1] == 1:
+                    if self.bullet_escaping():
+                        self.escaping = False
+                        self.danger.pop()
+                    if self.body_threat():
+                        self.escaping = True
+                        self.danger.append(0)
+            else:
+                if self.body_threat():
+                    self.escaping = True
+                    self.danger.append(0)
+                if self.bullet_threat()
+            '''
+            '''
             if self.reset_esc:
                 self.escaping = False
                 self.reset_esc = False
@@ -148,7 +185,7 @@ class TeamAI( BaseAI ):
                             self.escaping=True
                             return AI_MoveWayChange
 
-                    
+
                     
 
 
@@ -175,59 +212,40 @@ class TeamAI( BaseAI ):
                         if too_close(self.me.pos, self.me.radius, Vec(body), helper.body_radius, 5 * helper.head_radius):
                             self.escaping=True
                             return AI_MoveWayChange
-            
+            '''
         else:
             for bullet in helper.model.bullet_list:
                 if bullet.index == helper.index:
                     continue
                 if self.stimulate_collision(self.me, bullet, 30):
-                    self.escaping=True
                     return AI_MoveWayChange
 
             for enemy in helper.model.player_list:
                 if enemy.index == self.me.index or not enemy.is_alive:
                     continue
-                if not helper.checkPlayerInGrav(enemy.index) and enemy.dash_cool <= 0 and helper.collisionOnRoute(enemy.pos, enemy.radius, enemy.direction, self.me.pos, self.me.radius) \
-                    and 
-                if helper.collisionOnRoute(enemy.pos, enemy.radius, enemy.direction, self.me.pos, self.me.radius) \
-                                            and not helper.checkMeInGrav() and too_close(self.me.pos, self.me.radius, enemy.pos, enemy.radius, 3 * helper.wb_radius):
-                    return AI_MoveWayChange
-        else:
-            self.reset_esc = True
-            
+                if not helper.checkPlayerInGrav(enemy.index) and enemy.dash_cool <= 0:
+                    bullet = Stimulate_Obj(self.gravs, enemy.pos, enemy.direction, helper.bullet_speed, helper.bullet_radius, helper.bullet_acc)
+                    if self.stimulate_collision(self.me, bullet, 15):
+                        return AI_MoveWayChange
 
-        for bullet in helper.model.bullet_list:
-            if bullet.index == helper.index:
-                continue
-            if (is_ingrav and self.stimulate_collision(self.me, bullet, 30)) \
-                or (too_close(self.me.pos, self.me.radius, bullet.pos, bullet.radius ,8*helper.wb_radius)) and self.stimulate_collision(self.me, bullet,15)):
-                return AI_MoveWayChange
 
-        for enemy in helper.model.player_list:
-            if enemy.index == self.me.index or not enemy.is_alive:
-                continue
-            if is_ingrav:
-                if helper.collisionOnRoute(enemy.pos, enemy.radius, enemy.direction, self.me.pos, self.me.radius) \
-                    and not helper.checkPlayerInGrav(enemy.index)
-            if helper.collisionOnRoute(enemy.pos, enemy.radius, enemy.direction, self.me.pos, self.me.radius) \
-                                        and not helper.checkMeInGrav() and too_close(self.me.pos, self.me.radius, enemy.pos, enemy.radius, 3 * helper.wb_radius) and enemy.dash_cool <= 0:
-                return AI_MoveWayChange
-        
-        body_on_route = helper.bodyOnRoute()
-        if len(body_on_route) == 0:
-            self.body_esc=False
-        else:
-            for body in body_on_route:
-                if not body_esc and too_close(self.me.pos, self.me.radius, Vec(body), helper.body_radius, 5 * helper.wb_radius):
-                    self.body_esc=True
+            for body in helper.getAllBodyPos():
+                if too_close(self.me.pos, self.me.radius, Vec(body), helper.body_radius, 9 * helper.head_radius):
                     return AI_MoveWayChange
         
-        #attack
-        if len(self.me.body_list)>1 and not helper.checkMeInGrav():
-            bullet = Stimulate_Obj(self.gravs, self.me.pos, self.me.direction, helper.bullet_speed, helper.bullet_radius, helper.bullet_acc)
-            for player in helper.model.player_list:
-                if player.index != helper.index and self.stimulate_collision(player, bullet, 10):
-                    return AI_MoveWayChange
+            #attack
+            if len(self.me.body_list)>1 and not helper.checkMeInGrav():
+                bullet = Stimulate_Obj(self.gravs, self.me.pos, self.me.direction, helper.bullet_speed, helper.bullet_radius, helper.bullet_acc)
+                for player in helper.model.player_list:
+                    if player.index == helper.index or not helper.checkPlayerAlive(player.index):
+                        continue
+                    if player.is_AI:
+                        if helper.getPlayerDashCoolRemainTime(player.index)>0 and self.stimulate_collision(player, bullet, helper.getPlayerDashCoolRemainTime(player.index)):
+                            return AI_MoveWayChange
+                    else:
+                        if self.stimulate_collision(player, bullet, 15):
+                            return AI_MoveWayChange
+                        
         
         if helper.canGetBySpin() == 0 and helper.checkMeCircling():
             return AI_MoveWayChange
