@@ -91,15 +91,26 @@ class TeamAI( BaseAI ):
                 return False
             obj1.update()
 
-            is_too_close=too_close(obj1.pos, obj1.radius, obj2.pos, obj2.radius)
-            if is_too_close:
+            if too_close(obj1.pos, obj1.radius, obj2.pos, obj2.radius):
                 return True
-            if obj1.is_circling and not is_too_close:
-                return False
         return False
     
     def body_escaping(self):
-        return not self.body_threat()
+        helper=self.helper
+        if self.helper.checkMeCircling(): #going straight in the past
+            for body in self.helper.bodyOnRoute():
+                if too_close(self.me.pos, self.me.radius, Vec(body), self.helper.body_radius, 5 * self.helper.head_radius):
+                    return False
+        else: #circling in the past
+            grav_center=Vec(helper.getMyGrav()[0])
+            for body_pos in helper.getAllBodyPos():
+                grav_to_me = self.me.pos - grav_center
+                grav_to_body = Vec(body_pos) - grav_center
+                #does not have body on the circle and it is close enough
+                if abs(self.me.circling_radius - grav_to_body.length()) <= 2 * helper.head_radius \
+                    and self.me.circling_radius * grav_to_me.angle_to(grav_to_body) * pi <= 8 * 180 * helper.head_radius:
+                    return False
+        return True
     
     def body_threat(self):
         helper=self.helper
@@ -114,7 +125,7 @@ class TeamAI( BaseAI ):
                     return True
         else:
             for body in self.helper.bodyOnRoute():
-                if too_close(self.me.pos, self.me.radius, Vec(body), self.helper.body_radius, 5 * self.helper.head_radius):
+                if too_close(self.me.pos, self.me.radius, Vec(body), self.helper.body_radius, 9 * self.helper.head_radius):
                     return True
         return False
             
@@ -126,7 +137,8 @@ class TeamAI( BaseAI ):
         for bullet in helper.model.bullet_list:
             if bullet.index == helper.index:
                 continue
-            if self.stimulate_collision(self.me, bullet, esc_time):
+            if too_close(self.me.pos, self.me.radius, bullet.pos, bullet.radius, 13 * helper.head_radius) \
+                 and self.stimulate_collision(self.me, bullet, esc_time):
                 return True
         return False
 
@@ -134,7 +146,8 @@ class TeamAI( BaseAI ):
         helper = self.helper
         self.me = helper.model.player_list[helper.index]
 
-        if self.me.init_timer > 0 or not helper.checkPlayerAlive(helper.index) or helper.checkInvisible():
+        if self.me.init_timer > 0 or not helper.checkPlayerAlive(helper.index) or helper.checkInvisible() \
+            or (not helper.checkMeInGrav() and helper.getMyDashCoolRemainTime()>0):
             return AI_NothingToDo
         
         if helper.checkMeInGrav():
@@ -146,6 +159,9 @@ class TeamAI( BaseAI ):
                     if self.bullet_threat():
                         self.escaping = True
                         self.danger.append(1)
+
+                    if self.escaping and self.danger[-1] != 0:
+                        return AI_MoveWayChange
                 elif self.danger[-1] == 1:
                     if self.bullet_escaping():
                         self.escaping = False
@@ -153,6 +169,9 @@ class TeamAI( BaseAI ):
                     if self.body_threat():
                         self.escaping = True
                         self.danger.append(0)
+
+                    if self.escaping and self.danger[-1] != 1:
+                        return AI_MoveWayChange
             else:
                 if self.body_threat():
                     self.escaping = True
@@ -161,10 +180,10 @@ class TeamAI( BaseAI ):
                     self.escaping = True
                     self.danger.append(1)
             
-            if self.escaping:
-                return AI_MoveWayChange
+                if self.escaping:
+                    return AI_MoveWayChange
         else:
-            if self.bullet_threat(15):
+            if self.bullet_threat(12):
                 return AI_MoveWayChange
 
             for enemy in helper.model.player_list:
