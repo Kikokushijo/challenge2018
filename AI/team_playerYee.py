@@ -176,7 +176,7 @@ class TeamAI( BaseAI ):
                         return AI_MoveWayChange
 
 
-            for body in helper.getAllBodyPos():
+            for body in helper.bodyOnRoute():
                 if too_close(self.me.pos, self.me.radius, Vec(body), helper.body_radius, 5 * helper.head_radius):
                     return AI_MoveWayChange
         
