@@ -215,11 +215,26 @@ class GraphicalView(object):
         if self.last_update != model.STATE_STOP:
             self.last_update = model.STATE_STOP
 
-            # draw backgound
-            s = pg.Surface(viewConst.ScreenSize, pg.SRCALPHA)
-            s.fill((0, 0, 0, 128), (0, 0, *viewConst.GameSize)); self.screen.blit(s, (0,0))
+            self.stopCounter = 0
 
-            # update surface
+            # detect the edges of the current screen
+            tempStopSurface = pg.transform.laplacian(self.screen)
+            self.stopSurface = pg.Surface(self.screen.get_size())
+            pg.transform.threshold(self.stopSurface, tempStopSurface, viewConst.Color_Black, (0, 0, 0, 0), viewConst.Color_White)
+
+            # draw backgound
+            # s = pg.Surface(viewConst.ScreenSize, pg.SRCALPHA)
+            # s.fill((0, 0, 0, 128), (0, 0, *viewConst.GameSize)); self.screen.blit(s, (0,0))
+
+        self.stopCounter += 1
+        self.screen.fill(viewConst.Color_Black)
+        if self.stopCounter % 3 == 0:
+            gray = (min(50 + int(205 * min(1, self.stopCounter / 240)) + random.randint(-40, 40), 255), ) * 3
+            self.stopSurface.set_alpha(random.randint(16, 32))
+            self.screen.blit(self.stopSurface, (0, 0))
+            words = self.titleFont.render('PAUSE', True, gray)
+            pos = [x // 2 for x in viewConst.ScreenSize]
+            self.blit_at_center(self.screen, words, pos)
             pg.display.flip()
 
     def drawScoreboard(self):
