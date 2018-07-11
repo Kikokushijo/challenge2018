@@ -1,14 +1,9 @@
 # challege2018
-the framework base on [pygame](https://www.pygame.org) library
-
----
-由於 pygame 只能跑在 main thread，很難用 multi thread 去跑。有兩種策略
-1. 通通跑在 main thread
-2. view 和 control 跑在 main thread (因為需要用到 pygame)，然後 model 跑在 other thread
-
-但由於 python 受到 GIL 限制，multi thread 效用不大，所以採用第一種策略去寫
-
 
 document URL: https://drive.google.com/drive/folders/1HWvOFYAKphe_b2dfFvh-TFfwQbwe1xoU
 
 spec URL: https://hackmd.io/1eLfNWWDQRmnLxsyk4LTkQ?edit
+
+正式 document URL: https://hackmd.io/eCVRVcMWQP6mUaGYqim_7A?both
+
+正式 API URL: https://hackmd.io/LuiEI7p5SX2b6QkQo9O-1g
