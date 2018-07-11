@@ -536,10 +536,10 @@ class GraphicalView(object):
             #     r3 *= math.sin(r3.length() / r * math.pi / 2)
             #     newPos = r1 + r3
             #     return tuple(map(int, newPos))
-            if 0 < r - r3.length() < 40 and r3.length() > 0:
+            if 0 < r - r3.length() < 80 and r3.length() > 0:
                 r4 = r3
                 r4.scale_to_length(r)
-                r3 += 0.9 * (r4 - r3) * math.sin((r - r3.length()) / 40 * math.pi / 2)
+                r3 += 0.9 * (r4 - r3) * math.sin((r - r3.length()) / 80 * math.pi / 2)
                 newPos = r1 + r3
                 return tuple(map(int, newPos))
             else:
@@ -555,7 +555,7 @@ class GraphicalView(object):
             yblocks = range(0, 800, 10)
             for x in xblocks:
                 for y in yblocks:
-                    pos2 = waveFunc((x, y), radius)
+                    pos2 = waveFunc((x, y), radius + 10)
                     tempGameSurface.blit(self.gameSurface, (x, y), (*pos2, 10, 10))
             self.gameSurface = tempGameSurface
         # phase 2
