@@ -5,9 +5,9 @@ const of AI code use.
 
 AI_NothingToDo     = 0
 AI_MoveWayChange   = 1
-AI_GravCollapse    = 2
-AI_PartDiffraction = 3
-AI_HighEnergyEMP   = 4
+AI_Explosion       = 2
+AI_MultiBullet     = 3
+AI_BigBullet       = 4
 AI_NuclFission     = 5
 AI_HypSniping      = 6
 AI_ExSpecHarmony   = 7
