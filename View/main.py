@@ -219,6 +219,7 @@ class GraphicalView(object):
 
             # detect the edges of the current screen
             tempStopSurface = pg.transform.laplacian(self.screen)
+            # make it monochrome
             self.stopSurface = pg.Surface(self.screen.get_size())
             pg.transform.threshold(self.stopSurface, tempStopSurface, viewConst.Color_Black, (0, 0, 0, 0), viewConst.Color_White)
 
@@ -570,7 +571,7 @@ class GraphicalView(object):
             yblocks = range(0, 800, 10)
             for x in xblocks:
                 for y in yblocks:
-                    pos2 = waveFunc((x, y), radius + 10)
+                    pos2 = waveFunc((x, y), radius + 15)
                     tempGameSurface.blit(self.gameSurface, (x, y), (*pos2, 10, 10))
             self.gameSurface = tempGameSurface
         # phase 2
