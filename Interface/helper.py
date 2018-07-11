@@ -192,7 +192,7 @@ class Helper(object):
         Dir = Vec(_dir)
         inner_product = (Pos2 - Pos1).dot(Dir)
         outer_product = abs((Pos2 - Pos1).cross(Dir))
-        return inner_product > 0 and outer_product > 0 and outer_product < radius1 + radius2
+        return inner_product > 0 and outer_product > 0 and outer_product + modelConst.eps <= radius1 + radius2
 
 
     #me info

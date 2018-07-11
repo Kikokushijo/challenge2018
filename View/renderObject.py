@@ -86,7 +86,7 @@ class Rainbow(RenderObject):
 
 class Iridescence(RenderObject):
     """
-    Psychodelic visual effect.
+    Psychedelic visual effect.
     """
     def __init__(self, pos, time, reverse=False):
         super().__init__(pos, time, False)
