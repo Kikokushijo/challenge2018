@@ -3,15 +3,16 @@ const of AI code use.
 """
 #action
 
-AI_NothingToDo    = 0
-AI_MoveWayChange  = 1
-AI_Explosion      = 2
-AI_MultiBullet    = 3
-AI_Canon          = 4
-AI_Sacrifice      = 5
-AI_NuclearCrisis  = 6
-AI_Rainbow        = 7
-AI_Resonance      = 8
+AI_NothingToDo     = 0
+AI_MoveWayChange   = 1
+AI_GravCollapse    = 2
+AI_PartDiffraction = 3
+AI_HighEnergyEMP   = 4
+AI_NuclFission     = 5
+AI_HypSniping      = 6
+AI_ExSpecHarmony   = 7
+AI_GravResonance   = 8
+
 
 """
 a base of AI.
