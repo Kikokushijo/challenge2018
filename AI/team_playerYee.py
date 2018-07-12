@@ -1,7 +1,7 @@
 from math import sin, cos,pi
 from AI.base import *
 from pygame.math import Vector2 as Vec
-
+from datetime import datetime
 eps = 1e-5
 game_size = 800
 class Stimulate_Obj(object):
@@ -136,11 +136,11 @@ class TeamAI( BaseAI ):
     def body_threat(self):
         helper=self.helper
         if helper.checkMeCircling():
-            return self.circling_collide(50)
+            return self.circling_collide(45)
         else:
             for body in helper.bodyOnRoute():
-                if self.too_close(self.me.pos, self.me.radius, Vec(body), helper.body_radius, 9 * helper.head_radius):
-                    if not self.circling_collide(50):
+                if self.too_close(self.me.pos, self.me.radius, Vec(body), helper.body_radius, 10 * helper.head_radius):
+                    if not self.circling_collide(45):
                         return True
             return False
             
@@ -152,7 +152,7 @@ class TeamAI( BaseAI ):
         for bullet in helper.model.bullet_list:
             if bullet.index == helper.index:
                 continue
-            if self.too_close(self.me.pos, self.me.radius, bullet.pos, bullet.radius, 13 * helper.head_radius) \
+            if self.too_close(self.me.pos, self.me.radius, bullet.pos, bullet.radius, 20 * helper.head_radius) \
                  and self.stimulate_collision(self.me, bullet, esc_time):
                 return True
         return False
@@ -160,7 +160,7 @@ class TeamAI( BaseAI ):
     def head_point_escaping(self):
         return not self.head_point_threat()
 
-    def head_point_threat(self, stimulate_time=10):
+    def head_point_threat(self, stimulate_time=15):
         helper=self.helper
         for enemy in helper.model.player_list:
             if enemy.index == helper.index or not helper.checkPlayerAlive(enemy.index):
@@ -242,7 +242,8 @@ class TeamAI( BaseAI ):
                 return AI_MoveWayChange
 
             for body in helper.bodyOnRoute():
-                if self.too_close(self.me.pos, self.me.radius, Vec(body), helper.body_radius, 5 * helper.head_radius):
+                dist=8 * helper.head_radius if (self.me.pos - Vec(helper.getNearestGravOnRoute()[0])).length_squared()<=helper.head_radius**2 else 5 * helper.head_radius
+                if self.too_close(self.me.pos, self.me.radius, Vec(body), helper.body_radius, dist):
                     return AI_MoveWayChange
         
             #attack
@@ -263,7 +264,11 @@ class TeamAI( BaseAI ):
                                 return AI_MoveWayChange
                         
         
-        if helper.canGetBySpin() == 0 and helper.checkMeCircling() and not self.escaping:
+        getbyspin=helper.canGetBySpin()
+        if getbyspin is not None and getbyspin == 0 and helper.checkMeCircling() and not self.escaping:
             return AI_MoveWayChange
-        
+        elif getbyspin is not None and getbyspin > 0 and not helper.checkMeCircling() and not self.escaping:
+            print('Yee%d: spin to eat %dmin %ds' %(helper.index,datetime.now().minute,datetime.now().second))
+            return AI_MoveWayChange
+
         return AI_NothingToDo
