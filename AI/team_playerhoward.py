@@ -90,7 +90,7 @@ class TeamAI( BaseAI ):
         head_radius = helper.head_radius
         head_dir = Vec(helper.getMyDir())
         circling = helper.checkMeCircling()
-        if len(helper.getMyBodyPos()) > 0:
+        if len(helper.getMyBodyPos()) == 0:
             return None
         if circling:
             for i in range(4):
@@ -103,7 +103,7 @@ class TeamAI( BaseAI ):
                 t1 = head_dir.dot(pdir) / pdir.length() / head_dir.length()
                 rrel = pos - hPos
                 t2 = head_dir.dot(rrel) / rrel.length() / head_dir.length()
-                if 0.98 < t2 and helper.checkPlayerInGrav(i) and rrel.length() < 400:
+                if 0.98 < t2 and helper.checkPlayerInGrav(i) and rrel.length() < 150:
                     return AI_MoveWayChange
         elif not helper.checkMeInGrav():
             for i in range(4):
