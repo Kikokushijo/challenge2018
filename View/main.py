@@ -73,13 +73,16 @@ class GraphicalView(object):
             # limit the redraw speed to 60 frames per second
             self.clock.tick(viewConst.FramePerSec)
         elif isinstance(event, Event_TriggerExplosive):
+            self.explosionSound.play()
             self.renderObjects.append(renderObject.Explosion(event.PlayerIndex, event.pos, modelConst.explosive_radius, viewConst.explosionTime))
         elif isinstance(event, Event_PlayerKilled):
+            self.badExplosionSound.play()
             self.renderObjects.append(renderObject.Explosion(event.PlayerIndex, event.pos, viewConst.killedExplosionRadius, viewConst.killedExplosionTime))
         elif isinstance(event, Event_TimeLimitExceed):
             pos = ((viewConst.ScreenSize[0] + viewConst.GameSize[0]) // 2, viewConst.GameSize[1] // 8 * (2 * event.PlayerIndex + 1))
             self.renderObjects.append(renderObject.TimeLimitExceedStamp(pos, viewConst.timeLimitExceedStampTime))
         elif isinstance(event, Event_SuddenDeath):
+            self.magicCircleSound.play()
             pos = tuple([x // 2 for x in viewConst.GameSize])
             self.renderObjects.append(renderObject.MagicCircle(pos, viewConst.magicCircleGenerationTime))
         elif isinstance(event, Event_CutIn):
@@ -111,13 +114,27 @@ class GraphicalView(object):
         """
         Set up the pygame graphical display and loads graphical resources.
         """
+        pg.mixer.pre_init(44100, -16, 2, 2048);
         pg.init();
         pg.display.set_caption(viewConst.GameCaption)
         self.screen = pg.display.set_mode(viewConst.ScreenSize)
         self.renderSurface = pg.Surface(viewConst.ScreenSize)
         self.gameSurface = pg.Surface(viewConst.GameSize)
+        self.renderObjects = []
+        self.vibration = False
 
         self.clock = pg.time.Clock()
+
+        # load sounds and music
+        self.backgroundMusic = pg.mixer.Sound('View/Sound/bgm.ogg')
+        self.explosionSound = pg.mixer.Sound('View/Sound/explosion.ogg')
+        self.badExplosionSound = pg.mixer.Sound('View/Sound/explosion2.ogg')
+        self.dashSound = pg.mixer.Sound('View/Sound/dash.ogg')
+        self.meowSound = pg.mixer.Sound('View/Sound/meow.ogg')
+        self.rainbowSound = pg.mixer.Sound('View/Sound/rainbow.ogg')
+        self.magicCircleSound = pg.mixer.Sound('View/Sound/magicCircle.ogg')
+
+        # load fonts
         self.smallfont = pg.font.Font(None, 40)
         self.titleFont = pg.font.Font(viewConst.titleFont, viewConst.titleFontSize)
         self.teamNameFont = pg.font.Font(viewConst.teamNameFont, viewConst.teamNameFontSize)
@@ -126,10 +143,7 @@ class GraphicalView(object):
         self.countDownFont = pg.font.Font(viewConst.countDownFont, viewConst.countDownFontSize)
         self.tmpScoreFont = pg.font.Font(viewConst.tmpScoreFont, viewConst.tmpScoreFontSize)
 
-        self.renderObjects = []
-
-        self.vibration = False
-
+        # load images
         self.magicCircleImage = pg.image.load('View/Image/magicCircle.png').convert_alpha()
         self.rainbowImage = pg.transform.scale(pg.image.load('View/Image/rainbow.jpg').convert(), viewConst.GameSize)
         self.nyanCatImage = pg.transform.rotozoom(pg.image.load('View/Image/nyancat.png').convert_alpha(), 0, 0.5)
@@ -166,13 +180,14 @@ class GraphicalView(object):
         self.cutInImageTransLarge = [pg.transform.scale(img, viewConst.skillCardCutInPicLargeSize)
                                       for img in self.cutInImageTrans2]
 
+        self.backgroundMusic.play(-1)
+
         self.is_initialized = True
 
     def blit_at_center(self, target, source, position):
         center = tuple([int(pos - size // 2) for pos, size in zip(position, source.get_size())])
         target.blit(source, center)
 
-    # to be modified
     def render_menu(self):
         """
         Render the game menu.
@@ -207,7 +222,6 @@ class GraphicalView(object):
                 # update surface
                 pg.display.flip()
         
-    # to be modified
     def render_stop(self):
         """
         Render the stop screen.
@@ -231,7 +245,7 @@ class GraphicalView(object):
         self.screen.fill(viewConst.Color_Black)
         if self.stopCounter % 3 == 0:
             gray = (min(50 + int(205 * min(1, self.stopCounter / 240)) + random.randint(-40, 40), 255), ) * 3
-            self.stopSurface.set_alpha(random.randint(16, 32))
+            self.stopSurface.set_alpha(127 - gray[0] // 2.2)
             self.screen.blit(self.stopSurface, (0, 0))
             words = self.titleFont.render('PAUSE', True, gray)
             pos = [x // 2 for x in viewConst.ScreenSize]
@@ -378,15 +392,21 @@ class GraphicalView(object):
         self.blit_at_center(self.gameSurface, magicCircleEffect, magicCircle.pos)
 
     def drawCountDown(self, countdown):
-        if countdown.time / countdown.totaltime > 2/3:
+        timeRatio = countdown.time / countdown.totaltime
+        if timeRatio > 3/4:
             color = viewConst.Color_Firebrick
             figure = 3
-        elif countdown.time / countdown.totaltime > 1/3:
+        elif timeRatio > 2/4:
             color = viewConst.Color_Royalblue
             figure = 2
-        else:
+        elif timeRatio > 1/4:
             color = viewConst.Color_Darkolivegreen
             figure = 1
+        elif timeRatio > 23/127:
+            color = viewConst.Color_Orangered
+            figure = "GO!"
+        else:
+            return
         countDownFigure = self.countDownFont.render(str(figure), True, color)
         self.blit_at_center(self.gameSurface, countDownFigure, countdown.pos)
 
@@ -525,6 +545,8 @@ class GraphicalView(object):
         # phase 0
         if time == 120:
             ypos = random.sample([i for i in range(100, 700 + 1, 100)], 5)
+            self.meowSound.play()
+            self.rainbowSound.play()
             for i in range(5):
                 pos = (random.randint(-400, 0), ypos[i])
                 self.renderObjects.append(renderObject.Nyancat(pos, 180))
@@ -624,7 +646,7 @@ class GraphicalView(object):
         if self.last_update != model.STATE_PLAY and self.last_update != model.STATE_STOP:
             self.renderObjects[:] = []
             pos = tuple([x // 2 for x in viewConst.GameSize])
-            self.renderObjects.append(renderObject.CountDown(pos, 180))
+            self.renderObjects.append(renderObject.CountDown(pos, 240))
         self.last_update = model.STATE_PLAY
 
         self.screen.fill(viewConst.Color_Black)
