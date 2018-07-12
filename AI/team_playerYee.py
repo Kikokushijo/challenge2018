@@ -1,7 +1,6 @@
 from math import sin, cos,pi
 from AI.base import *
 from pygame.math import Vector2 as Vec
-from Model.GameObject.head import Head
 
 eps = 1e-5
 game_size = 800
@@ -99,7 +98,7 @@ class TeamAI( BaseAI ):
         helper=self.helper
         if self.helper.checkMeCircling(): #going straight in the past
             for body in self.helper.bodyOnRoute():
-                if too_close(self.me.pos, self.me.radius, Vec(body), self.helper.body_radius, 5 * self.helper.head_radius):
+                if too_close(self.me.pos, self.me.radius, Vec(body), self.helper.body_radius, 6 * self.helper.head_radius):
                     return False
         else: #circling in the past
             grav_center=Vec(helper.getMyGrav()[0])
@@ -114,25 +113,27 @@ class TeamAI( BaseAI ):
     
     def body_threat(self):
         helper=self.helper
+        grav_center=Vec(helper.getMyGrav()[0])
         if self.helper.checkMeCircling():
-            grav_center=Vec(helper.getMyGrav()[0])
             for body_pos in helper.getAllBodyPos():
                 grav_to_me = self.me.pos - grav_center
                 grav_to_body = Vec(body_pos) - grav_center
                 #does not have body on the circle and it is close enough
                 if abs(self.me.circling_radius - grav_to_body.length()) <= 2 * helper.head_radius \
-                    and self.me.circling_radius * grav_to_me.angle_to(grav_to_body) * pi <= 8 * 180 * helper.head_radius:
+                    and self.me.circling_radius * grav_to_me.angle_to(grav_to_body) * pi <= 8 * 180 * helper.head_radius \
+                    and grav_to_me.angle_to(grav_to_body)<=90:
                     return True
         else:
             for body in self.helper.bodyOnRoute():
-                if too_close(self.me.pos, self.me.radius, Vec(body), self.helper.body_radius, 9 * self.helper.head_radius):
+                if too_close(self.me.pos, self.me.radius, Vec(body), self.helper.body_radius, 9 * self.helper.head_radius) \
+                    and (self.me.pos-grav_center).angle_to(Vec(body)-grav_center)<=100:
                     return True
         return False
             
     def bullet_escaping(self):
         return not self.bullet_threat()
 
-    def bullet_threat(self, esc_time=30):
+    def bullet_threat(self, esc_time=45):
         helper=self.helper
         for bullet in helper.model.bullet_list:
             if bullet.index == helper.index:
@@ -141,6 +142,19 @@ class TeamAI( BaseAI ):
                  and self.stimulate_collision(self.me, bullet, esc_time):
                 return True
         return False
+    
+    def head_point_escaping(self):
+        return not self.head_point_threat()
+
+    def head_point_threat(self):
+        helper=self.helper
+        for enemy in helper.model.player_list:
+            if enemy.index == helper.index or not helper.checkPlayerAlive(enemy.index):
+                continue
+            if not helper.checkPlayerInGrav(enemy.index) and enemy.dash_cool <= 0:
+                bullet = Stimulate_Obj(self.gravs, enemy.pos, enemy.direction, helper.bullet_speed, helper.bullet_radius, helper.bullet_acc)
+                if self.stimulate_collision(self.me, bullet, 8):
+                    return AI_MoveWayChange
 
     def decide(self):
         helper = self.helper
@@ -156,23 +170,46 @@ class TeamAI( BaseAI ):
                     if self.body_escaping():
                         self.escaping = False
                         self.danger.pop()
+                    if self.head_point_threat():
+                        self.escaping = True
+                        self.danger.append(3)
                     if self.bullet_threat():
                         self.escaping = True
                         self.danger.append(1)
-
+                        
                     if self.escaping and self.danger[-1] != 0:
                         return AI_MoveWayChange
                 elif self.danger[-1] == 1:
                     if self.bullet_escaping():
                         self.escaping = False
                         self.danger.pop()
+                    if self.head_point_threat():
+                        self.escaping = True
+                        self.danger.append(2)                        
                     if self.body_threat():
                         self.escaping = True
                         self.danger.append(0)
 
                     if self.escaping and self.danger[-1] != 1:
                         return AI_MoveWayChange
+                elif self.danger[-1] == 2:
+                    if self.head_point_escaping():
+                        self.escaping = False
+                        self.danger.pop()
+                    if self.bullet_threat():
+                        self.escaping = True
+                        self.danger.append(2)                        
+                    if self.body_threat():
+                        self.escaping = True
+                        self.danger.append(0)
+
+                    if self.escaping and self.danger[-1] != 2:
+                        return AI_MoveWayChange
+
             else:
+                if self.head_point_threat():
+                    self.escaping = True
+                    self.danger.append(2)                    
                 if self.body_threat():
                     self.escaping = True
                     self.danger.append(0)
