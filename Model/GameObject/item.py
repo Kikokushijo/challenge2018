@@ -7,17 +7,21 @@ from Model.GameObject.white_ball import White_Ball
 
 import random
 class Item(object):
-    def __init__(self,type = None):
+    def __init__(self,type = None, pos = None):
         self.type = type
-        self.pos = Vec(random.randint(0+modelConst.item_radius, viewConst.ScreenSize[1]-modelConst.item_radius), random.randint(0+modelConst.item_radius, viewConst.ScreenSize[1]-modelConst.item_radius))
+        randpos = Vec(random.randint(0+modelConst.item_radius, viewConst.ScreenSize[1]-modelConst.item_radius), random.randint(0+modelConst.item_radius, viewConst.ScreenSize[1]-modelConst.item_radius))
+        if pos == None:
+            self.pos = randpos
+        else:
+            self.pos = pos
         self.age = 0
 
     def update(self):
         self.age += 1
 
 class Explosive(Item):
-    def __init__(self, evManager):
-        super().__init__(modelConst.PROP_TYPE_EXPLOSIVE)
+    def __init__(self, evManager, pos = None):
+        super().__init__(modelConst.PROP_TYPE_EXPLOSIVE, pos)
         self.radius = modelConst.item_radius
         self.color = viewConst.explosive_color
         self.evManager = evManager
@@ -55,8 +59,8 @@ class Explosive(Item):
                     other.body_list.pop(i)
 
 class Multibullet(Item):
-    def __init__(self):
-        super().__init__(modelConst.PROP_TYPE_MULTIBULLET)
+    def __init__(self, pos = None):
+        super().__init__(modelConst.PROP_TYPE_MULTIBULLET, pos)
         self.radius = modelConst.item_radius
         self.color = viewConst.multibullet_color
     
@@ -65,8 +69,8 @@ class Multibullet(Item):
         player_list[index].have_multibullet = True
 
 class Bigbullet(Item):
-    def __init__(self):
-        super().__init__(modelConst.PROP_TYPE_BIGBULLET)
+    def __init__(self, pos = None):
+        super().__init__(modelConst.PROP_TYPE_BIGBULLET, pos)
         self.radius = modelConst.item_radius
         self.color = viewConst.bigbullet_color
     

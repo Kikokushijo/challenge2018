@@ -27,6 +27,7 @@ class Head(object):
         self.speed = modelconst.normal_speed
         self.is_dash = False
         self.dash_timer = 0
+        self.dash_cool=0
         self.radius = modelconst.head_radius
         self.is_alive = True
         self.score = Score
@@ -38,11 +39,15 @@ class Head(object):
         self.init_timer = 200
         self.have_multibullet = False
         self.have_bigbullet = False
+        self.always_multibullet = False
+        self.always_bigbullet = False
         #if in grav
         self.grav_center = Vec( 0, 0 )
         self.pos_log = [Vec(self.pos)]
 
-    def update(self,player_list, wb_list, bullet_list, item_list):
+        self.is_rainbow = False
+
+    def update(self,player_list, wb_list, bullet_list, item_list, score_list, tmp_score_list):
         if not self.is_alive:
             return 0
 
@@ -100,20 +105,23 @@ class Head(object):
                         #self die
                         killer = enemy.index
                         self.is_alive = False
-                        self.add_score(player_list)
+                        self.add_score(player_list,score_list,tmp_score_list)
                         break
+                else:
+                    continue
+                break
             for bullet in bullet_list :
                 if (bullet.index != self.index) and \
                    (self.pos - bullet.pos).length_squared() < (self.radius + bullet.radius)**2 :
                     killer = bullet.index
                     self.is_alive = False
-                    self.add_score(player_list)
+                    self.add_score(player_list,score_list,tmp_score_list)
                     break
         ##player die
         if not self.is_alive:
             self.is_dash = True
             while len(self.body_list) > 1:
-                if killer != -1:
+                if killer != -1 and player_list[killer].is_alive:
                     wb_list.append(White_Ball(Vec(self.body_list[-1].pos),True,killer))
                     #player_list[killer].body_list.append(Body(player_list[killer].body_list[-1]))
                 self.body_list.pop(-1)
@@ -133,23 +141,36 @@ class Head(object):
                         enemy.is_circling = False
         
         #collision with item
-        for i in range(len(item_list)-1,-1,-1):
-            item = item_list [ i ]
-            if ( self.pos - item.pos ).length_squared() < (self.radius + item.radius)**2 :
-                item.trigger(self.index,player_list,wb_list)
-                item_list.pop(i)
+        cnt = 0
+        for i in player_list:
+            if i.is_alive:
+                cnt += 1
+        if cnt != 1:
+            for i in range(len(item_list)-1,-1,-1):
+                item = item_list [ i ]
+                if ( self.pos - item.pos ).length_squared() < (self.radius + item.radius)**2 :
+                    item.trigger(self.index,player_list,wb_list)
+                    item_list.pop(i)
         #dash timer
         if self.is_dash:
             self.dash_timer -= 1
             if self.dash_timer == 0:
                 self.is_dash = False
                 #self.speed = modelconst.normal_speed
+        # dash cool
+        if self.dash_cool>0:
+            self.dash_cool-=1
         #update theta
         #self.theta = atan2(self.direction.x, -self.direction.y)
         for j in range(1, len(self.body_list)):
                 self.body_list[j].update()
+
+        if self.is_rainbow:
+            self.rainbow_mode()
         return 0
     def click(self, bullet_list, wb_list) :
+        if not self.is_alive:
+            return
         if self.init_timer != -1:
             return
         if not self.is_dash:
@@ -169,34 +190,45 @@ class Head(object):
                 else:
                     self.circling_radius = 0
 
-            else:
+            elif self.dash_cool==0:
                 self.is_dash = True
                 self.dash_timer = modelconst.max_dash_time * modelconst.dash_speed_multiplier
+                self.dash_cool=self.dash_timer+modelconst.dash_cool
                 #self.speed = modelconst.dash_speed
                 if len(self.body_list)>1 :
                     self.body_list.pop(-1)
-                    if self.have_multibullet:
+                    if self.always_multibullet or self.have_multibullet:
                         bullet_list.append(Bullet(self.pos,self.direction,self.index))
                         bullet_list.append(Bullet(self.pos,self.direction.rotate(30),self.index))
                         bullet_list.append(Bullet(self.pos,self.direction.rotate(-30),self.index))
                         self.have_multibullet = False
-                    if self.have_bigbullet:
+                    elif self.always_bigbullet or self.have_bigbullet:
                         bullet_list.append(Bullet(self.pos,self.direction,self.index,modelconst.bigbullet_r))
                         self.have_bigbullet = False
                     else:
                         bullet_list.append(Bullet(self.pos,self.direction,self.index))
 
-    def add_score(self, player_list):
+    def add_score(self, player_list, score_list,tmp_score_list):
         for enemy in player_list:
             if enemy.index == self.index:
                 continue
             else :
                 if enemy.is_alive:
-                    enemy.score += 1
+                    score_list[enemy.index] += 1
+                    tmp_score_list[enemy.index] += 1
 
+    def blast(self, bullet_list):
+        for i in range(len(self.body_list)-1,0,-1):
+            cb = self.body_list[i]
+            rndtheta = random.random() * 2 * pi
+            bullet_list.append(Bullet(cb.pos, Vec(cos(rndtheta), sin(rndtheta)), self.index, 2 * modelconst.bullet_radius))
+            self.body_list.pop()
 
-
-
+    def rainbow_mode(self):
+        for ii in range(len(self.body_list)-1,0,-1):
+            i = self.body_list[ii]
+            if i.color == i.pre.color:
+                i.color = ( random.randint(0,255), random.randint(0,255), random.randint(0,255))
 
 
 

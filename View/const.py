@@ -54,14 +54,45 @@ playerColor       = [Color_Darkviolet,     Color_Royalblue, Color_Saddlebrown,
                      Color_Lightcoral,     Color_Burlywood, Color_Silver]
 
 # Durations
-explosionTime           = 30
-killedExplosionRadius   = 200
-killedExplosionTime     = 90
-bulletFlickerCycle      = 15
-whiteBallGenerationTime = 30
-itemGenerationTime      = 60
+magicCircleGenerationTime = 120
+timeLimitExceedStampTime  = 30
+scoreFlagEmergeTime       = 60
+thermometerEmergeTime     = 120
+explosionTime             = 30
+killedExplosionRadius     = 200
+killedExplosionTime       = 90
+bulletFlickerCycle        = 15
+whiteBallGenerationTime   = 30
+itemGenerationTime        = 60
+
+# skill card phrases
+# phrase1 : two thin  lines run right
+# phrase2 : two thick lines run left
+# phrase3 : silouette runs left
+# phrase4 : flash
+# phrase5 : silouette becomes picture, and big picture appears
+# phrase6 : silouette and big picture accelerates and disappears
+
+skillCardCutInTimePhrases  = [10, 10, 20, 10, 20, 15]
+skillCardCutInTime         = sum(skillCardCutInTimePhrases)
+
+skillCardCutInTimesteps    = [skillCardCutInTime - sum(skillCardCutInTimePhrases[:idx])
+                              for idx in range(len(skillCardCutInTimePhrases))]
+
+skillCardCutInPicSize      = (229, 232)
+skillCardSmallScaleRate    = 1.0
+skillCardCutInPicSmallSize = tuple([int(x * skillCardSmallScaleRate) for x in skillCardCutInPicSize])
+skillCardLargeScaleRate    = 1.5
+skillCardCutInPicLargeSize = tuple([int(x * skillCardLargeScaleRate) for x in skillCardCutInPicSize])
+
+# Size
+thermometerBallSize = 80
+thermometerBarWidth = 40
 
 # Font
+titleFont          = 'View/Font/makinas_scrap/Makinas-Scrap-5.otf'
+titleFontSize      = 200
+
 teamNameFont       = 'View/Font/Noto/NotoSansCJK-Black.ttc'
 teamNameFontSize   = 20
 
@@ -70,3 +101,9 @@ teamLengthFontSize = 40
 
 teamScoreFont      = 'View/Font/Noto/NotoSansCJK-Black.ttc'
 teamScoreFontSize  = 60
+
+countDownFont      = 'View/Font/Noto/NotoSansCJK-Black.ttc'
+countDownFontSize  = 200
+
+tmpScoreFont       = 'View/Font/Noto/NotoSansCJK-Black.ttc'
+tmpScoreFontSize   = 80

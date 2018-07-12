@@ -39,10 +39,14 @@ class Control(object):
                     cur_state = self.model.state.peek()
                     if cur_state == model.STATE_MENU:
                         self.ctrl_menu(event)
-                    if cur_state == model.STATE_PLAY:
+                    elif cur_state == model.STATE_PLAY:
                         self.ctrl_play(event)
-                    if cur_state == model.STATE_STOP:
+                    elif cur_state == model.STATE_STOP:
                         self.ctrl_stop(event)
+                    elif cur_state == model.STATE_ENDGAME:
+                        self.ctrl_endgame(event)
+                    elif cur_state == model.STATE_ENDMATCH:
+                        self.ctrl_endmatch(event)
         elif isinstance(event, Event_Initialize):
             self.initialize()
 
@@ -88,6 +92,20 @@ class Control(object):
                 self.evManager.Post(Event_MoveWayChange(2))
             elif event.key == pg.K_l and (not self.model.player_list[3].is_AI) :
                 self.evManager.Post(Event_MoveWayChange(3))
+            elif event.key == pg.K_s and (not self.model.player_list[0].is_AI) and self.model.can_use_skill(0):
+                self.evManager.Post(Event_Skill(0,1))
+            elif event.key == pg.K_d and (not self.model.player_list[0].is_AI) and self.model.can_use_skill(0):
+                self.evManager.Post(Event_Skill(0,2))
+            elif event.key == pg.K_f and (not self.model.player_list[0].is_AI) and self.model.can_use_skill(0):
+                self.evManager.Post(Event_Skill(0,3))
+            elif event.key == pg.K_g and (not self.model.player_list[0].is_AI) and self.model.can_use_skill(0):
+                self.evManager.Post(Event_Skill(0,4))
+            elif event.key == pg.K_q and (not self.model.player_list[0].is_AI) and self.model.can_use_skill(0):
+                self.evManager.Post(Event_Skill(0,5))
+            elif event.key == pg.K_w and (not self.model.player_list[0].is_AI) and self.model.can_use_skill(0):
+                self.evManager.Post(Event_Skill(0,6))
+            elif event.key == pg.K_e and (not self.model.player_list[0].is_AI) and self.model.can_use_skill(0):
+                self.evManager.Post(Event_Skill(0,7))
 
                 # DirKeys = self.ControlKeys[player.index][0:4]
                 # if event.key in DirKeys:
@@ -97,6 +115,24 @@ class Control(object):
                 #         self.evManager.Post(
                 #             Event_Move( player.index, ctrlConst.DirHash[DirHashValue] )
                 #         )
+
+    def ctrl_endgame(self, event):
+        """
+        Handles endgame events.
+        """
+        if event.type == pg.KEYDOWN:
+            # restart the game
+            if event.key == pg.K_SPACE:
+                self.evManager.Post(Event_StateChange(None))
+
+    def ctrl_endmatch(self, event):
+        """
+        Handles endmatch events.
+        """
+        if event.type == pg.KEYDOWN:
+            # restart the game
+            if event.key == pg.K_ESCAPE:
+                self.evManager.Post(Event_StateChange(None))
         
     def Get_KeyPressIn(self, keylist):
         return [key for key, value in enumerate(pg.key.get_pressed()) if value == 1 and key in keylist]

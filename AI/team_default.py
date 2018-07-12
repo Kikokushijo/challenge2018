@@ -15,11 +15,12 @@ class TeamAI( BaseAI ):
         if helper.getOtherBulletNumInRange(hPos, 10 * wb_radius) > 0:
             return AI_MoveWayChange
         if not helper.checkMeInGrav():
-            if helper.bodyOnRoute() or helper.headOnRoute():
+            if helper.bodyOnRoute():
+                return AI_MoveWayChange
+            if helper.bodyOnRoute():
                 return AI_MoveWayChange
         else :
             if helper.checkMeCircling() and helper.canGetBySpin() == 0:
                 return AI_MoveWayChange
-            if not helper.checkMeCircling() and helper.canGetBySpin() > 0:
+            if (not helper.checkMeCircling()) and helper.canGetBySpin() > 0:
                 return AI_MoveWayChange
-        return AI_NothingToDo

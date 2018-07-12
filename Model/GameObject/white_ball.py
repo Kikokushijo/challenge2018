@@ -10,7 +10,7 @@ class White_Ball(object):
         self.following = following
         self.target = target
         self.index = index
-        if target == -1:
+        if target != -1:
             self.age = viewConst.whiteBallGenerationTime + 1
         else:
             self.age = 0
@@ -42,12 +42,14 @@ class White_Ball(object):
                 return False
             targetobj = player_list[self.target].body_list[-1]
             targetpos = targetobj.pos_log[0]
-            if (self.pos - targetpos).length_squared() < self.speed ** 2:
+            steps = (targetpos - self.pos).length() / self.speed
+            multiplier = 3 if player_list[self.target].is_dash else 1
+            if (self.pos - targetpos).length_squared() < (self.speed * (1 + steps/2/30) * multiplier) ** 2:
                 player_list[targetobj.index].body_list.append(Body(player_list[targetobj.index].body_list[-1],self.index == -1))
                 return False
             else:
                 direction = (targetpos - self.pos).normalize()
-                self.pos += direction * self.speed
+                self.pos += direction * self.speed * (1 + steps/2/30) * multiplier
                 return True
 
 

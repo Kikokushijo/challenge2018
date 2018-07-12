@@ -63,6 +63,15 @@ class Event_TimeLimitExceed(BaseEvent):
     def __str__(self):
         return "{0} => Playerindex={1}".format(self.name, self.PlayerIndex)
 
+class Event_SuddenDeath(BaseEvent):
+    """
+    Event of time limit exceed when running AI code.
+    """
+    def __init__(self):
+        self.name = "SuddenDeath Event"
+    def __str__(self):
+        return "{0}".format(self.name)
+
 
 class Event_TriggerExplosive(BaseEvent):
 
@@ -83,11 +92,24 @@ class Event_PlayerKilled(BaseEvent):
     def __str__(self):
         return "{0} => Playerindex={1} , Killed at {2}".format(self.name, self.PlayerIndex, self.pos)
 
-class Event_GameOver(BaseEvent):
-    def __init__ (self):
-        self.name = "GameOver event"
+class Event_Skill(BaseEvent):
+    
+    def __init__(self, player, number):
+        self.name = "Skill Event"
+        self.PlayerIndex = player
+        self.number = number
     def __str__(self):
-        return self.name
+        return "{0} => Playerindex={1}".format(self.name, self.PlayerIndex)
+
+class Event_CutIn(BaseEvent):
+    
+    def __init__(self, player, number):
+        self.name = "CutIn Event"
+        self.PlayerIndex = player
+        self.number = number
+    def __str__(self):
+        return "{0} => Playerindex={1}".format(self.name, self.PlayerIndex)
+
 class Event_EveryTick(BaseEvent):
     """
     Tick event.
