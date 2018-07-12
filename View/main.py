@@ -30,25 +30,73 @@ class GraphicalView(object):
         self.renderSurface = None
         self.gameSurface = None
         self.clock = None
-        self.smallfont = None
         self.renderObjects = None
 
-        self.titleFont = None
-        self.teamNameFont = None
-        self.teamLengthFont = None
-        self.teamScoreFont = None
-        self.countDownFont = None
-        self.tmpScoreFont = None
+        # initialize pygame modules
+        pg.mixer.pre_init(44100, -16, 2, 2048);
+        pg.init();
 
-        self.magicCircleImage = None
-        self.rainbowImage = None
-        self.nyanCatImage = None
-        self.nyanCatTailImage = None
+        # initialize game window
+        pg.display.set_caption(viewConst.GameCaption)
+        self.screen = pg.display.set_mode(viewConst.ScreenSize)
+
+        # load sounds and music
+        self.backgroundMusic = pg.mixer.Sound('View/Sound/bgm.ogg')
+        self.explosionSound = pg.mixer.Sound('View/Sound/explosion.ogg')
+        self.badExplosionSound = pg.mixer.Sound('View/Sound/explosion2.ogg')
+        self.dashSound = pg.mixer.Sound('View/Sound/dash.ogg')
+        self.meowSound = pg.mixer.Sound('View/Sound/meow.ogg')
+        self.rainbowSound = pg.mixer.Sound('View/Sound/rainbow.ogg')
+        self.magicCircleSound = pg.mixer.Sound('View/Sound/magicCircle.ogg')
+
+        # load fonts
+        self.titleFont = pg.font.Font(viewConst.titleFont, viewConst.titleFontSize)
+        self.teamNameFont = pg.font.Font(viewConst.teamNameFont, viewConst.teamNameFontSize)
+        self.teamLengthFont = pg.font.Font(viewConst.teamLengthFont, viewConst.teamLengthFontSize)
+        self.teamScoreFont = pg.font.Font(viewConst.teamScoreFont, viewConst.teamScoreFontSize)
+        self.countDownFont = pg.font.Font(viewConst.countDownFont, viewConst.countDownFontSize)
+        self.tmpScoreFont = pg.font.Font(viewConst.tmpScoreFont, viewConst.tmpScoreFontSize)
+
+        # load images
+        self.magicCircleImage = pg.image.load('View/Image/magicCircle.png').convert_alpha()
+        self.rainbowImage = pg.transform.scale(pg.image.load('View/Image/rainbow.jpg').convert(), viewConst.GameSize)
+        self.nyanCatImage = pg.transform.rotozoom(pg.image.load('View/Image/nyancat.png').convert_alpha(), 0, 0.5)
+        self.nyanCatTailImage = pg.transform.rotozoom(pg.image.load('View/Image/nyancattail.png').convert_alpha(), 0, 0.5)
+
+        self.cutInImageNames  = ['Darkviolet', 'Royalblue', 'Saddlebrown', 'Darkolivegreen']
+
+        # self.cutInImage       = [(pg.image.load('View/Image/Darkviolet.png').convert_alpha(),
+        #                           pg.image.load('View/Image/Darkviolet_bw.png').convert_alpha()),
+        #                          (pg.image.load('View/Image/Royalblue.png').convert_alpha(),
+        #                           pg.image.load('View/Image/Royalblue_bw.png').convert_alpha()),
+        #                          (pg.image.load('View/Image/Saddlebrown.png').convert_alpha(),
+        #                           pg.image.load('View/Image/Saddlebrown_bw.png').convert_alpha())]
+
+        self.cutInImage       = [(pg.image.load('View/Image/CutInImages/%s/%s.png' % (name, name)).convert_alpha(),
+                                  pg.image.load('View/Image/CutInImages/%s/%s_bw.png' % (name, name))) for name in self.cutInImageNames]
+        self.cutInImageSmall = [tuple([pg.transform.scale(img1, viewConst.skillCardCutInPicSmallSize),
+                                       pg.transform.scale(img2, viewConst.skillCardCutInPicSmallSize)])
+                                      for img1, img2 in self.cutInImage]
+        # self.cutInImageTrans1      = [pg.image.load('View/Image/Darkviolet_trans1.png').convert_alpha(),
+        #                               pg.image.load('View/Image/Royalblue_trans1.png').convert_alpha(),
+        #                               pg.image.load('View/Image/Saddlebrown_trans1.png').convert_alpha()]
+        self.cutInImageTrans1      = [pg.image.load('View/Image/CutInImages/%s/%s_trans1.png' % (name, name)).convert_alpha()
+                                      for name in self.cutInImageNames]
+        self.cutInImageTransSmall  = [pg.transform.scale(img, viewConst.skillCardCutInPicSmallSize)
+                                      for img in self.cutInImageTrans1]
+
+        # self.cutInImageTrans2      = [pg.image.load('View/Image/Darkviolet_trans2.png').convert_alpha(),
+        #                               pg.image.load('View/Image/Royalblue_trans2.png').convert_alpha(),
+        #                               pg.image.load('View/Image/Saddlebrown_trans2.png').convert_alpha()]
+        self.cutInImageTrans2      = [pg.image.load('View/Image/CutInImages/%s/%s_trans2.png' % (name, name)).convert_alpha()
+                                      for name in self.cutInImageNames]
+
+        self.cutInImageTransLarge = [pg.transform.scale(img, viewConst.skillCardCutInPicLargeSize)
+                                      for img in self.cutInImageTrans2]
 
         self.last_update = 0
 
         self.has_cutin = cutin
-        self.vibration = None
         print('Init', cutin)
     
     def notify(self, event):
@@ -112,12 +160,8 @@ class GraphicalView(object):
 
     def initialize(self):
         """
-        Set up the pygame graphical display and loads graphical resources.
+        Set up the pygame graphical display.
         """
-        pg.mixer.pre_init(44100, -16, 2, 2048);
-        pg.init();
-        pg.display.set_caption(viewConst.GameCaption)
-        self.screen = pg.display.set_mode(viewConst.ScreenSize)
         self.renderSurface = pg.Surface(viewConst.ScreenSize)
         self.gameSurface = pg.Surface(viewConst.GameSize)
         self.renderObjects = []
@@ -125,62 +169,8 @@ class GraphicalView(object):
 
         self.clock = pg.time.Clock()
 
-        # load sounds and music
-        self.backgroundMusic = pg.mixer.Sound('View/Sound/bgm.ogg')
-        self.explosionSound = pg.mixer.Sound('View/Sound/explosion.ogg')
-        self.badExplosionSound = pg.mixer.Sound('View/Sound/explosion2.ogg')
-        self.dashSound = pg.mixer.Sound('View/Sound/dash.ogg')
-        self.meowSound = pg.mixer.Sound('View/Sound/meow.ogg')
-        self.rainbowSound = pg.mixer.Sound('View/Sound/rainbow.ogg')
-        self.magicCircleSound = pg.mixer.Sound('View/Sound/magicCircle.ogg')
-
-        # load fonts
-        self.smallfont = pg.font.Font(None, 40)
-        self.titleFont = pg.font.Font(viewConst.titleFont, viewConst.titleFontSize)
-        self.teamNameFont = pg.font.Font(viewConst.teamNameFont, viewConst.teamNameFontSize)
-        self.teamLengthFont = pg.font.Font(viewConst.teamLengthFont, viewConst.teamLengthFontSize)
-        self.teamScoreFont = pg.font.Font(viewConst.teamScoreFont, viewConst.teamScoreFontSize)
-        self.countDownFont = pg.font.Font(viewConst.countDownFont, viewConst.countDownFontSize)
-        self.tmpScoreFont = pg.font.Font(viewConst.tmpScoreFont, viewConst.tmpScoreFontSize)
-
-        # load images
-        self.magicCircleImage = pg.image.load('View/Image/magicCircle.png').convert_alpha()
-        self.rainbowImage = pg.transform.scale(pg.image.load('View/Image/rainbow.jpg').convert(), viewConst.GameSize)
-        self.nyanCatImage = pg.transform.rotozoom(pg.image.load('View/Image/nyancat.png').convert_alpha(), 0, 0.5)
-        self.nyanCatTailImage = pg.transform.rotozoom(pg.image.load('View/Image/nyancattail.png').convert_alpha(), 0, 0.5)
-
-        self.cutInImageNames  = ['Darkviolet', 'Royalblue', 'Saddlebrown', 'Darkolivegreen']
-
-        # self.cutInImage       = [(pg.image.load('View/Image/Darkviolet.png').convert_alpha(),
-        #                           pg.image.load('View/Image/Darkviolet_bw.png').convert_alpha()),
-        #                          (pg.image.load('View/Image/Royalblue.png').convert_alpha(),
-        #                           pg.image.load('View/Image/Royalblue_bw.png').convert_alpha()),
-        #                          (pg.image.load('View/Image/Saddlebrown.png').convert_alpha(),
-        #                           pg.image.load('View/Image/Saddlebrown_bw.png').convert_alpha())]
-
-        self.cutInImage       = [(pg.image.load('View/Image/CutInImages/%s/%s.png' % (name, name)).convert_alpha(),
-                                  pg.image.load('View/Image/CutInImages/%s/%s_bw.png' % (name, name))) for name in self.cutInImageNames]
-        self.cutInImageSmall = [tuple([pg.transform.scale(img1, viewConst.skillCardCutInPicSmallSize),
-                                       pg.transform.scale(img2, viewConst.skillCardCutInPicSmallSize)])
-                                      for img1, img2 in self.cutInImage]
-        # self.cutInImageTrans1      = [pg.image.load('View/Image/Darkviolet_trans1.png').convert_alpha(),
-        #                               pg.image.load('View/Image/Royalblue_trans1.png').convert_alpha(), 
-        #                               pg.image.load('View/Image/Saddlebrown_trans1.png').convert_alpha()]
-        self.cutInImageTrans1      = [pg.image.load('View/Image/CutInImages/%s/%s_trans1.png' % (name, name)).convert_alpha()
-                                      for name in self.cutInImageNames]
-        self.cutInImageTransSmall  = [pg.transform.scale(img, viewConst.skillCardCutInPicSmallSize)
-                                      for img in self.cutInImageTrans1]
-
-        # self.cutInImageTrans2      = [pg.image.load('View/Image/Darkviolet_trans2.png').convert_alpha(),
-        #                               pg.image.load('View/Image/Royalblue_trans2.png').convert_alpha(),
-        #                               pg.image.load('View/Image/Saddlebrown_trans2.png').convert_alpha()]
-        self.cutInImageTrans2      = [pg.image.load('View/Image/CutInImages/%s/%s_trans2.png' % (name, name)).convert_alpha()
-                                      for name in self.cutInImageNames]
-
-        self.cutInImageTransLarge = [pg.transform.scale(img, viewConst.skillCardCutInPicLargeSize)
-                                      for img in self.cutInImageTrans2]
-
-        self.backgroundMusic.play(-1)
+        if not pg.mixer.get_busy():
+            self.backgroundMusic.play(-1)
 
         self.is_initialized = True
 
