@@ -99,10 +99,8 @@ class TeamAI( BaseAI ):
                 return True
         return False
     
-    def get_all_body_in_mygrav(self):
+    def get_all_body(self):
         helper = self.helper
-        grav_center, grav_radius = helper.getMyGrav()
-        grav_center=Vec(grav_center)
         for player in helper.model.player_list:
             if player.index == helper.index or not player.is_alive:
                 continue
@@ -111,10 +109,9 @@ class TeamAI( BaseAI ):
                     
     def circling_collide(self, second):
         helper=self.helper
-        grav_center=Vec(helper.getMyGrav()[0])
-        for body in self.get_all_body_in_mygrav():
-            grav_to_me = self.me.pos - grav_center
-            grav_to_body = body.pos - grav_center
+        for body in self.get_all_body():
+            grav_to_me = self.me.pos - self.me.grav_center
+            grav_to_body = body.pos - self.me.grav_center
             #does not have body on the circle and it is close enough
             if abs(self.me.circling_radius - grav_to_body.length()) <= 2 * helper.head_radius \
                 and self.too_close_sec(grav_to_me, grav_to_body, second):
@@ -158,10 +155,24 @@ class TeamAI( BaseAI ):
     def head_point_escaping(self):
         return not self.head_point_threat()
 
-    
+    @staticmethod
+    def get_intersect_distance(pos1, dir1, pos2, dir2):
+        ''' -> t:float intersection point = pos1 + t*dir1 '''
+        cross = dir1.cross(dir2)
+        if abs(cross) <= eps:
+            return None
+        dist = (pos2 - pos1).cross(dir2) / cross
+        intersect_point = pos1 + dir1 * dist
+        if not (-eps <= intersect_point.x <= game_size + eps and -eps <= intersect_point.y <= game_size + eps):
+            return None
+        return dist
 
-    def head_point_threat(self, stimulate_time=15):
-        helper=self.helper
+    @staticmethod
+    def point_dist_to_line(point, line_point, line_vec):
+        return abs(line_vec.y*(point.x-line_point.x) -line_vec.x*(point.y-line_point.y))
+
+    def head_point_threat(self, stimulate_time=20):
+        helper = self.helper
         for enemy in helper.model.player_list:
             if enemy.index == helper.index or not helper.checkPlayerAlive(enemy.index):
                 continue
@@ -169,6 +180,14 @@ class TeamAI( BaseAI ):
                 bullet = Stimulate_Obj(self.gravs, enemy.pos, enemy.direction, helper.bullet_speed, helper.bullet_radius, helper.bullet_acc)
                 if self.stimulate_collision(self.me, bullet, stimulate_time):
                     return True
+                if self.me.is_ingrav:
+                    #distance from enemy to intersection = t (the length of enemy.direction is 1)
+                    #distance that enemy dashed = helper.dash_speed * helper.max_dash_time (the length of enemy.direction is 1)
+                    dist_to_intersect=self.get_intersect_distance(self.me.pos,self.me.direction,enemy.pos,enemy.direction)
+                    dist_dashed = helper.dash_speed * helper.max_dash_time
+                    if dist_to_intersect is not None and dist_to_intersect-dist_dashed <= helper.head_radius+eps \
+                        and abs(self.point_dist_to_line(self.me.grav_center, enemy.pos, enemy.direction) - (self.me.pos - self.me.grav_center).length()) > 2 * helper.head_radius+eps:
+                        return True
         return False
     
     def decide(self):
@@ -234,11 +253,20 @@ class TeamAI( BaseAI ):
             
                 if self.escaping:
                     return AI_MoveWayChange
+
+                getbyspin=helper.canGetBySpin()
+                if getbyspin == 0 and helper.checkMeCircling():
+                    print('Yee%d: esc circling %dmin %ds' %(helper.index,datetime.now().minute,datetime.now().second))
+                    return AI_MoveWayChange
+                elif getbyspin > 0 and not helper.checkMeCircling():
+                    print('Yee%d: spin to eat %dmin %ds' %(helper.index,datetime.now().minute,datetime.now().second))
+                    return AI_MoveWayChange
+
         else: #not in grav
             if self.bullet_threat(12):
                 return AI_MoveWayChange
 
-            if self.head_point_threat(8):
+            if self.head_point_threat(10):
                 return AI_MoveWayChange
 
             nearest_grav_on_route=helper.getNearestGravOnRoute()
@@ -263,13 +291,5 @@ class TeamAI( BaseAI ):
                         else:
                             if self.stimulate_collision(player, bullet, 15):
                                 return AI_MoveWayChange
-                        
         
-        getbyspin=helper.canGetBySpin()
-        if getbyspin is not None and getbyspin == 0 and helper.checkMeCircling() and not self.escaping:
-            return AI_MoveWayChange
-        elif getbyspin is not None and getbyspin > 0 and not helper.checkMeCircling() and not self.escaping:
-            print('Yee%d: spin to eat %dmin %ds' %(helper.index,datetime.now().minute,datetime.now().second))
-            return AI_MoveWayChange
-
         return AI_NothingToDo
