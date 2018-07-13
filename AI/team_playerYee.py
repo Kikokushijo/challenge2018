@@ -108,8 +108,6 @@ class TeamAI( BaseAI ):
                 continue
             for body in player.body_list[1:]:
                 yield body
-                #if body in my grav
-                #if self.too_close(body.pos, body.radius, grav_center, grav_radius):
                     
     def circling_collide(self, second):
         helper=self.helper
@@ -159,6 +157,8 @@ class TeamAI( BaseAI ):
     
     def head_point_escaping(self):
         return not self.head_point_threat()
+
+    
 
     def head_point_threat(self, stimulate_time=15):
         helper=self.helper
@@ -241,8 +241,9 @@ class TeamAI( BaseAI ):
             if self.head_point_threat(8):
                 return AI_MoveWayChange
 
+            nearest_grav_on_route=helper.getNearestGravOnRoute()
+            dist=helper.max_dash_time * helper.dash_speed if nearest_grav_on_route is not None and (self.me.pos - Vec(nearest_grav_on_route[0])).length_squared()<=helper.head_radius**2 else 5 * helper.head_radius
             for body in helper.bodyOnRoute():
-                dist=8 * helper.head_radius if (self.me.pos - Vec(helper.getNearestGravOnRoute()[0])).length_squared()<=helper.head_radius**2 else 5 * helper.head_radius
                 if self.too_close(self.me.pos, self.me.radius, Vec(body), helper.body_radius, dist):
                     return AI_MoveWayChange
         
