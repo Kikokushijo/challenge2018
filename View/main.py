@@ -51,6 +51,8 @@ class GraphicalView(object):
         self.meowSound = pg.mixer.Sound('View/Sound/meow.ogg')
         self.rainbowSound = pg.mixer.Sound('View/Sound/rainbow.ogg')
         self.magicCircleSound = pg.mixer.Sound('View/Sound/magicCircle.ogg')
+        self.resonanceSound = pg.mixer.Sound('View/Sound/resonance.ogg')
+        self.vibrationSound = pg.mixer.Sound('View/Sound/resonance2.ogg')
 
         # load fonts
         self.titleFont = pg.font.Font(viewConst.titleFont, viewConst.titleFontSize)
@@ -170,6 +172,7 @@ class GraphicalView(object):
                 if event.number == 6:
                     self.renderObjects.append(renderObject.Rainbow(event.PlayerIndex, (0, 0), 510, True))
                 elif event.number == 7:
+                    self.resonanceSound.play()
                     self.renderObjects.append(renderObject.HyperdimensionalExplosion(event.PlayerIndex, self.model.player_list[event.PlayerIndex].pos, 450, True))
             else:
                 self.renderObjects.append(renderObject.SkillCardCutIn(event.PlayerIndex, pos, 1, event.number, isdisplay=False))
@@ -300,6 +303,8 @@ class GraphicalView(object):
         for i, player in enumerate(self.model.player_list):
             if self.model.have_scoreboard[i]:
                 ballPos = tuple([x + random.randint(-5, 5) for x in pos[i]]) if self.model.bombtimer[i] != -1 else pos[i]
+                if self.model.bombtimer[i] == modelConst.bombtime - 1:
+                    self.vibrationSound.play()
                 gfxdraw.filled_circle(self.renderSurface, *ballPos, radius, player.color)
         # Team Player Lengths
         for i, player in enumerate(self.model.player_list):
