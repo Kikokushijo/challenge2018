@@ -194,6 +194,7 @@ class GraphicalView(object):
         """
         self.renderSurface = pg.Surface(viewConst.ScreenSize)
         self.gameSurface = pg.Surface(viewConst.GameSize)
+
         self.renderObjects = []
         self.vibration = False
 
@@ -318,6 +319,8 @@ class GraphicalView(object):
                                   radius, color)
             gfxdraw.filled_circle(self.gameSurface, *pos,
                                   int(radius * 0.07), viewConst.bgColor)
+            # gfxdraw.filled_circle(self.screen, *pos,
+            #                      radius, (85,107,47,111))
 
     def drawWhiteBall(self):
         for wb in self.model.wb_list:
