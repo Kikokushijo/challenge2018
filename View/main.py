@@ -3,6 +3,8 @@ import pygame.gfxdraw as gfxdraw
 import math, random
 import sys
 
+from itertools import zip_longest
+
 import Model.main as model
 from Events.Manager import *
 
@@ -16,7 +18,7 @@ class GraphicalView(object):
     """
     Draws the model state onto the screen.
     """
-    def __init__(self, evManager, model, cutin):
+    def __init__(self, evManager, model, cutin, ci_img=None):
         """
         evManager (EventManager): Allows posting messages to the event queue.
         model (GameEngine): a strong reference to the game Model.
@@ -31,6 +33,7 @@ class GraphicalView(object):
         self.gameSurface = None
         self.clock = None
         self.renderObjects = None
+        self.CIImg = ci_img if ci_img is not None else []
 
         # initialize pygame modules
         pg.mixer.pre_init(44100, -16, 2, 2048);
@@ -63,7 +66,14 @@ class GraphicalView(object):
         self.nyanCatImage = pg.transform.rotozoom(pg.image.load('View/Image/nyancat.png').convert_alpha(), 0, 0.5)
         self.nyanCatTailImage = pg.transform.rotozoom(pg.image.load('View/Image/nyancattail.png').convert_alpha(), 0, 0.5)
 
-        self.cutInImageNames  = ['Darkviolet', 'Royalblue', 'Saddlebrown', 'Darkolivegreen']
+        self.defaultCutInImageNames  = ['Darkviolet', 'Royalblue', 'Saddlebrown', 'Darkolivegreen']
+        self.existedImageNames = set([str(i) for i in range(1, 11)])
+        self.cutInImageNames = []
+        for custImg, dftImg in zip_longest(self.CIImg, self.defaultCutInImageNames):
+            if custImg in self.existedImageNames:
+                self.cutInImageNames.append(custImg)
+            else:
+                self.cutInImageNames.append(dftImg)
 
         # self.cutInImage       = [(pg.image.load('View/Image/Darkviolet.png').convert_alpha(),
         #                           pg.image.load('View/Image/Darkviolet_bw.png').convert_alpha()),
@@ -74,16 +84,31 @@ class GraphicalView(object):
 
         self.cutInImage       = [(pg.image.load('View/Image/CutInImages/%s/%s.png' % (name, name)).convert_alpha(),
                                   pg.image.load('View/Image/CutInImages/%s/%s_bw.png' % (name, name))) for name in self.cutInImageNames]
-        self.cutInImageSmall = [tuple([pg.transform.scale(img1, viewConst.skillCardCutInPicSmallSize),
-                                       pg.transform.scale(img2, viewConst.skillCardCutInPicSmallSize)])
-                                      for img1, img2 in self.cutInImage]
+        # self.cutInImageSmall = [tuple([pg.transform.scale(img1, viewConst.skillCardCutInPicSmallSize),
+        #                                pg.transform.scale(img2, viewConst.skillCardCutInPicSmallSize)])
+        #                               for img1, img2 in self.cutInImage]
+        self.cutInImageSmall = []
+        rangex, rangey = viewConst.skillCardCutInPicSmallSize
+        for img1, img2 in self.cutInImage:
+            x1, y1 = img1.get_size()
+            x2, y2 = img2.get_size()
+            self.cutInImageSmall.append((pg.transform.rotozoom(img1, 0, min(rangex/x1, rangey/y1)),
+                                         pg.transform.rotozoom(img2, 0, min(rangex/x2, rangey/y2))))
+
         # self.cutInImageTrans1      = [pg.image.load('View/Image/Darkviolet_trans1.png').convert_alpha(),
         #                               pg.image.load('View/Image/Royalblue_trans1.png').convert_alpha(),
         #                               pg.image.load('View/Image/Saddlebrown_trans1.png').convert_alpha()]
         self.cutInImageTrans1      = [pg.image.load('View/Image/CutInImages/%s/%s_trans1.png' % (name, name)).convert_alpha()
                                       for name in self.cutInImageNames]
-        self.cutInImageTransSmall  = [pg.transform.scale(img, viewConst.skillCardCutInPicSmallSize)
-                                      for img in self.cutInImageTrans1]
+
+
+        # self.cutInImageTransSmall  = [pg.transform.scale(img, viewConst.skillCardCutInPicSmallSize)
+        #                               for img in self.cutInImageTrans1]
+        self.cutInImageTransSmall = []
+        rangex, rangey = viewConst.skillCardCutInPicSmallSize
+        for img in self.cutInImageTrans1:
+            x, y = img.get_size()
+            self.cutInImageTransSmall.append(pg.transform.rotozoom(img, 0, min(rangex/x, rangey/y)))
 
         # self.cutInImageTrans2      = [pg.image.load('View/Image/Darkviolet_trans2.png').convert_alpha(),
         #                               pg.image.load('View/Image/Royalblue_trans2.png').convert_alpha(),
@@ -91,8 +116,13 @@ class GraphicalView(object):
         self.cutInImageTrans2      = [pg.image.load('View/Image/CutInImages/%s/%s_trans2.png' % (name, name)).convert_alpha()
                                       for name in self.cutInImageNames]
 
-        self.cutInImageTransLarge = [pg.transform.scale(img, viewConst.skillCardCutInPicLargeSize)
-                                      for img in self.cutInImageTrans2]
+        # self.cutInImageTransLarge = [pg.transform.scale(img, viewConst.skillCardCutInPicLargeSize)
+        #                               for img in self.cutInImageTrans2]
+        self.cutInImageTransLarge = []
+        rangex, rangey = viewConst.skillCardCutInPicLargeSize
+        for img in self.cutInImageTrans2:
+            x, y = img.get_size()
+            self.cutInImageTransLarge.append(pg.transform.rotozoom(img, 0, min(rangex/x, rangey/y)))
 
         self.last_update = 0
 
@@ -451,8 +481,9 @@ class GraphicalView(object):
         if viewConst.skillCardCutInTimesteps[2] >= cutin.time >= viewConst.skillCardCutInTimesteps[3]:
             # draw phrase 3
             timeRatio = 1 - ((viewConst.skillCardCutInTimesteps[2] - cutin.time) / viewConst.skillCardCutInTimePhrases[2])
+            imgx, imgy = self.cutInImageSmall[cutin.index][1].get_size()
             cutInSurface.blit(self.cutInImageSmall[cutin.index][1],
-                              (int(sizeSurface[0] * (3 / 32 + timeRatio / 2)), viewConst.GameSize[1] // 2 - viewConst.skillCardCutInPicSmallSize[1] - 25))
+                              (int(sizeSurface[0] * (8 / 32 + timeRatio / 2) - imgx // 2), viewConst.GameSize[1] // 2 - imgy - 25))
         
         elif viewConst.skillCardCutInTimesteps[3] >= cutin.time:
             # draw phrase 4
@@ -463,17 +494,21 @@ class GraphicalView(object):
             # draw phrase 5
             if cutin.time >= viewConst.skillCardCutInTimesteps[5]:
                 timeRatio = ((viewConst.skillCardCutInTimesteps[3] - cutin.time) / (viewConst.skillCardCutInTimesteps[3] - viewConst.skillCardCutInTimesteps[5]))
+                imgxs, imgys = self.cutInImageTransSmall[cutin.index].get_size()
+                imgxl, imgyl = self.cutInImageTransLarge[cutin.index].get_size()
                 cutInSurface.blit(self.cutInImageTransSmall[cutin.index],
-                                  (int(sizeSurface[0] * (3 / 32 + timeRatio / 64)), viewConst.GameSize[1] // 2 - viewConst.skillCardCutInPicSmallSize[1] - 25))            
+                                  (int(sizeSurface[0] * (8 / 32 + timeRatio / 64) - imgxs // 2), viewConst.GameSize[1] // 2 - imgys - 25))            
                 cutInSurface.blit(self.cutInImageTransLarge[cutin.index],
-                                  (int(sizeSurface[0] * (16 / 32 - timeRatio / 32)), viewConst.GameSize[1] // 2 - viewConst.skillCardCutInPicLargeSize[1] - 25))
+                                  (int(sizeSurface[0] * (21 / 32 - timeRatio / 32) - imgxl // 2), viewConst.GameSize[1] // 2 - imgyl - 25))
 
             elif viewConst.skillCardCutInTimesteps[5] >= cutin.time:
                 timeRatio = ((viewConst.skillCardCutInTimesteps[5] - cutin.time) / viewConst.skillCardCutInTimePhrases[5])
+                imgxs, imgys = self.cutInImageTransSmall[cutin.index].get_size()
+                imgxl, imgyl = self.cutInImageTransLarge[cutin.index].get_size()
                 cutInSurface.blit(self.cutInImageTransSmall[cutin.index],
-                                  (int(sizeSurface[0] * (7 / 64 + timeRatio * 4)), viewConst.GameSize[1] // 2 - viewConst.skillCardCutInPicSmallSize[1] - 25))            
+                                  (int(sizeSurface[0] * (17 / 64 + timeRatio * 4) - imgxs // 2), viewConst.GameSize[1] // 2 - imgys - 25))            
                 cutInSurface.blit(self.cutInImageTransLarge[cutin.index],
-                                  (int(sizeSurface[0] * (15 / 32 - timeRatio * 4)), viewConst.GameSize[1] // 2 - viewConst.skillCardCutInPicLargeSize[1] - 25))
+                                  (int(sizeSurface[0] * (20 / 32 - timeRatio * 4) - imgxl // 2), viewConst.GameSize[1] // 2 - imgyl - 25))
 
         self.blit_at_center(self.gameSurface, cutInSurface, cutin.pos)
 
