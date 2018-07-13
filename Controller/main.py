@@ -25,6 +25,16 @@ class Control(object):
 
         self.SecEventType = pg.USEREVENT
 
+        self.keylist = [[pg.K_z, pg.K_2, pg.K_3, pg.K_q, pg.K_w, pg.K_a, pg.K_s, pg.K_x], 
+                        [pg.K_c, pg.K_4, pg.K_5, pg.K_e, pg.K_r, pg.K_d, pg.K_f, pg.K_v],
+                        [pg.K_n, pg.K_7, pg.K_8, pg.K_u, pg.K_i, pg.K_j, pg.K_k, pg.K_m],
+                        [pg.K_COMMA, pg.K_9, pg.K_0, pg.K_o, pg.K_p, pg.K_l, pg.K_SEMICOLON, pg.K_PERIOD]]
+
+        self.keydict = {}
+        for pidx, player_key in enumerate(self.keylist):
+            for kidx, key in enumerate(player_key):
+                self.keydict[key] = (pidx, kidx)
+
     def notify(self, event):
         """
         Receive events posted to the message queue. 
@@ -83,29 +93,15 @@ class Control(object):
             # space to stop the game
             elif event.key == pg.K_SPACE:    
                 self.evManager.Post(Event_StateChange(model.STATE_STOP))
+
             # player controler
-            if event.key == pg.K_a and (not self.model.player_list[0].is_AI) :
-                self.evManager.Post(Event_MoveWayChange(0))
-            elif event.key == pg.K_c and (not self.model.player_list[1].is_AI) :
-                self.evManager.Post(Event_MoveWayChange(1))
-            elif event.key == pg.K_n and (not self.model.player_list[2].is_AI) :
-                self.evManager.Post(Event_MoveWayChange(2))
-            elif event.key == pg.K_l and (not self.model.player_list[3].is_AI) :
-                self.evManager.Post(Event_MoveWayChange(3))
-            elif event.key == pg.K_s and (not self.model.player_list[0].is_AI) and self.model.can_use_skill(0):
-                self.evManager.Post(Event_Skill(0,1))
-            elif event.key == pg.K_d and (not self.model.player_list[0].is_AI) and self.model.can_use_skill(0):
-                self.evManager.Post(Event_Skill(0,2))
-            elif event.key == pg.K_f and (not self.model.player_list[0].is_AI) and self.model.can_use_skill(0):
-                self.evManager.Post(Event_Skill(0,3))
-            elif event.key == pg.K_g and (not self.model.player_list[0].is_AI) and self.model.can_use_skill(0):
-                self.evManager.Post(Event_Skill(0,4))
-            elif event.key == pg.K_q and (not self.model.player_list[0].is_AI) and self.model.can_use_skill(0):
-                self.evManager.Post(Event_Skill(0,5))
-            elif event.key == pg.K_w and (not self.model.player_list[0].is_AI) and self.model.can_use_skill(0):
-                self.evManager.Post(Event_Skill(0,6))
-            elif event.key == pg.K_e and (not self.model.player_list[0].is_AI) and self.model.can_use_skill(0):
-                self.evManager.Post(Event_Skill(0,7))
+            if event.key in self.keydict:
+                pidx, kidx = self.keydict[event.key]
+                if not self.model.player_list[pidx].is_AI:
+                    if kidx == 0:
+                        self.evManager.Post(Event_MoveWayChange(pidx))
+                    elif self.model.can_use_skill(pidx):
+                        self.evManager.Post(Event_Skill(pidx, kidx))
 
                 # DirKeys = self.ControlKeys[player.index][0:4]
                 # if event.key in DirKeys:
