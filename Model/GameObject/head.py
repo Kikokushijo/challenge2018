@@ -96,6 +96,7 @@ class Head(object):
                 wb_list.pop(i)
 
         #collision with competitor's body and bullet
+        tmp = False
         if not self.is_dash:
             for enemy in player_list:
                 if enemy.index == self.index :
@@ -105,6 +106,7 @@ class Head(object):
                         #self die
                         killer = enemy.index
                         self.is_alive = False
+                        tmp = True
                         self.add_score(player_list,score_list,tmp_score_list)
                         break
                 else:
@@ -115,7 +117,8 @@ class Head(object):
                    (self.pos - bullet.pos).length_squared() < (self.radius + bullet.radius)**2 :
                     killer = bullet.index
                     self.is_alive = False
-                    self.add_score(player_list,score_list,tmp_score_list)
+                    if tmp == False:
+                        self.add_score(player_list,score_list,tmp_score_list)
                     break
         ##player die
         if not self.is_alive:
