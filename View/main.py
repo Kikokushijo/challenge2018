@@ -53,6 +53,7 @@ class GraphicalView(object):
         self.magicCircleSound = pg.mixer.Sound('View/Sound/magicCircle.ogg')
         self.resonanceSound = pg.mixer.Sound('View/Sound/resonance.ogg')
         self.vibrationSound = pg.mixer.Sound('View/Sound/resonance2.ogg')
+        self.trueExplosionSound = pg.mixer.Sound('View/Sound/explosion3.ogg')
 
         # load fonts
         self.titleFont = pg.font.Font(viewConst.titleFont, viewConst.titleFontSize)
@@ -168,6 +169,7 @@ class GraphicalView(object):
         elif isinstance(event, Event_CutIn):
             pos = tuple([x // 2 for x in viewConst.GameSize])
             if self.has_cutin:
+                self.trueExplosionSound.play()
                 self.renderObjects.append(renderObject.SkillCardCutIn(event.PlayerIndex, pos, viewConst.skillCardCutInTime, event.number, isdisplay=True))
                 if event.number == 6:
                     self.renderObjects.append(renderObject.Rainbow(event.PlayerIndex, (0, 0), 510, True))
