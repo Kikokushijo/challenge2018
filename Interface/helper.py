@@ -23,6 +23,7 @@ class Helper(object):
     normal_speed = modelConst.normal_speed
     dash_speed = modelConst.dash_speed
     dash_cool = modelConst.dash_cool
+    max_dash_time=modelConst.max_dash_time
     bullet_acc = modelConst.bullet_a
     dash_time = modelConst.max_dash_time
     bullet_speed = modelConst.bullet_speed0
