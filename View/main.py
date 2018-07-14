@@ -247,7 +247,7 @@ class GraphicalView(object):
                     True, gray)
 
         words_3 = self.titleSmallFont.render(
-                    'presented by 2017 NTU CSIE CAMP',
+                    'presented by 2018 NTU CSIE CAMP',
                     True, (255, 255, 255))
 
         (size_x_1, size_y_1) = words_1.get_size()
