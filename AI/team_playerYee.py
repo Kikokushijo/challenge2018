@@ -216,55 +216,11 @@ class TeamAI( BaseAI ):
                     if not danger_checked[i] and self.threat_func[i]():
                         self.escaping = True
                         self.danger.append(i)
-                if self.escaping and not self.danger and self.danger[-1] != danger_checked.index(True):
+                if self.escaping and self.danger[-1] != danger_checked.index(True):
                     threat_name=['head','body','bullet']
                     self.debug(threat_name[self.danger[-1]]+' threat')
                     return AI_MoveWayChange
-                '''if self.danger[-1] == 0:
-                    if self.body_escaping():
-                        self.escaping = False
-                        self.danger.pop()
-                    if self.head_point_threat():
-                        self.escaping = True
-                        self.danger.append(2)
-                    if self.bullet_threat():
-                        self.escaping = True
-                        self.danger.append(1)
-                        
-                    if self.escaping and self.danger[-1] != 0:
-                        self.debug('%s threat' % 'head'if self.danger[-1]==2 else 'bullet')
-                        return AI_MoveWayChange
-                elif self.danger[-1] == 1:
-                    if self.bullet_escaping():
-                        self.escaping = False
-                        self.danger.pop()
-                    if self.head_point_threat():
-                        self.escaping = True
-                        self.danger.append(2)                        
-                    if self.body_threat():
-                        self.escaping = True
-                        self.danger.append(0)
-
-                    if self.escaping and self.danger[-1] != 1:
-                        self.debug('%s threat' % 'body'if self.danger[-1]==0 else 'head')
-                        return AI_MoveWayChange
-                elif self.danger[-1] == 2:
-                    if self.head_point_escaping():
-                        self.escaping = False
-                        self.danger.pop()
-                    if self.body_threat():
-                        self.escaping = True
-                        self.danger.append(0)
-                    if self.bullet_threat():
-                        self.escaping = True
-                        self.danger.append(1)                        
-
-                    if self.escaping and self.danger[-1] != 2:
-                        self.debug('%s threat' % 'body'if self.danger[-1]==0 else 'bullet')
-                        return AI_MoveWayChange
-                '''
             else:
-                message='None'
                 for i in range(3):
                     if self.threat_func[i]():
                         self.escaping = True
@@ -273,24 +229,7 @@ class TeamAI( BaseAI ):
                     threat_name=['head','body','bullet']
                     self.debug('first encounter '+threat_name[self.danger[-1]]+' threat')
                     return AI_MoveWayChange
-                '''
-                if self.head_point_threat():
-                    self.escaping = True
-                    self.danger.append(2)
-                    message='head'
-                if self.body_threat():
-                    self.escaping = True
-                    self.danger.append(0)
-                    message='body'
-                if self.bullet_threat():
-                    self.escaping = True
-                    self.danger.append(1)
-                    message='bullet'
-            
-                if self.escaping:
-                    self.debug('first encounter %s threat' % message)
-                    return AI_MoveWayChange
-                '''
+
                 getbyspin=helper.canGetBySpin()
                 if getbyspin == 0 and helper.checkMeCircling():
                     self.debug('esc circling')
