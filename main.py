@@ -10,7 +10,7 @@ def main(argv):
     evManager = EventManager.EventManager()
     gamemodel = model.GameEngine(evManager, argv[1:5])
     Control   = controller.Control(evManager, gamemodel)
-    graphics  = view.GraphicalView(evManager, gamemodel, cutin=(argv[-1] != '--no-cutin'))
+    graphics  = view.GraphicalView(evManager, gamemodel, cutin=(argv[-1] != '--no-cutin'), ci_img=argv[1:5])
     interface = helper.Interface(evManager, gamemodel)
 
     gamemodel.run()

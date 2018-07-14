@@ -52,8 +52,8 @@ class Interface(object):
     
     def API_play(self):
         # for player in self.model.player_list:
-        assert self.skill_queue == []
-        assert self.cutin_isdisplay == False
+        #assert self.skill_queue == []
+        #assert self.cutin_isdisplay == False
         for idx, player in enumerate(self.model.player_list):
             if player.is_AI:
                 AI_Dir = self.playerAI[player.index].decide()

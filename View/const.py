@@ -73,13 +73,13 @@ itemGenerationTime        = 60
 # phrase5 : silouette becomes picture, and big picture appears
 # phrase6 : silouette and big picture accelerates and disappears
 
-skillCardCutInTimePhrases  = [20, 20, 40, 20, 40, 30]
+skillCardCutInTimePhrases  = [10, 10, 20, 10, 20, 15]
 skillCardCutInTime         = sum(skillCardCutInTimePhrases)
 
 skillCardCutInTimesteps    = [skillCardCutInTime - sum(skillCardCutInTimePhrases[:idx])
                               for idx in range(len(skillCardCutInTimePhrases))]
 
-skillCardCutInPicSize      = (229, 232)
+skillCardCutInPicSize      = (225, 225)
 skillCardSmallScaleRate    = 1.0
 skillCardCutInPicSmallSize = tuple([int(x * skillCardSmallScaleRate) for x in skillCardCutInPicSize])
 skillCardLargeScaleRate    = 1.5
@@ -90,6 +90,12 @@ thermometerBallSize = 80
 thermometerBarWidth = 40
 
 # Font
+titleFont          = 'View/Font/makinas_scrap/Makinas-Scrap-5.otf'
+titleFontSize      = 200
+
+titleSmallFont     = 'View/Font/makinas_scrap/Makinas-Scrap-5.otf'
+titleSmallFontSize = 60
+
 teamNameFont       = 'View/Font/Noto/NotoSansCJK-Black.ttc'
 teamNameFontSize   = 20
 

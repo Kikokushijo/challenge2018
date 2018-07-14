@@ -45,6 +45,8 @@ class Head(object):
         self.grav_center = Vec( 0, 0 )
         self.pos_log = [Vec(self.pos)]
 
+        self.is_rainbow = False
+
     def update(self,player_list, wb_list, bullet_list, item_list, score_list, tmp_score_list):
         if not self.is_alive:
             return 0
@@ -94,6 +96,7 @@ class Head(object):
                 wb_list.pop(i)
 
         #collision with competitor's body and bullet
+        tmp = False
         if not self.is_dash:
             for enemy in player_list:
                 if enemy.index == self.index :
@@ -103,6 +106,7 @@ class Head(object):
                         #self die
                         killer = enemy.index
                         self.is_alive = False
+                        tmp = True
                         self.add_score(player_list,score_list,tmp_score_list)
                         break
                 else:
@@ -113,7 +117,8 @@ class Head(object):
                    (self.pos - bullet.pos).length_squared() < (self.radius + bullet.radius)**2 :
                     killer = bullet.index
                     self.is_alive = False
-                    self.add_score(player_list,score_list,tmp_score_list)
+                    if tmp == False:
+                        self.add_score(player_list,score_list,tmp_score_list)
                     break
         ##player die
         if not self.is_alive:
@@ -162,6 +167,9 @@ class Head(object):
         #self.theta = atan2(self.direction.x, -self.direction.y)
         for j in range(1, len(self.body_list)):
                 self.body_list[j].update()
+
+        if self.is_rainbow:
+            self.rainbow_mode()
         return 0
     def click(self, bullet_list, wb_list) :
         if not self.is_alive:
@@ -220,8 +228,11 @@ class Head(object):
             self.body_list.pop()
 
     def rainbow_mode(self):
-        for i in self.body_list[1:]:
-            i.color = ( random.randint(0,255), random.randint(0,255), random.randint(0,255))
+        for ii in range(len(self.body_list)-1,0,-1):
+            i = self.body_list[ii]
+            if i.color == i.pre.color:
+                i.color = ( random.randint(0,255), random.randint(0,255), random.randint(0,255))
+
 
 
 

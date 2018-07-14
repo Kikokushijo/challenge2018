@@ -250,7 +250,8 @@ class GameEngine(object):
                 elif number == 5:
                     self.bombtimer[player.index] = modelConst.bombtime
                 elif number == 6:
-                    player.rainbow_mode()
+                    player.is_rainbow = True
+                    #player.rainbow_mode()
                 elif number == 7:
                     self.grav_index = player.index
             
