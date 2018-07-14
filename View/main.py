@@ -57,6 +57,7 @@ class GraphicalView(object):
 
         # load fonts
         self.titleFont = pg.font.Font(viewConst.titleFont, viewConst.titleFontSize)
+        self.titleSmallFont = pg.font.Font(viewConst.titleSmallFont, viewConst.titleSmallFontSize)
         self.teamNameFont = pg.font.Font(viewConst.teamNameFont, viewConst.teamNameFontSize)
         self.teamLengthFont = pg.font.Font(viewConst.teamLengthFont, viewConst.teamLengthFontSize)
         self.teamScoreFont = pg.font.Font(viewConst.teamScoreFont, viewConst.teamScoreFontSize)
@@ -221,32 +222,52 @@ class GraphicalView(object):
         if self.last_update != model.STATE_MENU:
             self.last_update = model.STATE_MENU
             self.title_counter = 0
+
+        self.screen.fill(viewConst.Color_Black)
+
+        title_loop_counter = self.title_counter % 80
+        if not title_loop_counter:
+            self.darken_time = [random.randint(25, 35), random.randint(55, 65)]
+        
+        if self.title_counter <= 10:
+            gray = (155 + int(self.title_counter / 10 * 100),) * 3
+        elif self.darken_time[0] <= title_loop_counter <= self.darken_time[0] + 5:
+            gray = ((155 + (title_loop_counter - self.darken_time[0]) / 5 * 100),) * 3
+        elif self.darken_time[1] <= title_loop_counter <= self.darken_time[1] + 5:
+            gray = ((155 + (title_loop_counter - self.darken_time[1]) / 5 * 100),) * 3
         else:
-            self.title_counter += 1
-            if self.title_counter % 3 == 0:
-                # draw backgound
-                self.screen.fill(viewConst.Color_Black)
-                # write some word
-                # gray = (random.randint(100, 255),) * 3
-                gray = (min(50 + int(205 * min(1, self.title_counter / 240)) + random.randint(-40, 40), 255), ) * 3
-                # print(gray)
-                words_1 = self.titleFont.render(
-                            'QUANTUM', 
-                            # True, (255, 255, 255))
-                            True, gray)
-                words_2 = self.titleFont.render(
-                            'VORTEX',
-                            True, gray)
-                (size_x_1, size_y_1) = words_1.get_size()
-                (size_x_2, size_y_2) = words_2.get_size()
-                pos_x_1 = (viewConst.ScreenSize[0] - size_x_1)/2
-                pos_y_1 = (viewConst.ScreenSize[1] - size_y_1 - viewConst.titleFontSize)/2
-                pos_x_2 = (viewConst.ScreenSize[0] - size_x_2)/2
-                pos_y_2 = (viewConst.ScreenSize[1] - size_y_2 + viewConst.titleFontSize)/2
-                self.screen.blit(words_1, (pos_x_1, pos_y_1))
-                self.screen.blit(words_2, (pos_x_2, pos_y_2))
-                # update surface
-                pg.display.flip()
+            gray = (255,) * 3
+
+
+        words_1 = self.titleFont.render(
+                    'QUANTUM', 
+                    True, gray)
+        words_2 = self.titleFont.render(
+                    'VORTEX',
+                    True, gray)
+
+        words_3 = self.titleSmallFont.render(
+                    'presented by 2017 NTU CSIE CAMP',
+                    True, (255, 255, 255))
+
+        (size_x_1, size_y_1) = words_1.get_size()
+        (size_x_2, size_y_2) = words_2.get_size()
+        (size_x_3, size_y_3) = words_3.get_size()
+        pos_x_1 = (viewConst.ScreenSize[0] - size_x_1)/2
+        pos_y_1 = (viewConst.ScreenSize[1] - size_y_1 - viewConst.titleFontSize - size_y_3)/2
+        pos_x_2 = (viewConst.ScreenSize[0] - size_x_2)/2
+        pos_y_2 = (viewConst.ScreenSize[1] - size_y_2 + viewConst.titleFontSize - size_y_3)/2
+        pos_x_3 = (viewConst.ScreenSize[0] - size_x_3)/2
+        pos_y_3 = (650 + size_y_3)
+
+        self.screen.blit(words_1, (pos_x_1, pos_y_1))
+        self.screen.blit(words_2, (pos_x_2, pos_y_2))
+        self.screen.blit(words_3, (pos_x_3, pos_y_3))
+
+        self.title_counter += 1
+
+        # update surface
+        pg.display.flip()
         
     def render_stop(self):
         """

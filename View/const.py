@@ -93,6 +93,9 @@ thermometerBarWidth = 40
 titleFont          = 'View/Font/makinas_scrap/Makinas-Scrap-5.otf'
 titleFontSize      = 200
 
+titleSmallFont     = 'View/Font/makinas_scrap/Makinas-Scrap-5.otf'
+titleSmallFontSize = 60
+
 teamNameFont       = 'View/Font/Noto/NotoSansCJK-Black.ttc'
 teamNameFontSize   = 20
 
