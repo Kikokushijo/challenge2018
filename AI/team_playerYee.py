@@ -2,6 +2,7 @@ from math import sin, cos,pi
 from AI.base import *
 from pygame.math import Vector2 as Vec
 from datetime import datetime
+
 eps = 1e-5
 game_size = 800
 class Stimulate_Obj(object):
@@ -79,6 +80,10 @@ class TeamAI( BaseAI ):
         self.escaping = False
         self.danger=[] #0:body 1:bullet 2:enemy's head
     
+    def debug(self,message):
+        print('Yee%d: %s %dmin %ds' %(self.helper.index,message,datetime.now().minute,datetime.now().second))
+
+   
     @staticmethod
     def too_close(pos1, r1, pos2, r2, distance = 0.0):
         return (pos1 - pos2).length_squared() <= (r1 + distance + r2)** 2
@@ -212,6 +217,7 @@ class TeamAI( BaseAI ):
                         self.danger.append(1)
                         
                     if self.escaping and self.danger[-1] != 0:
+                        self.debug('%s threat' % 'head'if self.danger[-1]==2 else 'bullet')
                         return AI_MoveWayChange
                 elif self.danger[-1] == 1:
                     if self.bullet_escaping():
@@ -225,6 +231,7 @@ class TeamAI( BaseAI ):
                         self.danger.append(0)
 
                     if self.escaping and self.danger[-1] != 1:
+                        self.debug('%s threat' % 'body'if self.danger[-1]==0 else 'head')
                         return AI_MoveWayChange
                 elif self.danger[-1] == 2:
                     if self.head_point_escaping():
@@ -238,6 +245,7 @@ class TeamAI( BaseAI ):
                         self.danger.append(1)                        
 
                     if self.escaping and self.danger[-1] != 2:
+                        self.debug('%s threat' % 'body'if self.danger[-1]==0 else 'bullet')
                         return AI_MoveWayChange
 
             else:
@@ -252,27 +260,31 @@ class TeamAI( BaseAI ):
                     self.danger.append(1)
             
                 if self.escaping:
+                    self.debug('first encounter threat')
                     return AI_MoveWayChange
 
                 getbyspin=helper.canGetBySpin()
                 if getbyspin == 0 and helper.checkMeCircling():
-                    print('Yee%d: esc circling %dmin %ds' %(helper.index,datetime.now().minute,datetime.now().second))
+                    self.debug('esc circling')
                     return AI_MoveWayChange
                 elif getbyspin > 0 and not helper.checkMeCircling():
-                    print('Yee%d: spin to eat %dmin %ds' %(helper.index,datetime.now().minute,datetime.now().second))
+                    self.debug('spin to eat')
                     return AI_MoveWayChange
 
         else: #not in grav
             if self.bullet_threat(12):
+                self.debug('normal dudge bullet')
                 return AI_MoveWayChange
 
             if self.head_point_threat(10):
+                self.debug('normal dudge head')
                 return AI_MoveWayChange
 
             nearest_grav_on_route=helper.getNearestGravOnRoute()
             dist=helper.max_dash_time * helper.dash_speed if nearest_grav_on_route is not None and (self.me.pos - Vec(nearest_grav_on_route[0])).length_squared()<=helper.head_radius**2 else 5 * helper.head_radius
             for body in helper.bodyOnRoute():
                 if self.too_close(self.me.pos, self.me.radius, Vec(body), helper.body_radius, dist):
+                    self.debug('normal dudge body')
                     return AI_MoveWayChange
         
             #attack
@@ -283,10 +295,12 @@ class TeamAI( BaseAI ):
                         continue
                     if player.is_AI and not helper.checkPlayerInGrav(player.index):
                         if helper.getPlayerDashCoolRemainTime(player.index)>0 and self.stimulate_collision(player, bullet, helper.getPlayerDashCoolRemainTime(player.index)):
+                            self.debug('attack when cooling')
                             return AI_MoveWayChange
                     else:
                         if helper.checkPlayerInGrav(player.index):
                             if self.stimulate_collision(player, bullet, 20):
+                                self.debug('attack in grav')
                                 return AI_MoveWayChange
                         else:
                             if self.stimulate_collision(player, bullet, 15):
