@@ -282,7 +282,7 @@ class Helper(object):
             return None
         return self.model.player_list[player_id].is_ingrav
 
-    def checktPlayerInvisible(self, player_id):
+    def checkPlayerInvisible(self, player_id):
         if not self.model.player_list[player_id].is_alive:
             return None
         return self.model.player_list[player_id].is_dash
