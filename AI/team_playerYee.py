@@ -76,7 +76,6 @@ class TeamAI( BaseAI ):
         self.skill = []
         self.gravs = self.helper.getAllGravs()
         self.me = None
-        self.reset_esc = False
         self.escaping = False
         self.danger = []  #0:enemy's head 1:body 2:bullet
         self.escape_func = [self.head_point_escaping, self.body_escaping, self.bullet_escaping]
