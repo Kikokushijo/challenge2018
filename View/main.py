@@ -51,9 +51,13 @@ class GraphicalView(object):
         self.meowSound = pg.mixer.Sound('View/Sound/meow.ogg')
         self.rainbowSound = pg.mixer.Sound('View/Sound/rainbow.ogg')
         self.magicCircleSound = pg.mixer.Sound('View/Sound/magicCircle.ogg')
+        self.resonanceSound = pg.mixer.Sound('View/Sound/resonance.ogg')
+        self.vibrationSound = pg.mixer.Sound('View/Sound/resonance2.ogg')
+        self.trueExplosionSound = pg.mixer.Sound('View/Sound/explosion3.ogg')
 
         # load fonts
         self.titleFont = pg.font.Font(viewConst.titleFont, viewConst.titleFontSize)
+        self.titleSmallFont = pg.font.Font(viewConst.titleSmallFont, viewConst.titleSmallFontSize)
         self.teamNameFont = pg.font.Font(viewConst.teamNameFont, viewConst.teamNameFontSize)
         self.teamLengthFont = pg.font.Font(viewConst.teamLengthFont, viewConst.teamLengthFontSize)
         self.teamScoreFont = pg.font.Font(viewConst.teamScoreFont, viewConst.teamScoreFontSize)
@@ -166,10 +170,12 @@ class GraphicalView(object):
         elif isinstance(event, Event_CutIn):
             pos = tuple([x // 2 for x in viewConst.GameSize])
             if self.has_cutin:
+                self.trueExplosionSound.play()
                 self.renderObjects.append(renderObject.SkillCardCutIn(event.PlayerIndex, pos, viewConst.skillCardCutInTime, event.number, isdisplay=True))
                 if event.number == 6:
                     self.renderObjects.append(renderObject.Rainbow(event.PlayerIndex, (0, 0), 510, True))
                 elif event.number == 7:
+                    self.resonanceSound.play()
                     self.renderObjects.append(renderObject.HyperdimensionalExplosion(event.PlayerIndex, self.model.player_list[event.PlayerIndex].pos, 450, True))
             else:
                 self.renderObjects.append(renderObject.SkillCardCutIn(event.PlayerIndex, pos, 1, event.number, isdisplay=False))
@@ -216,32 +222,52 @@ class GraphicalView(object):
         if self.last_update != model.STATE_MENU:
             self.last_update = model.STATE_MENU
             self.title_counter = 0
+
+        self.screen.fill(viewConst.Color_Black)
+
+        title_loop_counter = self.title_counter % 80
+        if not title_loop_counter:
+            self.darken_time = [random.randint(25, 35), random.randint(55, 65)]
+        
+        if self.title_counter <= 10:
+            gray = (155 + int(self.title_counter / 10 * 100),) * 3
+        elif self.darken_time[0] <= title_loop_counter <= self.darken_time[0] + 5:
+            gray = ((155 + (title_loop_counter - self.darken_time[0]) / 5 * 100),) * 3
+        elif self.darken_time[1] <= title_loop_counter <= self.darken_time[1] + 5:
+            gray = ((155 + (title_loop_counter - self.darken_time[1]) / 5 * 100),) * 3
         else:
-            self.title_counter += 1
-            if self.title_counter % 3 == 0:
-                # draw backgound
-                self.screen.fill(viewConst.Color_Black)
-                # write some word
-                # gray = (random.randint(100, 255),) * 3
-                gray = (min(50 + int(205 * min(1, self.title_counter / 240)) + random.randint(-40, 40), 255), ) * 3
-                # print(gray)
-                words_1 = self.titleFont.render(
-                            'QUANTUM', 
-                            # True, (255, 255, 255))
-                            True, gray)
-                words_2 = self.titleFont.render(
-                            'VORTEX',
-                            True, gray)
-                (size_x_1, size_y_1) = words_1.get_size()
-                (size_x_2, size_y_2) = words_2.get_size()
-                pos_x_1 = (viewConst.ScreenSize[0] - size_x_1)/2
-                pos_y_1 = (viewConst.ScreenSize[1] - size_y_1 - viewConst.titleFontSize)/2
-                pos_x_2 = (viewConst.ScreenSize[0] - size_x_2)/2
-                pos_y_2 = (viewConst.ScreenSize[1] - size_y_2 + viewConst.titleFontSize)/2
-                self.screen.blit(words_1, (pos_x_1, pos_y_1))
-                self.screen.blit(words_2, (pos_x_2, pos_y_2))
-                # update surface
-                pg.display.flip()
+            gray = (255,) * 3
+
+
+        words_1 = self.titleFont.render(
+                    'QUANTUM', 
+                    True, gray)
+        words_2 = self.titleFont.render(
+                    'VORTEX',
+                    True, gray)
+
+        words_3 = self.titleSmallFont.render(
+                    'presented by 2017 NTU CSIE CAMP',
+                    True, (255, 255, 255))
+
+        (size_x_1, size_y_1) = words_1.get_size()
+        (size_x_2, size_y_2) = words_2.get_size()
+        (size_x_3, size_y_3) = words_3.get_size()
+        pos_x_1 = (viewConst.ScreenSize[0] - size_x_1)/2
+        pos_y_1 = (viewConst.ScreenSize[1] - size_y_1 - viewConst.titleFontSize - size_y_3)/2
+        pos_x_2 = (viewConst.ScreenSize[0] - size_x_2)/2
+        pos_y_2 = (viewConst.ScreenSize[1] - size_y_2 + viewConst.titleFontSize - size_y_3)/2
+        pos_x_3 = (viewConst.ScreenSize[0] - size_x_3)/2
+        pos_y_3 = (650 + size_y_3)
+
+        self.screen.blit(words_1, (pos_x_1, pos_y_1))
+        self.screen.blit(words_2, (pos_x_2, pos_y_2))
+        self.screen.blit(words_3, (pos_x_3, pos_y_3))
+
+        self.title_counter += 1
+
+        # update surface
+        pg.display.flip()
         
     def render_stop(self):
         """
@@ -300,6 +326,8 @@ class GraphicalView(object):
         for i, player in enumerate(self.model.player_list):
             if self.model.have_scoreboard[i]:
                 ballPos = tuple([x + random.randint(-5, 5) for x in pos[i]]) if self.model.bombtimer[i] != -1 else pos[i]
+                if self.model.bombtimer[i] == modelConst.bombtime - 1:
+                    self.vibrationSound.play()
                 gfxdraw.filled_circle(self.renderSurface, *ballPos, radius, player.color)
         # Team Player Lengths
         for i, player in enumerate(self.model.player_list):
