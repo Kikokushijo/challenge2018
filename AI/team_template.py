@@ -9,5 +9,4 @@ class TeamAI( BaseAI ):
         self.skill = []
 
     def decide( self ):
-        while True:
-            pass
+        return AI_NothingToDo
