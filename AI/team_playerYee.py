@@ -249,18 +249,22 @@ class TeamAI( BaseAI ):
                         return AI_MoveWayChange
 
             else:
+                message='None'
                 if self.head_point_threat():
                     self.escaping = True
-                    self.danger.append(2)                    
+                    self.danger.append(2)
+                    message='head'
                 if self.body_threat():
                     self.escaping = True
                     self.danger.append(0)
+                    message='body'
                 if self.bullet_threat():
                     self.escaping = True
                     self.danger.append(1)
+                    message='bullet'
             
                 if self.escaping:
-                    self.debug('first encounter threat')
+                    self.debug('first encounter %s threat' % message)
                     return AI_MoveWayChange
 
                 getbyspin=helper.canGetBySpin()
