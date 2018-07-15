@@ -36,24 +36,25 @@ class GraphicalView(object):
         self.CIImg = ci_img if ci_img is not None else []
 
         # initialize pygame modules
-        pg.mixer.pre_init(44100, -16, 2, 2048);
+        # pg.mixer.pre_init(44100, -16, 2, 2048);
         pg.init();
+        # pg.mixer.quit();
 
         # initialize game window
         pg.display.set_caption(viewConst.GameCaption)
         self.screen = pg.display.set_mode(viewConst.ScreenSize)
 
         # load sounds and music
-        self.backgroundMusic = pg.mixer.Sound('View/Sound/bgm.ogg')
-        self.explosionSound = pg.mixer.Sound('View/Sound/explosion.ogg')
-        self.badExplosionSound = pg.mixer.Sound('View/Sound/explosion2.ogg')
-        self.dashSound = pg.mixer.Sound('View/Sound/dash.ogg')
-        self.meowSound = pg.mixer.Sound('View/Sound/meow.ogg')
-        self.rainbowSound = pg.mixer.Sound('View/Sound/rainbow.ogg')
-        self.magicCircleSound = pg.mixer.Sound('View/Sound/magicCircle.ogg')
-        self.resonanceSound = pg.mixer.Sound('View/Sound/resonance.ogg')
-        self.vibrationSound = pg.mixer.Sound('View/Sound/resonance2.ogg')
-        self.trueExplosionSound = pg.mixer.Sound('View/Sound/explosion3.ogg')
+        # self.backgroundMusic = pg.mixer.Sound('View/Sound/bgm.ogg')
+        # self.explosionSound = pg.mixer.Sound('View/Sound/explosion.ogg')
+        # self.badExplosionSound = pg.mixer.Sound('View/Sound/explosion2.ogg')
+        # self.dashSound = pg.mixer.Sound('View/Sound/dash.ogg')
+        # self.meowSound = pg.mixer.Sound('View/Sound/meow.ogg')
+        # self.rainbowSound = pg.mixer.Sound('View/Sound/rainbow.ogg')
+        # self.magicCircleSound = pg.mixer.Sound('View/Sound/magicCircle.ogg')
+        # self.resonanceSound = pg.mixer.Sound('View/Sound/resonance.ogg')
+        # self.vibrationSound = pg.mixer.Sound('View/Sound/resonance2.ogg')
+        # self.trueExplosionSound = pg.mixer.Sound('View/Sound/explosion3.ogg')
 
         # load fonts
         self.titleFont = pg.font.Font(viewConst.titleFont, viewConst.titleFontSize)
@@ -155,27 +156,27 @@ class GraphicalView(object):
             # limit the redraw speed to 60 frames per second
             self.clock.tick(viewConst.FramePerSec)
         elif isinstance(event, Event_TriggerExplosive):
-            self.explosionSound.play()
+            # self.explosionSound.play()
             self.renderObjects.append(renderObject.Explosion(event.PlayerIndex, event.pos, modelConst.explosive_radius, viewConst.explosionTime))
         elif isinstance(event, Event_PlayerKilled):
-            self.badExplosionSound.play()
+            # self.badExplosionSound.play()
             self.renderObjects.append(renderObject.Explosion(event.PlayerIndex, event.pos, viewConst.killedExplosionRadius, viewConst.killedExplosionTime))
         elif isinstance(event, Event_TimeLimitExceed):
             pos = ((viewConst.ScreenSize[0] + viewConst.GameSize[0]) // 2, viewConst.GameSize[1] // 8 * (2 * event.PlayerIndex + 1))
             self.renderObjects.append(renderObject.TimeLimitExceedStamp(pos, viewConst.timeLimitExceedStampTime))
         elif isinstance(event, Event_SuddenDeath):
-            self.magicCircleSound.play()
+            # self.magicCircleSound.play()
             pos = tuple([x // 2 for x in viewConst.GameSize])
             self.renderObjects.append(renderObject.MagicCircle(pos, viewConst.magicCircleGenerationTime))
         elif isinstance(event, Event_CutIn):
             pos = tuple([x // 2 for x in viewConst.GameSize])
             if self.has_cutin:
-                self.trueExplosionSound.play()
+                # self.trueExplosionSound.play()
                 self.renderObjects.append(renderObject.SkillCardCutIn(event.PlayerIndex, pos, viewConst.skillCardCutInTime, event.number, isdisplay=True))
                 if event.number == 6:
                     self.renderObjects.append(renderObject.Rainbow(event.PlayerIndex, (0, 0), 510, True))
                 elif event.number == 7:
-                    self.resonanceSound.play()
+                    # self.resonanceSound.play()
                     self.renderObjects.append(renderObject.HyperdimensionalExplosion(event.PlayerIndex, self.model.player_list[event.PlayerIndex].pos, 450, True))
             else:
                 self.renderObjects.append(renderObject.SkillCardCutIn(event.PlayerIndex, pos, 1, event.number, isdisplay=False))
@@ -206,8 +207,8 @@ class GraphicalView(object):
 
         self.clock = pg.time.Clock()
 
-        if not pg.mixer.get_busy():
-            self.backgroundMusic.play(-1)
+        # if not pg.mixer.get_busy():
+        #     self.backgroundMusic.play(-1)
 
         self.is_initialized = True
 
@@ -327,7 +328,8 @@ class GraphicalView(object):
             if self.model.have_scoreboard[i]:
                 ballPos = tuple([x + random.randint(-5, 5) for x in pos[i]]) if self.model.bombtimer[i] != -1 else pos[i]
                 if self.model.bombtimer[i] == modelConst.bombtime - 1:
-                    self.vibrationSound.play()
+                    pass
+                    # self.vibrationSound.play()
                 gfxdraw.filled_circle(self.renderSurface, *ballPos, radius, player.color)
         # Team Player Lengths
         for i, player in enumerate(self.model.player_list):
@@ -601,8 +603,8 @@ class GraphicalView(object):
         # phase 0
         if time == 120:
             ypos = random.sample([i for i in range(100, 700 + 1, 100)], 5)
-            self.meowSound.play()
-            self.rainbowSound.play()
+            # self.meowSound.play()
+            # self.rainbowSound.play()
             for i in range(5):
                 pos = (random.randint(-400, 0), ypos[i])
                 self.renderObjects.append(renderObject.Nyancat(pos, 180))
