@@ -230,7 +230,7 @@ class TeamAI( BaseAI ):
             if player.index == helper.index or not helper.checkPlayerAlive(player.index):
                 continue
             if player.is_AI:
-                if helper.checkPlayerInGrav(player.index):
+                if not helper.checkPlayerInGrav(player.index):
                     if helper.getPlayerDashCoolRemainTime(player.index) > 0:
                         if helper.checkPlayerInvisible(player.index): #dashing
                             #找到dash結束時head的pos，找到此時bullet的pos
@@ -250,7 +250,7 @@ class TeamAI( BaseAI ):
                         if self.stimulate_collision(player, bullet, 20):
                             self.debug('normal attack in grav')
                             return AI_MoveWayChange
-                else:  #not in grav
+                else:  #in grav
                     if self.stimulate_collision(player, bullet, 15):
                         return AI_MoveWayChange					
             else:
