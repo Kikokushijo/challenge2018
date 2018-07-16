@@ -85,6 +85,7 @@ class TeamAI( BaseAI ):
             elif circling:
                 return AI_MoveWayChange
     def attack(self):
+        return None
         helper = self.helper
         hPos = Vec(helper.getMyHeadPos())
         head_radius = helper.head_radius
