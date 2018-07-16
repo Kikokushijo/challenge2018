@@ -42,38 +42,37 @@ class TeamAI( BaseAI ):
         circling = helper.checkMeCircling()
         dash_time = helper.dash_time
         dash_speed = helper.dash_speed
-        if not helper.checkMeInGrav():
-            nxtpos = hPos + Vec(head_dir * normal_speed)
-            nxt_bullet_list = [((b[1][0]+b[2][0]*b[4],b[1][1]+b[2][1]*b[4]), b[3]) for b in bullet_list]
+        nxtpos = hPos + Vec(head_dir * normal_speed)
+        nxt_bullet_list = [((b[1][0]+b[2][0]*b[4],b[1][1]+b[2][1]*b[4]), b[3]) for b in bullet_list]
+        for b in nxt_bullet_list:
+            #print((Vec(b[0]) - nxtpos).length())
+            if (Vec(b[0]) - nxtpos).length() <= (head_radius + b[1] + 1) * 2:
+                return AI_MoveWayChange
+        for b in body_list:
+            if (Vec(b) - nxtpos).length() <= (body_radius + head_radius + 1) * 2 and \
+                head_dir.dot(Vec(b) - nxtpos) > 0:
+                return AI_MoveWayChange
+
+        if not self.ingrav(hPos):
+            nxt_bullet_list = [((b[1][0]+b[2][0]*b[4]*dash_time,b[1][1]+b[2][1]*b[4]*dash_time), b[3]) for b in bullet_list]
+            nxtpos = hPos + Vec(head_dir * dash_speed * dash_time)
+            self.mirror(nxtpos)
             for b in nxt_bullet_list:
                 #print((Vec(b[0]) - nxtpos).length())
-                if (Vec(b[0]) - nxtpos).length() <= (head_radius + b[1] + 1) * 2:
-                    return AI_MoveWayChange
+                bv = Vec(b[0])
+                self.mirror(bv)
+                if (bv - nxtpos).length() <= (head_radius + b[1] + 1) * 2:
+                    return AI_NothingToDo
             for b in body_list:
                 if (Vec(b) - nxtpos).length() <= (body_radius + head_radius + 1) * 2 and \
                     head_dir.dot(Vec(b) - nxtpos) > 0:
-                    return AI_MoveWayChange
-
-            if not self.ingrav(hPos):
-                nxt_bullet_list = [((b[1][0]+b[2][0]*b[4]*dash_time,b[1][1]+b[2][1]*b[4]*dash_time), b[3]) for b in bullet_list]
-                nxtpos = hPos + Vec(head_dir * dash_speed * dash_time)
-                self.mirror(nxtpos)
-                for b in nxt_bullet_list:
-                    #print((Vec(b[0]) - nxtpos).length())
-                    bv = Vec(b[0])
-                    self.mirror(bv)
-                    if (bv - nxtpos).length() <= (head_radius + b[1] + 1) * 2:
-                        return AI_NothingToDo
-                for b in body_list:
-                    if (Vec(b) - nxtpos).length() <= (body_radius + head_radius + 1) * 2 and \
-                        head_dir.dot(Vec(b) - nxtpos) > 0:
-                        return AI_NothingToDo
+                    return AI_NothingToDo
                 #if self.ingrav(nxtpos):
                 #    return AI_NothingToDo
             #if self.ingrav(nxtpos):
             #    return AI_MoveWayChange
             return None
-        else:
+        if helper.checkMeInGrav():
             gcenter, gr = helper.getMyGrav()
             gcenter = Vec(gcenter)
             dotval = head_dir.dot(gcenter - hPos)
@@ -81,29 +80,56 @@ class TeamAI( BaseAI ):
                 return AI_MoveWayChange
             elif not circling:
                 return AI_NothingToDo
+            elif circling and (hPos - gcenter).length_squared() > (0.95 * gr) ** 2:
+                return AI_MoveWayChange
             elif circling:
                 return AI_MoveWayChange
-            return None
     def attack(self):
+        return None
         helper = self.helper
         hPos = Vec(helper.getMyHeadPos())
         head_radius = helper.head_radius
         head_dir = Vec(helper.getMyDir())
         circling = helper.checkMeCircling()
-        if helper.checkMeInGrav() or circling:
-            return AI_NothingToDo
-        for i in range(4):
-            if i == helper.index:
-                continue
-            pos = helper.getPlayerHeadPos(i)
-            if pos == None:
-                continue
-            if (helper.checkPlayerInGrav(i) or helper.getPlayerDashCoolRemainTime(i)>0)\
-                and (pos - hPos).length_squared() < 20 ** 2:
-                    print("attack")
+        if len(helper.getMyBodyPos()) == 0:
+            return None
+        if circling:
+            for i in range(4):
+                if i == helper.index:
+                    continue
+                pos = helper.getPlayerHeadPos(i)
+                if pos == None:
+                    continue
+                pdir = Vec(helper.getPlayerDir(i))
+                t1 = head_dir.dot(pdir) / pdir.length() / head_dir.length()
+                rrel = pos - hPos
+                t2 = head_dir.dot(rrel) / rrel.length() / head_dir.length()
+                if 0.98 < t2 and helper.checkPlayerInGrav(i) and rrel.length() < 150:
                     return AI_MoveWayChange
-        return AI_NothingToDo
-
+        elif not helper.checkMeInGrav():
+            for i in range(4):
+                if i == helper.index:
+                    continue
+                pos = helper.getPlayerHeadPos(i)
+                if pos == None:
+                    continue
+                pdir = Vec(helper.getPlayerDir(i))
+                t1 = head_dir.dot(pdir) / pdir.length() / head_dir.length()
+                rrel = pos - hPos
+                t2 = head_dir.dot(rrel) / rrel.length() / head_dir.length()
+                if 0.98 < t2 and helper.checkPlayerInGrav(i) and rrel.length() < 400:
+                    return AI_MoveWayChange
+            for i in range(4):
+                if i == helper.index:
+                    continue
+                pos = helper.getPlayerHeadPos(i)
+                if pos == None:
+                    continue
+                if (helper.checkPlayerInGrav(i) or helper.getPlayerDashCoolRemainTime(i)>0)\
+                    and (pos - hPos).length_squared() < 20 ** 2:
+                        #print("attack")
+                        return AI_MoveWayChange
+            return None
     def decide( self ):
         helper = self.helper
         if helper.getMyDashRemainTime() > 0:
@@ -111,6 +137,10 @@ class TeamAI( BaseAI ):
         reply = self.stay_alive()
         if reply == None:
             reply = self.attack()
-            return AI_NothingToDo
+            if reply == None:
+                return AI_NothingToDo
+            else:
+                print("can move to attack")
+                return reply
         else:
             return reply

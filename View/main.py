@@ -3,6 +3,8 @@ import pygame.gfxdraw as gfxdraw
 import math, random
 import sys
 
+from itertools import zip_longest
+
 import Model.main as model
 from Events.Manager import *
 
@@ -16,7 +18,7 @@ class GraphicalView(object):
     """
     Draws the model state onto the screen.
     """
-    def __init__(self, evManager, model, cutin):
+    def __init__(self, evManager, model, cutin, ci_img=None):
         """
         evManager (EventManager): Allows posting messages to the event queue.
         model (GameEngine): a strong reference to the game Model.
@@ -30,25 +32,105 @@ class GraphicalView(object):
         self.renderSurface = None
         self.gameSurface = None
         self.clock = None
-        self.smallfont = None
         self.renderObjects = None
+        self.CIImg = ci_img if ci_img is not None else []
 
-        self.titleFont = None
-        self.teamNameFont = None
-        self.teamLengthFont = None
-        self.teamScoreFont = None
-        self.countDownFont = None
-        self.tmpScoreFont = None
+        # initialize pygame modules
+        pg.mixer.pre_init(44100, -16, 2, 2048);
+        pg.init();
 
-        self.magicCircleImage = None
-        self.rainbowImage = None
-        self.nyanCatImage = None
-        self.nyanCatTailImage = None
+        # initialize game window
+        pg.display.set_caption(viewConst.GameCaption)
+        self.screen = pg.display.set_mode(viewConst.ScreenSize)
+
+        # load sounds and music
+        self.backgroundMusic = pg.mixer.Sound('View/Sound/bgm.ogg')
+        self.explosionSound = pg.mixer.Sound('View/Sound/explosion.ogg')
+        self.badExplosionSound = pg.mixer.Sound('View/Sound/explosion2.ogg')
+        self.dashSound = pg.mixer.Sound('View/Sound/dash.ogg')
+        self.meowSound = pg.mixer.Sound('View/Sound/meow.ogg')
+        self.rainbowSound = pg.mixer.Sound('View/Sound/rainbow.ogg')
+        self.magicCircleSound = pg.mixer.Sound('View/Sound/magicCircle.ogg')
+        self.resonanceSound = pg.mixer.Sound('View/Sound/resonance.ogg')
+        self.vibrationSound = pg.mixer.Sound('View/Sound/resonance2.ogg')
+        self.trueExplosionSound = pg.mixer.Sound('View/Sound/explosion3.ogg')
+
+        # load fonts
+        self.titleFont = pg.font.Font(viewConst.titleFont, viewConst.titleFontSize)
+        self.titleSmallFont = pg.font.Font(viewConst.titleSmallFont, viewConst.titleSmallFontSize)
+        self.teamNameFont = pg.font.Font(viewConst.teamNameFont, viewConst.teamNameFontSize)
+        self.teamLengthFont = pg.font.Font(viewConst.teamLengthFont, viewConst.teamLengthFontSize)
+        self.teamScoreFont = pg.font.Font(viewConst.teamScoreFont, viewConst.teamScoreFontSize)
+        self.countDownFont = pg.font.Font(viewConst.countDownFont, viewConst.countDownFontSize)
+        self.tmpScoreFont = pg.font.Font(viewConst.tmpScoreFont, viewConst.tmpScoreFontSize)
+
+        # load images
+        self.magicCircleImage = pg.image.load('View/Image/magicCircle.png').convert_alpha()
+        self.rainbowImage = pg.transform.scale(pg.image.load('View/Image/rainbow.jpg').convert(), viewConst.GameSize)
+        self.nyanCatImage = pg.transform.rotozoom(pg.image.load('View/Image/nyancat.png').convert_alpha(), 0, 0.5)
+        self.nyanCatTailImage = pg.transform.rotozoom(pg.image.load('View/Image/nyancattail.png').convert_alpha(), 0, 0.5)
+
+        self.defaultCutInImageNames  = ['Darkviolet', 'Royalblue', 'Saddlebrown', 'Darkolivegreen']
+        self.existedImageNames = set([str(i) for i in range(1, 11)])
+        self.cutInImageNames = []
+        for custImg, dftImg in zip_longest(self.CIImg, self.defaultCutInImageNames):
+            if custImg in self.existedImageNames:
+                self.cutInImageNames.append(custImg)
+            else:
+                self.cutInImageNames.append(dftImg)
+
+        # self.cutInImage       = [(pg.image.load('View/Image/Darkviolet.png').convert_alpha(),
+        #                           pg.image.load('View/Image/Darkviolet_bw.png').convert_alpha()),
+        #                          (pg.image.load('View/Image/Royalblue.png').convert_alpha(),
+        #                           pg.image.load('View/Image/Royalblue_bw.png').convert_alpha()),
+        #                          (pg.image.load('View/Image/Saddlebrown.png').convert_alpha(),
+        #                           pg.image.load('View/Image/Saddlebrown_bw.png').convert_alpha())]
+
+        self.cutInImage       = [(pg.image.load('View/Image/CutInImages/%s/%s.png' % (name, name)).convert_alpha(),
+                                  pg.image.load('View/Image/CutInImages/%s/%s_bw.png' % (name, name))) for name in self.cutInImageNames]
+        # self.cutInImageSmall = [tuple([pg.transform.scale(img1, viewConst.skillCardCutInPicSmallSize),
+        #                                pg.transform.scale(img2, viewConst.skillCardCutInPicSmallSize)])
+        #                               for img1, img2 in self.cutInImage]
+        self.cutInImageSmall = []
+        rangex, rangey = viewConst.skillCardCutInPicSmallSize
+        for img1, img2 in self.cutInImage:
+            x1, y1 = img1.get_size()
+            x2, y2 = img2.get_size()
+            self.cutInImageSmall.append((pg.transform.rotozoom(img1, 0, min(rangex/x1, rangey/y1)),
+                                         pg.transform.rotozoom(img2, 0, min(rangex/x2, rangey/y2))))
+
+        # self.cutInImageTrans1      = [pg.image.load('View/Image/Darkviolet_trans1.png').convert_alpha(),
+        #                               pg.image.load('View/Image/Royalblue_trans1.png').convert_alpha(),
+        #                               pg.image.load('View/Image/Saddlebrown_trans1.png').convert_alpha()]
+        self.cutInImageTrans1      = [pg.image.load('View/Image/CutInImages/%s/%s_trans1.png' % (name, name)).convert_alpha()
+                                      for name in self.cutInImageNames]
+
+
+        # self.cutInImageTransSmall  = [pg.transform.scale(img, viewConst.skillCardCutInPicSmallSize)
+        #                               for img in self.cutInImageTrans1]
+        self.cutInImageTransSmall = []
+        rangex, rangey = viewConst.skillCardCutInPicSmallSize
+        for img in self.cutInImageTrans1:
+            x, y = img.get_size()
+            self.cutInImageTransSmall.append(pg.transform.rotozoom(img, 0, min(rangex/x, rangey/y)))
+
+        # self.cutInImageTrans2      = [pg.image.load('View/Image/Darkviolet_trans2.png').convert_alpha(),
+        #                               pg.image.load('View/Image/Royalblue_trans2.png').convert_alpha(),
+        #                               pg.image.load('View/Image/Saddlebrown_trans2.png').convert_alpha()]
+        self.cutInImageTrans2      = [pg.image.load('View/Image/CutInImages/%s/%s_trans2.png' % (name, name)).convert_alpha()
+                                      for name in self.cutInImageNames]
+
+        # self.cutInImageTransLarge = [pg.transform.scale(img, viewConst.skillCardCutInPicLargeSize)
+        #                               for img in self.cutInImageTrans2]
+        self.cutInImageTransLarge = []
+        rangex, rangey = viewConst.skillCardCutInPicLargeSize
+        for img in self.cutInImageTrans2:
+            x, y = img.get_size()
+            self.cutInImageTransLarge.append(pg.transform.rotozoom(img, 0, min(rangex/x, rangey/y)))
 
         self.last_update = 0
 
         self.has_cutin = cutin
-        self.vibration = None
         print('Init', cutin)
     
     def notify(self, event):
@@ -73,22 +155,27 @@ class GraphicalView(object):
             # limit the redraw speed to 60 frames per second
             self.clock.tick(viewConst.FramePerSec)
         elif isinstance(event, Event_TriggerExplosive):
+            self.explosionSound.play()
             self.renderObjects.append(renderObject.Explosion(event.PlayerIndex, event.pos, modelConst.explosive_radius, viewConst.explosionTime))
         elif isinstance(event, Event_PlayerKilled):
+            self.badExplosionSound.play()
             self.renderObjects.append(renderObject.Explosion(event.PlayerIndex, event.pos, viewConst.killedExplosionRadius, viewConst.killedExplosionTime))
         elif isinstance(event, Event_TimeLimitExceed):
             pos = ((viewConst.ScreenSize[0] + viewConst.GameSize[0]) // 2, viewConst.GameSize[1] // 8 * (2 * event.PlayerIndex + 1))
             self.renderObjects.append(renderObject.TimeLimitExceedStamp(pos, viewConst.timeLimitExceedStampTime))
         elif isinstance(event, Event_SuddenDeath):
+            self.magicCircleSound.play()
             pos = tuple([x // 2 for x in viewConst.GameSize])
             self.renderObjects.append(renderObject.MagicCircle(pos, viewConst.magicCircleGenerationTime))
         elif isinstance(event, Event_CutIn):
             pos = tuple([x // 2 for x in viewConst.GameSize])
             if self.has_cutin:
+                self.trueExplosionSound.play()
                 self.renderObjects.append(renderObject.SkillCardCutIn(event.PlayerIndex, pos, viewConst.skillCardCutInTime, event.number, isdisplay=True))
                 if event.number == 6:
                     self.renderObjects.append(renderObject.Rainbow(event.PlayerIndex, (0, 0), 510, True))
                 elif event.number == 7:
+                    self.resonanceSound.play()
                     self.renderObjects.append(renderObject.HyperdimensionalExplosion(event.PlayerIndex, self.model.player_list[event.PlayerIndex].pos, 450, True))
             else:
                 self.renderObjects.append(renderObject.SkillCardCutIn(event.PlayerIndex, pos, 1, event.number, isdisplay=False))
@@ -109,61 +196,18 @@ class GraphicalView(object):
 
     def initialize(self):
         """
-        Set up the pygame graphical display and loads graphical resources.
+        Set up the pygame graphical display.
         """
-        pg.init();
-        pg.display.set_caption(viewConst.GameCaption)
-        self.screen = pg.display.set_mode(viewConst.ScreenSize)
         self.renderSurface = pg.Surface(viewConst.ScreenSize)
         self.gameSurface = pg.Surface(viewConst.GameSize)
-        self.clock = pg.time.Clock()
-        self.smallfont = pg.font.Font(None, 40)
-        self.titleFont = pg.font.Font(viewConst.titleFont, viewConst.titleFontSize)
-        self.teamNameFont = pg.font.Font(viewConst.teamNameFont, viewConst.teamNameFontSize)
-        self.teamLengthFont = pg.font.Font(viewConst.teamLengthFont, viewConst.teamLengthFontSize)
-        self.teamScoreFont = pg.font.Font(viewConst.teamScoreFont, viewConst.teamScoreFontSize)
-        self.countDownFont = pg.font.Font(viewConst.countDownFont, viewConst.countDownFontSize)
-        self.tmpScoreFont = pg.font.Font(viewConst.tmpScoreFont, viewConst.tmpScoreFontSize)
 
         self.renderObjects = []
-
         self.vibration = False
 
-        self.magicCircleImage = pg.image.load('View/Image/magicCircle.png').convert_alpha()
-        self.rainbowImage = pg.transform.scale(pg.image.load('View/Image/rainbow.jpg').convert(), viewConst.GameSize)
-        self.nyanCatImage = pg.transform.rotozoom(pg.image.load('View/Image/nyancat.png').convert_alpha(), 0, 0.5)
-        self.nyanCatTailImage = pg.transform.rotozoom(pg.image.load('View/Image/nyancattail.png').convert_alpha(), 0, 0.5)
+        self.clock = pg.time.Clock()
 
-        self.cutInImageNames  = ['Darkviolet', 'Royalblue', 'Saddlebrown', 'Darkolivegreen']
-
-        # self.cutInImage       = [(pg.image.load('View/Image/Darkviolet.png').convert_alpha(),
-        #                           pg.image.load('View/Image/Darkviolet_bw.png').convert_alpha()),
-        #                          (pg.image.load('View/Image/Royalblue.png').convert_alpha(),
-        #                           pg.image.load('View/Image/Royalblue_bw.png').convert_alpha()),
-        #                          (pg.image.load('View/Image/Saddlebrown.png').convert_alpha(),
-        #                           pg.image.load('View/Image/Saddlebrown_bw.png').convert_alpha())]
-
-        self.cutInImage       = [(pg.image.load('View/Image/CutInImages/%s/%s.png' % (name, name)).convert_alpha(),
-                                  pg.image.load('View/Image/CutInImages/%s/%s_bw.png' % (name, name))) for name in self.cutInImageNames]
-        self.cutInImageSmall = [tuple([pg.transform.scale(img1, viewConst.skillCardCutInPicSmallSize),
-                                       pg.transform.scale(img2, viewConst.skillCardCutInPicSmallSize)])
-                                      for img1, img2 in self.cutInImage]
-        # self.cutInImageTrans1      = [pg.image.load('View/Image/Darkviolet_trans1.png').convert_alpha(),
-        #                               pg.image.load('View/Image/Royalblue_trans1.png').convert_alpha(), 
-        #                               pg.image.load('View/Image/Saddlebrown_trans1.png').convert_alpha()]
-        self.cutInImageTrans1      = [pg.image.load('View/Image/CutInImages/%s/%s_trans1.png' % (name, name)).convert_alpha()
-                                      for name in self.cutInImageNames]
-        self.cutInImageTransSmall  = [pg.transform.scale(img, viewConst.skillCardCutInPicSmallSize)
-                                      for img in self.cutInImageTrans1]
-
-        # self.cutInImageTrans2      = [pg.image.load('View/Image/Darkviolet_trans2.png').convert_alpha(),
-        #                               pg.image.load('View/Image/Royalblue_trans2.png').convert_alpha(),
-        #                               pg.image.load('View/Image/Saddlebrown_trans2.png').convert_alpha()]
-        self.cutInImageTrans2      = [pg.image.load('View/Image/CutInImages/%s/%s_trans2.png' % (name, name)).convert_alpha()
-                                      for name in self.cutInImageNames]
-
-        self.cutInImageTransLarge = [pg.transform.scale(img, viewConst.skillCardCutInPicLargeSize)
-                                      for img in self.cutInImageTrans2]
+        if not pg.mixer.get_busy():
+            self.backgroundMusic.play(-1)
 
         self.is_initialized = True
 
@@ -171,7 +215,6 @@ class GraphicalView(object):
         center = tuple([int(pos - size // 2) for pos, size in zip(position, source.get_size())])
         target.blit(source, center)
 
-    # to be modified
     def render_menu(self):
         """
         Render the game menu.
@@ -179,34 +222,53 @@ class GraphicalView(object):
         if self.last_update != model.STATE_MENU:
             self.last_update = model.STATE_MENU
             self.title_counter = 0
-        else:
-            self.title_counter += 1
-            if self.title_counter % 3 == 0:
-                # draw backgound
-                self.screen.fill(viewConst.Color_Black)
-                # write some word
-                # gray = (random.randint(100, 255),) * 3
-                gray = (min(50 + int(205 * min(1, self.title_counter / 240)) + random.randint(-40, 40), 255), ) * 3
-                # print(gray)
-                words_1 = self.titleFont.render(
-                            'QUANTUM', 
-                            # True, (255, 255, 255))
-                            True, gray)
-                words_2 = self.titleFont.render(
-                            'VORTEX',
-                            True, gray)
-                (size_x_1, size_y_1) = words_1.get_size()
-                (size_x_2, size_y_2) = words_2.get_size()
-                pos_x_1 = (viewConst.ScreenSize[0] - size_x_1)/2
-                pos_y_1 = (viewConst.ScreenSize[1] - size_y_1 - viewConst.titleFontSize)/2
-                pos_x_2 = (viewConst.ScreenSize[0] - size_x_2)/2
-                pos_y_2 = (viewConst.ScreenSize[1] - size_y_2 + viewConst.titleFontSize)/2
-                self.screen.blit(words_1, (pos_x_1, pos_y_1))
-                self.screen.blit(words_2, (pos_x_2, pos_y_2))
-                # update surface
-                pg.display.flip()
+
+        self.screen.fill(viewConst.Color_Black)
+
+        title_loop_counter = self.title_counter % 80
+        if not title_loop_counter:
+            self.darken_time = [random.randint(25, 35), random.randint(55, 65)]
         
-    # to be modified
+        if self.title_counter <= 10:
+            gray = (155 + int(self.title_counter / 10 * 100),) * 3
+        elif self.darken_time[0] <= title_loop_counter <= self.darken_time[0] + 5:
+            gray = ((155 + (title_loop_counter - self.darken_time[0]) / 5 * 100),) * 3
+        elif self.darken_time[1] <= title_loop_counter <= self.darken_time[1] + 5:
+            gray = ((155 + (title_loop_counter - self.darken_time[1]) / 5 * 100),) * 3
+        else:
+            gray = (255,) * 3
+
+
+        words_1 = self.titleFont.render(
+                    'QUANTUM', 
+                    True, gray)
+        words_2 = self.titleFont.render(
+                    'VORTEX',
+                    True, gray)
+
+        words_3 = self.titleSmallFont.render(
+                    'presented by 2018 NTU CSIE CAMP',
+                    True, (255, 255, 255))
+
+        (size_x_1, size_y_1) = words_1.get_size()
+        (size_x_2, size_y_2) = words_2.get_size()
+        (size_x_3, size_y_3) = words_3.get_size()
+        pos_x_1 = (viewConst.ScreenSize[0] - size_x_1)/2
+        pos_y_1 = (viewConst.ScreenSize[1] - size_y_1 - viewConst.titleFontSize - size_y_3)/2
+        pos_x_2 = (viewConst.ScreenSize[0] - size_x_2)/2
+        pos_y_2 = (viewConst.ScreenSize[1] - size_y_2 + viewConst.titleFontSize - size_y_3)/2
+        pos_x_3 = (viewConst.ScreenSize[0] - size_x_3)/2
+        pos_y_3 = (650 + size_y_3)
+
+        self.screen.blit(words_1, (pos_x_1, pos_y_1))
+        self.screen.blit(words_2, (pos_x_2, pos_y_2))
+        self.screen.blit(words_3, (pos_x_3, pos_y_3))
+
+        self.title_counter += 1
+
+        # update surface
+        pg.display.flip()
+        
     def render_stop(self):
         """
         Render the stop screen.
@@ -214,11 +276,27 @@ class GraphicalView(object):
         if self.last_update != model.STATE_STOP:
             self.last_update = model.STATE_STOP
 
-            # draw backgound
-            s = pg.Surface(viewConst.ScreenSize, pg.SRCALPHA)
-            s.fill((0, 0, 0, 128), (0, 0, *viewConst.GameSize)); self.screen.blit(s, (0,0))
+            self.stopCounter = 0
 
-            # update surface
+            # detect the edges of the current screen
+            tempStopSurface = pg.transform.laplacian(self.screen)
+            # make it monochrome
+            self.stopSurface = pg.Surface(self.screen.get_size())
+            pg.transform.threshold(self.stopSurface, tempStopSurface, viewConst.Color_Black, (0, 0, 0, 0), viewConst.Color_White)
+
+            # draw backgound
+            # s = pg.Surface(viewConst.ScreenSize, pg.SRCALPHA)
+            # s.fill((0, 0, 0, 128), (0, 0, *viewConst.GameSize)); self.screen.blit(s, (0,0))
+
+        self.stopCounter += 1
+        self.screen.fill(viewConst.Color_Black)
+        if self.stopCounter % 3 == 0:
+            gray = (min(50 + int(205 * min(1, self.stopCounter / 240)) + random.randint(-40, 40), 255), ) * 3
+            self.stopSurface.set_alpha(127 - gray[0] // 2.2)
+            self.screen.blit(self.stopSurface, (0, 0))
+            words = self.titleFont.render('PAUSE', True, gray)
+            pos = [x // 2 for x in viewConst.ScreenSize]
+            self.blit_at_center(self.screen, words, pos)
             pg.display.flip()
 
     def drawScoreboard(self):
@@ -248,6 +326,8 @@ class GraphicalView(object):
         for i, player in enumerate(self.model.player_list):
             if self.model.have_scoreboard[i]:
                 ballPos = tuple([x + random.randint(-5, 5) for x in pos[i]]) if self.model.bombtimer[i] != -1 else pos[i]
+                if self.model.bombtimer[i] == modelConst.bombtime - 1:
+                    self.vibrationSound.play()
                 gfxdraw.filled_circle(self.renderSurface, *ballPos, radius, player.color)
         # Team Player Lengths
         for i, player in enumerate(self.model.player_list):
@@ -363,15 +443,21 @@ class GraphicalView(object):
         self.blit_at_center(self.gameSurface, magicCircleEffect, magicCircle.pos)
 
     def drawCountDown(self, countdown):
-        if countdown.time / countdown.totaltime > 2/3:
+        timeRatio = countdown.time / countdown.totaltime
+        if timeRatio > 3/4:
             color = viewConst.Color_Firebrick
             figure = 3
-        elif countdown.time / countdown.totaltime > 1/3:
+        elif timeRatio > 2/4:
             color = viewConst.Color_Royalblue
             figure = 2
-        else:
+        elif timeRatio > 1/4:
             color = viewConst.Color_Darkolivegreen
             figure = 1
+        elif timeRatio > 23/127:
+            color = viewConst.Color_Orangered
+            figure = "GO!"
+        else:
+            return
         countDownFigure = self.countDownFont.render(str(figure), True, color)
         self.blit_at_center(self.gameSurface, countDownFigure, countdown.pos)
 
@@ -426,8 +512,9 @@ class GraphicalView(object):
         if viewConst.skillCardCutInTimesteps[2] >= cutin.time >= viewConst.skillCardCutInTimesteps[3]:
             # draw phrase 3
             timeRatio = 1 - ((viewConst.skillCardCutInTimesteps[2] - cutin.time) / viewConst.skillCardCutInTimePhrases[2])
+            imgx, imgy = self.cutInImageSmall[cutin.index][1].get_size()
             cutInSurface.blit(self.cutInImageSmall[cutin.index][1],
-                              (int(sizeSurface[0] * (3 / 32 + timeRatio / 2)), viewConst.GameSize[1] // 2 - viewConst.skillCardCutInPicSmallSize[1] - 25))
+                              (int(sizeSurface[0] * (8 / 32 + timeRatio / 2) - imgx // 2), viewConst.GameSize[1] // 2 - imgy - 25))
         
         elif viewConst.skillCardCutInTimesteps[3] >= cutin.time:
             # draw phrase 4
@@ -438,17 +525,21 @@ class GraphicalView(object):
             # draw phrase 5
             if cutin.time >= viewConst.skillCardCutInTimesteps[5]:
                 timeRatio = ((viewConst.skillCardCutInTimesteps[3] - cutin.time) / (viewConst.skillCardCutInTimesteps[3] - viewConst.skillCardCutInTimesteps[5]))
+                imgxs, imgys = self.cutInImageTransSmall[cutin.index].get_size()
+                imgxl, imgyl = self.cutInImageTransLarge[cutin.index].get_size()
                 cutInSurface.blit(self.cutInImageTransSmall[cutin.index],
-                                  (int(sizeSurface[0] * (3 / 32 + timeRatio / 64)), viewConst.GameSize[1] // 2 - viewConst.skillCardCutInPicSmallSize[1] - 25))            
+                                  (int(sizeSurface[0] * (8 / 32 + timeRatio / 64) - imgxs // 2), viewConst.GameSize[1] // 2 - imgys - 25))            
                 cutInSurface.blit(self.cutInImageTransLarge[cutin.index],
-                                  (int(sizeSurface[0] * (16 / 32 - timeRatio / 32)), viewConst.GameSize[1] // 2 - viewConst.skillCardCutInPicLargeSize[1] - 25))
+                                  (int(sizeSurface[0] * (21 / 32 - timeRatio / 32) - imgxl // 2), viewConst.GameSize[1] // 2 - imgyl - 25))
 
             elif viewConst.skillCardCutInTimesteps[5] >= cutin.time:
                 timeRatio = ((viewConst.skillCardCutInTimesteps[5] - cutin.time) / viewConst.skillCardCutInTimePhrases[5])
+                imgxs, imgys = self.cutInImageTransSmall[cutin.index].get_size()
+                imgxl, imgyl = self.cutInImageTransLarge[cutin.index].get_size()
                 cutInSurface.blit(self.cutInImageTransSmall[cutin.index],
-                                  (int(sizeSurface[0] * (7 / 64 + timeRatio * 4)), viewConst.GameSize[1] // 2 - viewConst.skillCardCutInPicSmallSize[1] - 25))            
+                                  (int(sizeSurface[0] * (17 / 64 + timeRatio * 4) - imgxs // 2), viewConst.GameSize[1] // 2 - imgys - 25))            
                 cutInSurface.blit(self.cutInImageTransLarge[cutin.index],
-                                  (int(sizeSurface[0] * (15 / 32 - timeRatio * 4)), viewConst.GameSize[1] // 2 - viewConst.skillCardCutInPicLargeSize[1] - 25))
+                                  (int(sizeSurface[0] * (20 / 32 - timeRatio * 4) - imgxl // 2), viewConst.GameSize[1] // 2 - imgyl - 25))
 
         self.blit_at_center(self.gameSurface, cutInSurface, cutin.pos)
 
@@ -510,6 +601,8 @@ class GraphicalView(object):
         # phase 0
         if time == 120:
             ypos = random.sample([i for i in range(100, 700 + 1, 100)], 5)
+            self.meowSound.play()
+            self.rainbowSound.play()
             for i in range(5):
                 pos = (random.randint(-400, 0), ypos[i])
                 self.renderObjects.append(renderObject.Nyancat(pos, 180))
@@ -537,10 +630,10 @@ class GraphicalView(object):
             #     r3 *= math.sin(r3.length() / r * math.pi / 2)
             #     newPos = r1 + r3
             #     return tuple(map(int, newPos))
-            if 0 < r - r3.length() < 40 and r3.length() > 0:
+            if 0 < r - r3.length() < 80 and r3.length() > 0:
                 r4 = r3
                 r4.scale_to_length(r)
-                r3 += 0.9 * (r4 - r3) * math.sin((r - r3.length()) / 40 * math.pi / 2)
+                r3 += 0.9 * (r4 - r3) * math.sin((r - r3.length()) / 80 * math.pi / 2)
                 newPos = r1 + r3
                 return tuple(map(int, newPos))
             else:
@@ -556,7 +649,7 @@ class GraphicalView(object):
             yblocks = range(0, 800, 10)
             for x in xblocks:
                 for y in yblocks:
-                    pos2 = waveFunc((x, y), radius)
+                    pos2 = waveFunc((x, y), radius + 15)
                     tempGameSurface.blit(self.gameSurface, (x, y), (*pos2, 10, 10))
             self.gameSurface = tempGameSurface
         # phase 2
@@ -609,7 +702,7 @@ class GraphicalView(object):
         if self.last_update != model.STATE_PLAY and self.last_update != model.STATE_STOP:
             self.renderObjects[:] = []
             pos = tuple([x // 2 for x in viewConst.GameSize])
-            self.renderObjects.append(renderObject.CountDown(pos, 180))
+            self.renderObjects.append(renderObject.CountDown(pos, 240))
         self.last_update = model.STATE_PLAY
 
         self.screen.fill(viewConst.Color_Black)
