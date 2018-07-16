@@ -240,18 +240,19 @@ class TeamAI( BaseAI ):
                                             -0.5*helper.bullet_acc*helper.getPlayerDashRemainTime(player.index)**2))
                             #stimulate
                             if self.stimulate_collision(st_player, bullet, helper.dash_cool):
-                                self.debug('attack when dashing')
+                                self.debug('attack %d when dashing' % player.index)
                                 return AI_MoveWayChange
                         else: #cooling
                             if self.stimulate_collision(player, bullet, helper.getPlayerDashCoolRemainTime(player.index)):
-                                self.debug('attack when cooling')
+                                self.debug('attack %d when cooling' % player.index)
                                 return AI_MoveWayChange
-                    else: #not dashing and not cooling
+                    '''else: #not dashing and not cooling
                         if self.stimulate_collision(player, bullet, 20):
                             self.debug('normal attack in grav')
-                            return AI_MoveWayChange
+                            return AI_MoveWayChange'''
                 else:  #in grav
                     if self.stimulate_collision(player, bullet, 15):
+                        self.debug('normal attack %d in grav' % player.index)
                         return AI_MoveWayChange					
             else:
                 if helper.checkPlayerInGrav(player.index):
