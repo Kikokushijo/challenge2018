@@ -229,7 +229,11 @@ class Helper(object):
         return self.model.player_list[self.index].dash_timer // 3
 
     def getMyDashCoolRemainTime(self):
-        return self.model.player_list[self.index].dash_cool
+        dashcooltime = self.model.player_list[self.index].dash_cool
+        if dashcooltime > modelConst.dash_cool :
+            return (dashcooltime - modelConst.dash_cool)//3 + modelConst.dash_cool
+        else :
+            return dashcooltime
 
     def checkMeInGrav(self):
         return self.model.player_list[self.index].is_ingrav
@@ -275,8 +279,11 @@ class Helper(object):
     def getPlayerDashCoolRemainTime(self, player_id):
         if not self.model.player_list[player_id].is_alive:
             return None
-        return self.model.player_list[player_id].dash_cool
-
+        dashcooltime = self.model.player_list[player_id].dash_cool
+        if dashcooltime > modelConst.dash_cool :
+            return (dashcooltime - modelConst.dash_cool)//3 + modelConst.dash_cool
+        else :
+            return dashcooltime
     def checkPlayerInGrav(self, player_id):
         if not self.model.player_list[player_id].is_alive:
             return None
