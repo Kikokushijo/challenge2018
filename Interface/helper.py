@@ -5,14 +5,14 @@ define Application Programming Interface(API)
 """
 def Mirroring(pos):
     Pos = Vec(pos)
-    if Pos.x < 0:
-        Pos.x = -Pos.x
-    if Pos.y < 0:
-        Pos.y = -Pos.y
-    if Pos.x > 800:
-        Pos.x = 1600 - Pos.x
-    if Pos.y > 800: 
-        Pos.y = 1600 - Pos.y 
+    if Pos.x < modelConst.head_radius:
+        Pos.x = 2*modelConst.head_radius-Pos.x
+    if Pos.y < modelConst.head_radius:
+        Pos.y = 2*modelConst.head_radius-Pos.y
+    if Pos.x > 800 - modelConst.head_radius:
+        Pos.x = 1600 + 2*modelConst.head_radius - Pos.x
+    if Pos.y > 800 - modelConst.head_radius: 
+        Pos.y = 1600 + 2*modelConst.head_radius - Pos.y 
     return tuple(Pos)
 
 class Helper(object):
