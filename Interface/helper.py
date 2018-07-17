@@ -223,10 +223,10 @@ class Helper(object):
             return None
         hPos = Vec(self.getMyHeadPos())
         hDir = Vec(self.getMyDir())
-        return Mirroring(Vec(hPos + modelConst.dash_speed * self.model.player_list[self.index].dash_timer * hDir))
+        return Mirroring(Vec(hPos + modelConst.dash_speed * (self.model.player_list[self.index].dash_timer // 3) * hDir))
 
     def getMyDashRemainTime(self):
-        return self.model.player_list[self.index].dash_timer
+        return self.model.player_list[self.index].dash_timer // 3
 
     def getMyDashCoolRemainTime(self):
         return self.model.player_list[self.index].dash_cool
@@ -270,7 +270,7 @@ class Helper(object):
     def getPlayerDashRemainTime(self, player_id):
         if not self.model.player_list[player_id].is_alive:
             return None
-        return self.model.player_list[player_id].dash_timer
+        return self.model.player_list[player_id].dash_timer // 3
 
     def getPlayerDashCoolRemainTime(self, player_id):
         if not self.model.player_list[player_id].is_alive:
