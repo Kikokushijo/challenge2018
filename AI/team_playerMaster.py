@@ -82,15 +82,23 @@ class TeamAI( BaseAI ):
             if (pos - Vec(g[0])).length_squared() < g[1] ** 2:
                 return True
         return False
-    def mirror(self, pos):
-        if pos.x < 0:
-            pos.x = - pos.x
-        if pos.y < 0:
-            pos.y = - pos.y
-        if pos.x > 800:
-            pos.x = 800 - (pos.x - 800)
-        if pos.y > 800:
-            pos.y = 800 - (pos.y - 800)
+    def mirror(self, pos, radius, direction=None):
+        if pos.x <= radius:
+            pos.x = radius + abs(pos.x-radius)
+            if direction is not None:
+                direction.x*=-1
+        if pos.y <= radius:
+            pos.y = radius + abs(pos.y-radius)
+            if direction is not None:
+                direction.y*=-1
+        if pos.x > 800-radius:
+            pos.x = 800-radius-abs(pos.x-(800-radius))
+            if direction is not None:
+                direction.x*=-1
+        if pos.y > 800 - radius:
+            pos.y = 800-radius-abs(pos.y-(800-radius))
+            if direction is not None:
+                direction.y*=-1
     def stay_alive(self):
         helper = self.helper
         hPos = Vec(helper.getMyHeadPos())
@@ -125,11 +133,11 @@ class TeamAI( BaseAI ):
         if not self.ingrav(hPos):
             nxt_bullet_list = [((b[1][0]+b[2][0]*b[4]*dash_time,b[1][1]+b[2][1]*b[4]*dash_time), b[3]) for b in bullet_list]
             nxtpos = hPos + Vec(head_dir * dash_speed * dash_time)
-            self.mirror(nxtpos)
+            self.mirror(nxtpos,head_radius)
             for b in nxt_bullet_list:
                 #print((Vec(b[0]) - nxtpos).length())
                 bv = Vec(b[0])
-                self.mirror(bv)
+                self.mirror(bv,helper.bullet_radius)
                 if (bv - nxtpos).length() <= (head_radius + b[1] + 1) * 2:
                     return AI_NothingToDo
             for b in body_list:
@@ -217,41 +225,63 @@ class TeamAI( BaseAI ):
             obj1.update()
 
             if self.too_close(obj1.pos, obj1.radius, obj2.pos, obj2.radius):
+                print('vvvvvafter stimulate')
+                print(obj1.pos, obj1.direction)
+                print(obj2.pos,obj2.direction)
+                print('^^^^^after stimulate')
                 return True
         return False
 
     def attack2(self):
         helper=self.helper
-        self.me=helper.model.player_list[helper.index]
+        self.me = helper.model.player_list[helper.index]
+        if helper.checkInvisible() or helper.checkMeInGrav():
+            return None
         if len(self.me.body_list) <= 1:
             return None
         bullet = Stimulate_Obj(self.gravs, self.me.pos, self.me.direction, helper.bullet_speed, helper.bullet_radius, helper.bullet_acc)
         for player in helper.model.player_list:
             if player.index == helper.index or not helper.checkPlayerAlive(player.index):
                 continue
-            if player.is_AI:
+            if True:#player.is_AI:
                 if not helper.checkPlayerInGrav(player.index):
                     if helper.getPlayerDashCoolRemainTime(player.index) > 0:
                         if helper.checkPlayerInvisible(player.index): #dashing
+                            dash_remain_time = helper.getPlayerDashRemainTime(player.index)
+                            if dash_remain_time >= 48:
+                                continue
                             #找到dash結束時head的pos，找到此時bullet的pos
-                            st_player=Stimulate_Obj(self.gravs,player)
-                            self.mirror(st_player.pos + st_player.direction * helper.dash_speed * helper.getPlayerDashRemainTime(player.index))
-                            self.mirror(bullet.pos + bullet.direction * (helper.bullet_speed * helper.getPlayerDashRemainTime(player.index) \
-                                            -0.5*helper.bullet_acc*helper.getPlayerDashRemainTime(player.index)**2))
+                            p=[Vec(player.pos), Vec(player.direction)]
+                            b=[Vec(bullet.pos),Vec(bullet.direction)]
+                            
+                            st_player = Stimulate_Obj(self.gravs, player)
+                            st_player.pos += st_player.direction * helper.dash_speed * dash_remain_time
+                            #print(st_player.direction , helper.dash_speed ,  helper.getPlayerDashRemainTime(player.index))
+                            self.mirror(st_player.pos, helper.head_radius, st_player.direction)
+                            
+                            bullet.pos+=bullet.direction * (helper.bullet_speed * dash_remain_time \
+                                            -0.5*helper.bullet_acc*dash_remain_time*(dash_remain_time-1))
+                            self.mirror(bullet.pos, helper.bullet_radius, bullet.direction)
+                            bullet.speed -= helper.bullet_acc * dash_remain_time
+                            pm=[Vec(st_player.pos), Vec(st_player.direction)]
+                            bm=[Vec(bullet.pos),Vec(bullet.direction)]
                             #stimulate
                             if self.stimulate_collision(st_player, bullet, helper.dash_cool):
                                 self.debug('attack %d when dashing' % player.index)
+                                print(*p)
+                                print(*b)
+                                print(*pm)
+                                print(*bm)
+                                for _ in range(dash_remain_time):
+                                    p[0] += p[1] * helper.dash_speed
+                                print('p[0]:',p[0])
                                 return AI_MoveWayChange
                         else: #cooling
                             if self.stimulate_collision(player, bullet, helper.getPlayerDashCoolRemainTime(player.index)):
                                 self.debug('attack %d when cooling' % player.index)
                                 return AI_MoveWayChange
-                    '''else: #not dashing and not cooling
-                        if self.stimulate_collision(player, bullet, 20):
-                            self.debug('normal attack in grav')
-                            return AI_MoveWayChange'''
                 else:  #in grav
-                    if self.stimulate_collision(player, bullet, 15):
+                    if self.stimulate_collision(player, bullet, 20):
                         self.debug('normal attack %d in grav' % player.index)
                         return AI_MoveWayChange					
             else:
