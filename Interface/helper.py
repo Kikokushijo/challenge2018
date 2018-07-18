@@ -126,7 +126,7 @@ class Helper(object):
             return None
         gPos, gRadius = self.getMyGrav()
         gPos = Vec(gPos)
-        inRadius = self.model.player_list[self.index].circling_radius - modelConst.dash_radius
+        inRadius = max(self.model.player_list[self.index].circling_radius - modelConst.dash_radius, 0)
         outRadius = self.model.player_list[self.index].circling_radius + modelConst.dash_radius
         count = 0
         for wb in self.model.wb_list:
