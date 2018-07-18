@@ -56,7 +56,12 @@ class Interface(object):
         #assert self.cutin_isdisplay == False
         for idx, player in enumerate(self.model.player_list):
             if player.is_AI:
-                AI_Dir = self.playerAI[player.index].decide()
+                try:
+                    AI_Dir = self.playerAI[player.index].decide()
+                except:
+                    AI_Dir = AI.AI_NothingToDo
+                if AI_Dir is None:
+                    continue
                 if AI_Dir == AI.AI_MoveWayChange:
                     self.evManager.Post(Event_MoveWayChange(player.index))
                 elif 2 <= AI_Dir <= 8:
