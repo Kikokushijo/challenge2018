@@ -10,9 +10,9 @@ def Mirroring(pos):
     if Pos.y < modelConst.head_radius:
         Pos.y = 2*modelConst.head_radius-Pos.y
     if Pos.x > 800 - modelConst.head_radius:
-        Pos.x = 1600 + 2*modelConst.head_radius - Pos.x
+        Pos.x = 1600 - 2*modelConst.head_radius - Pos.x
     if Pos.y > 800 - modelConst.head_radius: 
-        Pos.y = 1600 + 2*modelConst.head_radius - Pos.y 
+        Pos.y = 1600 - 2*modelConst.head_radius - Pos.y 
     return tuple(Pos)
 
 class Helper(object):
