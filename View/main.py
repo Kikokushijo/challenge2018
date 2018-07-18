@@ -172,6 +172,10 @@ class GraphicalView(object):
             pos = tuple([x // 2 for x in viewConst.GameSize])
             if self.has_cutin:
                 # self.trueExplosionSound.play()
+                if not str(self.CIImg[event.PlayerIndex]).isdigit():
+                    # self.trueExplosionSound.play()
+                    pass
+
                 self.renderObjects.append(renderObject.SkillCardCutIn(event.PlayerIndex, pos, viewConst.skillCardCutInTime, event.number, isdisplay=True))
                 if event.number == 6:
                     self.renderObjects.append(renderObject.Rainbow(event.PlayerIndex, (0, 0), 510, True))
