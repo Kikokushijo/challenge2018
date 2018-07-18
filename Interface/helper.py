@@ -104,13 +104,13 @@ class Helper(object):
         return [tuple(wb.pos) for wb in self.model.wb_list if wb.target == -1]
 
     def getExplosivePos(self):
-        return [tuple(item.pos) for item in self.model.Item_list if item.type == modelConst.PROP_TYPE_EXPLOSIVE]
+        return [tuple(item.pos) for item in self.model.item_list if item.type == modelConst.PROP_TYPE_EXPLOSIVE]
 
     def getMultibulletPos(self):
-        return [tuple(item.pos) for item in self.model.Item_list if item.type == modelConst.PROP_TYPE_MULTIBULLET]
+        return [tuple(item.pos) for item in self.model.item_list if item.type == modelConst.PROP_TYPE_MULTIBULLET]
 
     def getBigbulletPos(self):
-        return [tuple(item.pos) for item in self.model.Item_list if item.type == modelConst.PROP_TYPE_BIGBULLET]
+        return [tuple(item.pos) for item in self.model.item_list if item.type == modelConst.PROP_TYPE_BIGBULLET]
     
     def canGetByExplosion(self, Epos):
         count = 0
